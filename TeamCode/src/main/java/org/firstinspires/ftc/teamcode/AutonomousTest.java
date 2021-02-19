@@ -25,12 +25,13 @@ import org.openftc.easyopencv.OpenCvPipeline;
 public class AutonomousTest extends OpMode {
     OpenCvCamera webcam;
     BingusPipeline pipeline;
+    public BingusPipeline.RandomizationFactor ringAmount;
     ElapsedTime whenAreWe = new ElapsedTime();
     DcMotor FRmotor = hardwareMap.get(DcMotor.class, "FRmotor");                    //Hardware mapping and declaration of devices
     DcMotor RRmotor = hardwareMap.get(DcMotor.class, "RRmotor");
     DcMotor FLmotor = hardwareMap.get(DcMotor.class, "FLmotor");
     DcMotor RLmotor = hardwareMap.get(DcMotor.class, "RLmotor");
-    DcMotor Worm = hardwareMap.get(DcMotor.class, "worm");
+    DcMotor Worm = hardwareMap.get(DcMotor.class, "worm");//TODO:Properly unfold the robot according to wobble placement and robot size
     Servo Grabber = hardwareMap.get(Servo.class,"grabber");
     @Override
     public void init(){
@@ -50,7 +51,7 @@ public class AutonomousTest extends OpMode {
     @SuppressLint("DefaultLocale")
     @Override
     public void init_loop(){
-        BingusPipeline.RandomizationFactor ringAmount=pipeline.getAnal();
+        ringAmount=pipeline.getAnal();
         telemetry.addData("Best guess of ring amount: ",ringAmount);
         telemetry.addData("Frame Count", webcam.getFrameCount());
         telemetry.addData("FPS", String.format("%.2f", webcam.getFps()));
@@ -64,13 +65,16 @@ public class AutonomousTest extends OpMode {
     public void start(){
         Grabber.scaleRange(0.22,0.66);
         Grabber.setPosition(1);
+        whenAreWe.reset();
     }
     @Override
     public void loop(){
-        whenAreWe.reset();
         double for_axis=0;
         double strafe_axis=0;
         double turn_axis=0;
+        FRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);//TODO:Add proper movement to robot according to wobble placement and randomization.
+        FRmotor.setTargetPosition(6600);//TODO:Figure out a way to accurately move without lobotomizing the robot.
+        FRmotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         FRmotor.setPower(for_axis + strafe_axis + turn_axis);                                   //wheel motor movement
         RRmotor.setPower(for_axis - strafe_axis + turn_axis);
         FLmotor.setPower(-for_axis + strafe_axis + turn_axis);
@@ -92,7 +96,7 @@ public class AutonomousTest extends OpMode {
         int avgB1,avgR1;
         int avgB2,avgR2;
         int offsetX=60,offsetY=15;
-        Point regLowerA =new Point(40,144), regHigherA =new Point(40,114);
+        Point regLowerA =new Point(40,144), regHigherA =new Point(40,114);//FIXME:Fix submat size according to images from webcam and ring placement
         Point regLowerB =new Point(regLowerA.x+offsetX, regLowerA.y+offsetY), regHigherB =new Point(regHigherA.x+offsetX, regHigherA.y+offsetY);
         private volatile RandomizationFactor position = RandomizationFactor.ZERO;
         void inputToCb(Mat input) {
