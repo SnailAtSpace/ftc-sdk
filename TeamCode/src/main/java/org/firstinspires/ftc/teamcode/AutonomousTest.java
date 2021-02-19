@@ -47,6 +47,7 @@ public class AutonomousTest extends OpMode {
         telemetry.addLine("Waiting for start");
         telemetry.update();
     }
+    @SuppressLint("DefaultLocale")
     @Override
     public void init_loop(){
         BingusPipeline.RandomizationFactor ringAmount=pipeline.getAnal();
@@ -64,7 +65,6 @@ public class AutonomousTest extends OpMode {
         Grabber.scaleRange(0.22,0.66);
         Grabber.setPosition(1);
     }
-    @SuppressLint("DefaultLocale")
     @Override
     public void loop(){
         whenAreWe.reset();
