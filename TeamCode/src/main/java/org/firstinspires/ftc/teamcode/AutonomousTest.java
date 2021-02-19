@@ -20,12 +20,12 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 
-@Autonomous(name="Autonomous, but it's bad", group = "")
+@Autonomous(name="Autonomous, but it's bad")
 
 public class AutonomousTest extends OpMode {
     OpenCvCamera webcam;
     BingusPipeline pipeline;
-    ElapsedTime whenAreWe = new ElapsedTime();;
+    ElapsedTime whenAreWe = new ElapsedTime();
     DcMotor FRmotor = hardwareMap.get(DcMotor.class, "FRmotor");                    //Hardware mapping and declaration of devices
     DcMotor RRmotor = hardwareMap.get(DcMotor.class, "RRmotor");
     DcMotor FLmotor = hardwareMap.get(DcMotor.class, "FLmotor");
