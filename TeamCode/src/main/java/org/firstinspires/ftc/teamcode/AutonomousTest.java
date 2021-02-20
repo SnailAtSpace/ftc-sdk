@@ -66,9 +66,6 @@ public class AutonomousTest extends OpMode {
     }
     @Override
     public void start(){
-        double for_axis=0;
-        double strafe_axis=0;
-        double turn_axis=0;
         Grabber.scaleRange(0.22,0.66);
         Grabber.setPosition(1);
         whenAreWe.reset();
