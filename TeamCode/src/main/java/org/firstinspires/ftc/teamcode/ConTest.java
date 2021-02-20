@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class ConTest extends LinearOpMode {
   @Override
   public void runOpMode() {                                                                         //Initialization phase
+    final int LogPower=3;
     DcMotor FRmotor = hardwareMap.get(DcMotor.class, "FRmotor");                        //Hardware mapping and declaration of devices
     DcMotor RRmotor = hardwareMap.get(DcMotor.class, "RRmotor");
     DcMotor FLmotor = hardwareMap.get(DcMotor.class, "FLmotor");
@@ -22,13 +23,14 @@ public class ConTest extends LinearOpMode {
     waitForStart();
     if (opModeIsActive()) {                                                                         //Pre-run phase
       boolean grab = false;
-      Grabber.setPosition(0.66);
+      Grabber.scaleRange(0,0.66);
+      Grabber.setPosition(1);
       while (opModeIsActive()) {                                                                    //Run phase
         boolean prevgrab = grab;                                                                    //Data fetching
-        double for_axis = LogarithmifyInput(gamepad1.left_stick_y,2);
-        double strafe_axis = LogarithmifyInput(gamepad1.left_stick_x,2);
-        double turn_axis = LogarithmifyInput(gamepad1.right_stick_x,2);
-        double worm_axis = LogarithmifyInput(gamepad2.right_stick_y,2);
+        double for_axis = LogarithmifyInput(gamepad1.left_stick_y,LogPower);
+        double strafe_axis = LogarithmifyInput(gamepad1.left_stick_x,LogPower);
+        double turn_axis = LogarithmifyInput(gamepad1.right_stick_x,LogPower);
+        double worm_axis = LogarithmifyInput(gamepad2.right_stick_y,LogPower);
         grab = gamepad2.right_bumper;
         FRmotor.setPower(for_axis + strafe_axis + turn_axis);                                       //wheel motor movement
         RRmotor.setPower(for_axis - strafe_axis + turn_axis);
@@ -36,7 +38,7 @@ public class ConTest extends LinearOpMode {
         RLmotor.setPower(-for_axis - strafe_axis + turn_axis);
         Worm.setPower(worm_axis);
         if(!prevgrab && grab) {                                                                     //arm servo movement
-          Grabber.setPosition(0.82-Grabber.getPosition());                                          //0.88=0.66(open state)+0.22(closed state)
+          Grabber.setPosition(1-Grabber.getPosition());                                          //0.88=0.66(open state)+0.22(closed state)
         }
       }
     }

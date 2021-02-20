@@ -51,6 +51,10 @@ public class AutonomousTest extends OpMode {
         telemetry.update();
         FLmotor.setDirection(DcMotorSimple.Direction.REVERSE);
         RLmotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException ignored) {
+        }
     }
     @SuppressLint("DefaultLocale")
     @Override
@@ -64,6 +68,10 @@ public class AutonomousTest extends OpMode {
         telemetry.addData("Overhead time ms", webcam.getOverheadTimeMs());
         telemetry.addData("Theoretical max FPS", webcam.getCurrentPipelineMaxFps());
         telemetry.update();
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException ignored) {
+        }
     }
     @Override
     public void start(){
@@ -112,47 +120,48 @@ public class AutonomousTest extends OpMode {
         }
         Mat region1_Cb;
         Mat region2_Cb;
-        Mat region1_Cr;
-        Mat region2_Cr;
+//        Mat region1_Cr;
+//        Mat region2_Cr;
         Mat YCrCb = new Mat();
         Mat Cb = new Mat();
-        Mat Cr = new Mat();
+//        Mat Cr = new Mat();
         int avgB1,avgR1;
         int avgB2,avgR2;
-        int offsetX=60,offsetY=15;
-        Point regLowerA =new Point(40,144), regHigherA =new Point(40,114);//FIXME:Fix submat size according to images from webcam and ring placement
-        Point regLowerB =new Point(regLowerA.x+offsetX, regLowerA.y+offsetY), regHigherB =new Point(regHigherA.x+offsetX, regHigherA.y+offsetY);
+        final int offsetX=10,offsetY=5;
+        Point regLowerA=new Point(40,144), regHigherA=new Point(40,114);//FIXME:Fix submat size according to images from webcam and ring placement
+        Point regLowerB=new Point(regLowerA.x+offsetX, regLowerA.y+offsetY), regHigherB=new Point(regHigherA.x+offsetX, regHigherA.y+offsetY);
         private volatile RandomizationFactor position = RandomizationFactor.ZERO;
         void inputToCb(Mat input) {
             Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);
             Core.extractChannel(YCrCb, Cb, 2);
         }
-        void inputToCr(Mat input){
-            Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);
-            Core.extractChannel(YCrCb, Cr, 3);
-        }
+//        void inputToCr(Mat input){
+//            Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);
+//            Core.extractChannel(YCrCb, Cr, 1);
+//        }
         @Override
         public void init(Mat firstFrame){
             inputToCb(firstFrame);
             region1_Cb = Cb.submat(new Rect(regLowerA, regLowerB));
             region2_Cb = Cb.submat(new Rect(regHigherA, regHigherB));
-            region1_Cr = Cr.submat(new Rect(regLowerA, regLowerB));
-            region2_Cr = Cr.submat(new Rect(regHigherA, regHigherB));
+//            region1_Cr = Cr.submat(new Rect(regLowerA, regLowerB));
+//            region2_Cr = Cr.submat(new Rect(regHigherA, regHigherB));
+
         }
         @Override
         public Mat processFrame(Mat input) {
             inputToCb(input);
-            inputToCr(input);
+//            inputToCr(input);
             avgB1 = (int) Core.mean(region1_Cb).val[0];
             avgB2 = (int) Core.mean(region2_Cb).val[0];
-            avgR1 = (int) Core.mean(region1_Cr).val[0];
-            avgR2 = (int) Core.mean(region2_Cr).val[0];
+//            avgR1 = (int) Core.mean(region1_Cr).val[0];
+//            avgR2 = (int) Core.mean(region2_Cr).val[0];
             Imgproc.rectangle(input, regLowerA, regLowerB, new Scalar(255,0,0), 2);
             Imgproc.rectangle(input, regHigherA, regHigherB, new Scalar(255,0,0), 2);
-            if(avgB1<=-0.5&&avgR1>=0.5&&avgB2<=-0.5&&avgR2>=0.5){
+            if(avgB1<=-0.5&&avgB2<=-0.5){
                 position = RandomizationFactor.FOUR;
             }                                  //both orange
-            else if(avgB1<=-0.5&&avgR1>=0.5&&avgB2>-0.5&&avgR2<0.5){
+            else if(avgB1<=-0.5&&avgB2>-0.5){
                 position = RandomizationFactor.ONE;
             }
             else position = RandomizationFactor.ZERO;
