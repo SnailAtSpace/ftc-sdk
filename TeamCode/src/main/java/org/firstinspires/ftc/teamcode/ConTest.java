@@ -36,7 +36,7 @@ public class ConTest extends LinearOpMode {
         RLmotor.setPower(-for_axis - strafe_axis + turn_axis);
         Worm.setPower(worm_axis);
         if(!prevgrab && grab) {                                                                     //arm servo movement
-          Grabber.setPosition(0.86-Grabber.getPosition());                                          //0.88=0.66(open state)+0.22(closed state)
+          Grabber.setPosition(0.82-Grabber.getPosition());                                          //0.88=0.66(open state)+0.22(closed state)
         }
       }
     }

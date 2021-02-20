@@ -26,16 +26,17 @@ import org.openftc.easyopencv.OpenCvPipeline;
 public class AutonomousTest extends OpMode {
     OpenCvCamera webcam;
     BingusPipeline pipeline;
+    DcMotor FRmotor;DcMotor RRmotor;DcMotor FLmotor;DcMotor RLmotor;DcMotor Worm;Servo Grabber;
     public BingusPipeline.RandomizationFactor ringAmount;
     ElapsedTime whenAreWe = new ElapsedTime();
-    DcMotor FRmotor = hardwareMap.get(DcMotor.class, "FRmotor");                    //Hardware mapping and declaration of devices
-    DcMotor RRmotor = hardwareMap.get(DcMotor.class, "RRmotor");
-    DcMotor FLmotor = hardwareMap.get(DcMotor.class, "FLmotor");
-    DcMotor RLmotor = hardwareMap.get(DcMotor.class, "RLmotor");
-    DcMotor Worm = hardwareMap.get(DcMotor.class, "worm");//TODO:Properly unfold the robot according to wobble placement and robot size
-    Servo Grabber = hardwareMap.get(Servo.class,"grabber");
     @Override
     public void init(){
+        FRmotor = hardwareMap.get(DcMotor.class, "FRmotor");
+        RRmotor = hardwareMap.get(DcMotor.class, "RRmotor");
+        FLmotor = hardwareMap.get(DcMotor.class, "FLmotor");
+        RLmotor = hardwareMap.get(DcMotor.class, "RLmotor");
+        Worm = hardwareMap.get(DcMotor.class, "worm");
+        Grabber = hardwareMap.get(Servo.class,"grabber");
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         pipeline = new BingusPipeline();
@@ -67,12 +68,11 @@ public class AutonomousTest extends OpMode {
     @Override
     public void start(){
         Grabber.scaleRange(0.22,0.66);
-        Grabber.setPosition(1);
+        Grabber.setPosition(0);
         whenAreWe.reset();
         Worm.setPower(1);
         while(whenAreWe.time()<=1000)
         Worm.setPower(0);
-        Grabber.setPosition(0);
         MoveByTicks(6600,2);
         if(ringAmount==BingusPipeline.RandomizationFactor.ZERO||ringAmount==BingusPipeline.RandomizationFactor.FOUR) {
             MoveByTicks(1300, 1);
