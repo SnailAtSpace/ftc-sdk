@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -47,6 +48,8 @@ public class AutonomousTest extends OpMode {
         });
         telemetry.addLine("Waiting for start");
         telemetry.update();
+        FLmotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        RLmotor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
     @SuppressLint("DefaultLocale")
     @Override
@@ -63,22 +66,46 @@ public class AutonomousTest extends OpMode {
     }
     @Override
     public void start(){
-        Grabber.scaleRange(0.22,0.66);
-        Grabber.setPosition(1);
-        whenAreWe.reset();
-    }
-    @Override
-    public void loop(){
         double for_axis=0;
         double strafe_axis=0;
         double turn_axis=0;
-        FRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);//TODO:Add proper movement to robot according to wobble placement and randomization.
-        FRmotor.setTargetPosition(6600);//TODO:Figure out a way to accurately move without lobotomizing the robot.
-        FRmotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        FRmotor.setPower(for_axis + strafe_axis + turn_axis);                                   //wheel motor movement
-        RRmotor.setPower(for_axis - strafe_axis + turn_axis);
-        FLmotor.setPower(-for_axis + strafe_axis + turn_axis);
-        RLmotor.setPower(-for_axis - strafe_axis + turn_axis);
+        Grabber.scaleRange(0.22,0.66);
+        Grabber.setPosition(1);
+        whenAreWe.reset();
+        Worm.setPower(1);
+        while(whenAreWe.time()<=1000)
+        Worm.setPower(0);
+        Grabber.setPosition(0);
+        MoveByTicks(6600,2);
+        if(ringAmount==BingusPipeline.RandomizationFactor.ZERO||ringAmount==BingusPipeline.RandomizationFactor.FOUR) {
+            MoveByTicks(1300, 1);
+            if(ringAmount==BingusPipeline.RandomizationFactor.ZERO){
+                MoveByTicks(300,2);
+                Grabber.setPosition(1);
+                MoveByTicks(300,0);
+            }
+            else {
+                MoveByTicks(3000,2);
+                Grabber.setPosition(1);
+                MoveByTicks(3000,0);
+            }
+            MoveByTicks(1300, 3);
+        }
+        else {
+            MoveByTicks(1300,3);
+            MoveByTicks(2000,2);
+            Grabber.setPosition(1);
+            MoveByTicks(1300,1);
+            MoveByTicks(2000,0);
+        }
+        MoveByTicks(6600,0);
+    }
+    @Override
+    public void loop(){
+        try {
+            Thread.sleep(50);
+        } catch (InterruptedException ignored) {
+        }
     }
     public static class BingusPipeline extends OpenCvPipeline {
         public enum RandomizationFactor {
@@ -137,5 +164,19 @@ public class AutonomousTest extends OpMode {
         public RandomizationFactor getAnal(){
             return position;
         }
+    }
+    public void MoveByTicks(int ticks,int direction){
+        FRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);//TODO:Adjust movement of robot according to wobble placement and field measurements on-site.
+        FRmotor.setTargetPosition((int)(ticks*Math.signum((direction-1)*2-1)));
+        FRmotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        FRmotor.setPower(1);
+        while(FRmotor.isBusy()) {
+            RRmotor.setPower(1*Math.signum(direction%3*2-1));
+            FLmotor.setPower(1*Math.signum(direction%3*2-1));
+            RLmotor.setPower(1*Math.signum((direction-1)*2-1));
+        }
+        RRmotor.setPower(0);
+        FLmotor.setPower(0);
+        RLmotor.setPower(0);
     }
 }
