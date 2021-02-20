@@ -118,8 +118,8 @@ public class AutonomousTest extends OpMode {
             ONE,
             FOUR
         }
-        Mat region1_Cb;
-        Mat region2_Cb;
+        Mat region1_Cb = new Mat();
+        Mat region2_Cb = new Mat();
 //        Mat region1_Cr;
 //        Mat region2_Cr;
         Mat YCrCb = new Mat();
@@ -160,11 +160,17 @@ public class AutonomousTest extends OpMode {
             Imgproc.rectangle(input, regHigherA, regHigherB, new Scalar(255,0,0), 2);
             if(avgB1<=-0.5&&avgB2<=-0.5){
                 position = RandomizationFactor.FOUR;
+                Imgproc.rectangle(input, regLowerA, regLowerB, new Scalar(255,255,0), 2);
+                Imgproc.rectangle(input, regHigherA, regHigherB, new Scalar(255,255,0), 2);
             }                                  //both orange
             else if(avgB1<=-0.5&&avgB2>-0.5){
                 position = RandomizationFactor.ONE;
+                Imgproc.rectangle(input, regLowerA, regLowerB, new Scalar(255,255,0), 2);
+                Imgproc.rectangle(input, regHigherA, regHigherB, new Scalar(255,0,0), 2);
             }
-            else position = RandomizationFactor.ZERO;
+            else {
+                position = RandomizationFactor.ZERO;
+            }
             return input;
         }
         public RandomizationFactor getAnal(){
