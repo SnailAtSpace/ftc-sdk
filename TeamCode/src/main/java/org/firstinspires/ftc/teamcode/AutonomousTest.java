@@ -129,7 +129,7 @@ public class AutonomousTest extends OpMode {
         int avgB2,avgR2;
         final int offsetX=10,offsetY=5;
         Point regLowerA=new Point(40,144), regHigherA=new Point(40,114);//FIXME:Fix submat size according to images from webcam and ring placement
-        Point regLowerB=new Point(regLowerA.x+offsetX, regLowerA.y+offsetY), regHigherB=new Point(regHigherA.x+offsetX, regHigherA.y+offsetY);
+        Point regLowerB=new Point(40+offsetX, 144+offsetY), regHigherB=new Point(40+offsetX, 114+offsetY);
         private volatile RandomizationFactor position = RandomizationFactor.ZERO;
         void inputToCb(Mat input) {
             Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);
