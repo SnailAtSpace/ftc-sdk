@@ -22,6 +22,7 @@ public class ConTest extends LinearOpMode {
     waitForStart();
     if (opModeIsActive()) {                                                                         //Pre-run phase
       boolean grab = false;
+      Grabber.setPosition(0.66);
       while (opModeIsActive()) {                                                                    //Run phase
         boolean prevgrab = grab;                                                                    //Data fetching
         double for_axis = LogarithmifyInput(gamepad1.left_stick_y,2);
@@ -35,7 +36,7 @@ public class ConTest extends LinearOpMode {
         RLmotor.setPower(-for_axis - strafe_axis + turn_axis);
         Worm.setPower(worm_axis);
         if(!prevgrab && grab) {                                                                     //arm servo movement
-          Grabber.setPosition(0.88-Grabber.getPosition());                                          //0.88=0.66(open state)+0.22(closed state)
+          Grabber.setPosition(0.86-Grabber.getPosition());                                          //0.88=0.66(open state)+0.22(closed state)
         }
       }
     }
