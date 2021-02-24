@@ -23,7 +23,7 @@ public class ConTest extends LinearOpMode {
     waitForStart();
     if (opModeIsActive()) {                                                                         //Pre-run phase
       boolean grab = false;
-      Grabber.scaleRange(0,0.66);
+      Grabber.scaleRange(0.2,0.66);
       Grabber.setPosition(1);
       while (opModeIsActive()) {                                                                    //Run phase
         boolean prevgrab = grab;                                                                    //Data fetching

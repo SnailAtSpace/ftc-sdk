@@ -28,7 +28,7 @@ public class AutonomousTest extends OpMode {
     BingusPipeline pipeline;
     DcMotor FRmotor;DcMotor RRmotor;DcMotor FLmotor;DcMotor RLmotor;DcMotor Worm;Servo Grabber;
     public BingusPipeline.RandomizationFactor ringAmount;
-    ElapsedTime whenAreWe = new ElapsedTime();
+    ElapsedTime whenAreWe = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     @Override
     public void init(){
         FRmotor = hardwareMap.get(DcMotor.class, "FRmotor");
@@ -75,38 +75,38 @@ public class AutonomousTest extends OpMode {
     }
     @Override
     public void start(){
-        Grabber.scaleRange(0.22,0.66);
+        Grabber.scaleRange(0.2,0.66);
         Grabber.setPosition(0);
         whenAreWe.reset();
-        Worm.setPower(1);
-        while(whenAreWe.time()<=1000)
-        Worm.setPower(0);
-        MoveByTicks(6600,2);
-        if(ringAmount==BingusPipeline.RandomizationFactor.ZERO||ringAmount==BingusPipeline.RandomizationFactor.FOUR) {
-            MoveByTicks(1300, 1);
-            if(ringAmount==BingusPipeline.RandomizationFactor.ZERO){
-                MoveByTicks(300,2);
-                Grabber.setPosition(1);
-                MoveByTicks(300,0);
-            }
-            else {
-                MoveByTicks(3000,2);
-                Grabber.setPosition(1);
-                MoveByTicks(3000,0);
-            }
-            MoveByTicks(1300, 3);
-        }
-        else {
-            MoveByTicks(1300,3);
-            MoveByTicks(2000,2);
-            Grabber.setPosition(1);
-            MoveByTicks(1300,1);
-            MoveByTicks(2000,0);
-        }
-        MoveByTicks(6600,0);
     }
     @Override
     public void loop(){
+        Worm.setPower(-1);
+        while(whenAreWe.time()<=100){}
+            Worm.setPower(0);
+//        MoveByTicks(6600,2);
+//        if(ringAmount==BingusPipeline.RandomizationFactor.ZERO||ringAmount==BingusPipeline.RandomizationFactor.FOUR) {
+//            MoveByTicks(1300, 1);
+//            if(ringAmount==BingusPipeline.RandomizationFactor.ZERO){
+//                MoveByTicks(300,2);
+//                Grabber.setPosition(1);
+//                MoveByTicks(300,0);
+//            }
+//            else {
+//                MoveByTicks(3000,2);
+//                Grabber.setPosition(1);
+//                MoveByTicks(3000,0);
+//            }
+//            MoveByTicks(1300, 3);
+//        }
+//        else {
+//            MoveByTicks(1300,3);
+//            MoveByTicks(2000,2);
+//            Grabber.setPosition(1);
+//            MoveByTicks(1300,1);
+//            MoveByTicks(2000,0);
+//        }
+//        MoveByTicks(6600,0);
         try {
             Thread.sleep(50);
         } catch (InterruptedException ignored) {
@@ -127,7 +127,7 @@ public class AutonomousTest extends OpMode {
 //        Mat Cr = new Mat();
         int avgB1,avgR1;
         int avgB2,avgR2;
-        final int offsetX=10,offsetY=5;
+        final int offsetX=100,offsetY=5;
         Point regLowerA=new Point(40,144), regHigherA=new Point(40,114);//FIXME:Fix submat size according to images from webcam and ring placement
         Point regLowerB=new Point(40+offsetX, 144+offsetY), regHigherB=new Point(40+offsetX, 114+offsetY);
         private volatile RandomizationFactor position = RandomizationFactor.ZERO;
