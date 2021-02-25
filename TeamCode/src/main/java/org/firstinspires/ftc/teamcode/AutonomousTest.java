@@ -127,9 +127,9 @@ public class AutonomousTest extends OpMode {
 //        Mat Cr = new Mat();
         int avgB1,avgR1;
         int avgB2,avgR2;
-        final int offsetX=100,offsetY=5;
-        Point regLowerA=new Point(40,144), regHigherA=new Point(40,114);//FIXME:Fix submat size according to images from webcam and ring placement
-        Point regLowerB=new Point(40+offsetX, 144+offsetY), regHigherB=new Point(40+offsetX, 114+offsetY);
+        final int offsetX=20,offsetY=5;
+        Point regLowerA=new Point(0,185), regHigherA=new Point(0,155);//FIXME:Fix submat size according to images from webcam and ring placement
+        Point regLowerB=new Point(offsetX, 185+offsetY), regHigherB=new Point(offsetX, 155+offsetY);
         private volatile RandomizationFactor position = RandomizationFactor.ZERO;
         void inputToCb(Mat input) {
             Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);
@@ -158,12 +158,12 @@ public class AutonomousTest extends OpMode {
 //            avgR2 = (int) Core.mean(region2_Cr).val[0];
             Imgproc.rectangle(input, regLowerA, regLowerB, new Scalar(255,0,0), 2);
             Imgproc.rectangle(input, regHigherA, regHigherB, new Scalar(255,0,0), 2);
-            if(avgB1<=-0.5&&avgB2<=-0.5){
+            if(avgB1<=-0.3&&avgB2<=-0.3){
                 position = RandomizationFactor.FOUR;
                 Imgproc.rectangle(input, regLowerA, regLowerB, new Scalar(255,255,0), 2);
                 Imgproc.rectangle(input, regHigherA, regHigherB, new Scalar(255,255,0), 2);
             }                                  //both orange
-            else if(avgB1<=-0.5&&avgB2>-0.5){
+            else if(avgB1<=-0.3&&avgB2>-0.3){
                 position = RandomizationFactor.ONE;
                 Imgproc.rectangle(input, regLowerA, regLowerB, new Scalar(255,255,0), 2);
                 Imgproc.rectangle(input, regHigherA, regHigherB, new Scalar(255,0,0), 2);
