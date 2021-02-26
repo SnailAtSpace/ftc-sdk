@@ -27,7 +27,8 @@ public class AutonomousTest extends OpMode {
     OpenCvCamera webcam;
     BingusPipeline pipeline;
     DcMotor FRmotor;DcMotor RRmotor;DcMotor FLmotor;DcMotor RLmotor;DcMotor Worm;Servo Grabber;
-    public BingusPipeline.RandomizationFactor ringAmount;
+    public BingusPipeline.RandomizationFactor ringData;
+    public
     ElapsedTime whenAreWe = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     @Override
     public void init(){
@@ -59,8 +60,10 @@ public class AutonomousTest extends OpMode {
     @SuppressLint("DefaultLocale")
     @Override
     public void init_loop(){
-        ringAmount=pipeline.getAnal();
-        telemetry.addData("Best guess of ring amount: ",ringAmount);
+        ringData=pipeline.getAnal();
+        telemetry.addData("Best guess of ring amount: ",ringData);
+        telemetry.addData("Lower: ",pipeline.getLower());
+        telemetry.addData("Higher: ",pipeline.getHigher());
         telemetry.addData("Frame Count", webcam.getFrameCount());
         telemetry.addData("FPS", String.format("%.2f", webcam.getFps()));
         telemetry.addData("Total frame time ms", webcam.getTotalFrameTimeMs());
@@ -83,30 +86,8 @@ public class AutonomousTest extends OpMode {
     public void loop(){
         Worm.setPower(-1);
         while(whenAreWe.time()<=100){}
-            Worm.setPower(0);
-//        MoveByTicks(6600,2);
-//        if(ringAmount==BingusPipeline.RandomizationFactor.ZERO||ringAmount==BingusPipeline.RandomizationFactor.FOUR) {
-//            MoveByTicks(1300, 1);
-//            if(ringAmount==BingusPipeline.RandomizationFactor.ZERO){
-//                MoveByTicks(300,2);
-//                Grabber.setPosition(1);
-//                MoveByTicks(300,0);
-//            }
-//            else {
-//                MoveByTicks(3000,2);
-//                Grabber.setPosition(1);
-//                MoveByTicks(3000,0);
-//            }
-//            MoveByTicks(1300, 3);
-//        }
-//        else {
-//            MoveByTicks(1300,3);
-//            MoveByTicks(2000,2);
-//            Grabber.setPosition(1);
-//            MoveByTicks(1300,1);
-//            MoveByTicks(2000,0);
-//        }
-//        MoveByTicks(6600,0);
+        Worm.setPower(0);
+        
         try {
             Thread.sleep(50);
         } catch (InterruptedException ignored) {
@@ -125,12 +106,13 @@ public class AutonomousTest extends OpMode {
         Mat YCrCb = new Mat();
         Mat Cb = new Mat();
 //        Mat Cr = new Mat();
-        int avgB1,avgR1;
-        int avgB2,avgR2;
-        final int offsetX=20,offsetY=5;
-        Point regLowerA=new Point(0,185), regHigherA=new Point(0,155);//FIXME:Fix submat size according to images from webcam and ring placement
-        Point regLowerB=new Point(offsetX, 185+offsetY), regHigherB=new Point(offsetX, 155+offsetY);
-        private volatile RandomizationFactor position = RandomizationFactor.ZERO;
+        float avgB1;
+        float avgB2;
+        final int xL=20,yL=140,xH=20,yH=100;
+        final int offsetX=60,offsetY=10;
+        Point regLowerA=new Point(xL,yL), regHigherA=new Point(xH,yH);
+        Point regLowerB=new Point(xL+offsetX, yL+offsetY), regHigherB=new Point(xH+offsetX, yH+offsetY);
+        private volatile RandomizationFactor position;
         void inputToCb(Mat input) {
             Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);
             Core.extractChannel(YCrCb, Cb, 2);
@@ -151,21 +133,18 @@ public class AutonomousTest extends OpMode {
         @Override
         public Mat processFrame(Mat input) {
             inputToCb(input);
-//            inputToCr(input);
-            avgB1 = (int) Core.mean(region1_Cb).val[0];
-            avgB2 = (int) Core.mean(region2_Cb).val[0];
-//            avgR1 = (int) Core.mean(region1_Cr).val[0];
-//            avgR2 = (int) Core.mean(region2_Cr).val[0];
+            avgB1 = (float) Core.mean(region1_Cb).val[0];
+            avgB2 = (float) Core.mean(region2_Cb).val[0];
             Imgproc.rectangle(input, regLowerA, regLowerB, new Scalar(255,0,0), 2);
             Imgproc.rectangle(input, regHigherA, regHigherB, new Scalar(255,0,0), 2);
-            if(avgB1<=-0.3&&avgB2<=-0.3){
+            if(avgB1<=110&&avgB2<=110){
                 position = RandomizationFactor.FOUR;
-                Imgproc.rectangle(input, regLowerA, regLowerB, new Scalar(255,255,0), 2);
-                Imgproc.rectangle(input, regHigherA, regHigherB, new Scalar(255,255,0), 2);
+                Imgproc.rectangle(input, regLowerA, regLowerB, new Scalar(0,0,255), 2);
+                Imgproc.rectangle(input, regHigherA, regHigherB, new Scalar(0,0,255), 2);
             }                                  //both orange
-            else if(avgB1<=-0.3&&avgB2>-0.3){
+            else if(avgB1<=110&&avgB2>110){
                 position = RandomizationFactor.ONE;
-                Imgproc.rectangle(input, regLowerA, regLowerB, new Scalar(255,255,0), 2);
+                Imgproc.rectangle(input, regLowerA, regLowerB, new Scalar(0,0,255), 2);
                 Imgproc.rectangle(input, regHigherA, regHigherB, new Scalar(255,0,0), 2);
             }
             else {
@@ -173,22 +152,27 @@ public class AutonomousTest extends OpMode {
             }
             return input;
         }
-        public RandomizationFactor getAnal(){
+        public RandomizationFactor getAnal() {
             return position;
         }
+        public float getLower() {
+            return avgB1;
+        }
+        public float getHigher() {
+            return avgB2;
+        }
     }
-    public void MoveByTicks(int ticks,int direction){
-        FRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);//TODO:Adjust movement of robot according to wobble placement and field measurements on-site.
-        FRmotor.setTargetPosition((int)(ticks*Math.signum((direction-1)*2-1)));
-        FRmotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        FRmotor.setPower(1);
-        while(FRmotor.isBusy()) {
+    public void MoveByTime(int millis,int direction){
+        ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+        while(localTime.time()<=millis) {
+            RLmotor.setPower(1*Math.signum((direction-1)*2-1));
             RRmotor.setPower(1*Math.signum(direction%3*2-1));
             FLmotor.setPower(1*Math.signum(direction%3*2-1));
             RLmotor.setPower(1*Math.signum((direction-1)*2-1));
         }
         RRmotor.setPower(0);
         FLmotor.setPower(0);
+        RLmotor.setPower(0);
         RLmotor.setPower(0);
     }
 }
