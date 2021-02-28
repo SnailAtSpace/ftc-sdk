@@ -26,10 +26,10 @@ import org.openftc.easyopencv.OpenCvPipeline;
 public class AutonomousTest extends OpMode {
     OpenCvCamera webcam;
     BingusPipeline pipeline;
+    Boolean ExecuteFlag;
     DcMotor FRmotor;DcMotor RRmotor;DcMotor FLmotor;DcMotor RLmotor;DcMotor Worm;Servo Grabber;
     public BingusPipeline.RandomizationFactor ringData;
-    public
-    ElapsedTime whenAreWe = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+    public ElapsedTime whenAreWe = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     @Override
     public void init(){
         FRmotor = hardwareMap.get(DcMotor.class, "FRmotor");
@@ -81,17 +81,31 @@ public class AutonomousTest extends OpMode {
         Grabber.scaleRange(0.2,0.66);
         Grabber.setPosition(0);
         whenAreWe.reset();
+        ExecuteFlag=false;
     }
     @Override
     public void loop(){
-        Worm.setPower(-1);
-        while(whenAreWe.time()<=100){}
-        Worm.setPower(0);
-        
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException ignored) {
+        if(!ExecuteFlag) {
+            DeployArm();
+            MoveByMillimetres(2032, 2);
+            if (ringData == BingusPipeline.RandomizationFactor.ONE) {
+                MoveByMillimetres(290, 3);
+                MoveByMillimetres(600, 2);
+                Grabber.setPosition(1);
+                MoveByMillimetres(600, 0);
+            } else {
+                MoveByMillimetres(290, 1);
+                if (ringData == BingusPipeline.RandomizationFactor.ZERO) {
+                    Grabber.setPosition(1);
+                } else {
+                    MoveByMillimetres(1200, 2);
+                    Grabber.setPosition(1);
+                    MoveByMillimetres(1200, 0);
+                }
+            }
+            ExecuteFlag=true;
         }
+        else try { Thread.sleep(50); } catch (InterruptedException ignored) {}
     }
     public static class BingusPipeline extends OpenCvPipeline {
         public enum RandomizationFactor {
@@ -162,9 +176,11 @@ public class AutonomousTest extends OpMode {
             return avgB2;
         }
     }
-    public void MoveByTime(int millis,int direction){
+    public void MoveByMillimetres(float millis,int direction){
+        //direction counted from 0, being backwards, counterclockwise
+        //0=backward, 1=left, 2=forward, 3=right
         ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-        while(localTime.time()<=millis) {
+        while(localTime.time()<=millis*1.131889763779527) { //what the fuck am i doing
             RLmotor.setPower(1*Math.signum((direction-1)*2-1));
             RRmotor.setPower(1*Math.signum(direction%3*2-1));
             FLmotor.setPower(1*Math.signum(direction%3*2-1));
@@ -174,5 +190,11 @@ public class AutonomousTest extends OpMode {
         FLmotor.setPower(0);
         RLmotor.setPower(0);
         RLmotor.setPower(0);
+    }
+    public void DeployArm(){
+        whenAreWe.reset();
+        Worm.setPower(-1);
+        while(whenAreWe.time()<=100){}
+        Worm.setPower(0);
     }
 }
