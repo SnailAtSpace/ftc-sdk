@@ -27,7 +27,7 @@ public class AutonomousTest extends OpMode {
     OpenCvCamera webcam;
     BingusPipeline pipeline;
     Boolean ExecuteFlag;
-    DcMotor FRmotor;DcMotor RRmotor;DcMotor FLmotor;DcMotor RLmotor;DcMotor Worm;Servo Grabber;
+    DcMotor FRmotor;DcMotor RRmotor;DcMotor FLmotor;DcMotor RLmotor;DcMotor Worm;Servo Grabber;DcMotor Flywheel;Servo Pushrod;
     public BingusPipeline.RandomizationFactor ringData;
     public ElapsedTime whenAreWe = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     @Override
@@ -36,8 +36,10 @@ public class AutonomousTest extends OpMode {
         RRmotor = hardwareMap.get(DcMotor.class, "RRmotor");
         FLmotor = hardwareMap.get(DcMotor.class, "FLmotor");
         RLmotor = hardwareMap.get(DcMotor.class, "RLmotor");
+        Flywheel = hardwareMap.get(DcMotor.class, "flywheel");
         Worm = hardwareMap.get(DcMotor.class, "worm");
         Grabber = hardwareMap.get(Servo.class,"grabber");
+        Pushrod = hardwareMap.get(Servo.class,"pushrod");
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         pipeline = new BingusPipeline();
@@ -88,6 +90,8 @@ public class AutonomousTest extends OpMode {
         if(!ExecuteFlag) {
             DeployArm();
             MoveByMillimetres(2032, 2);
+            MoveByMillimetres(290,3);
+            LaunchSeveralRings(3);
             if (ringData == BingusPipeline.RandomizationFactor.ONE) {
                 MoveByMillimetres(290, 3);
                 MoveByMillimetres(600, 2);
@@ -196,5 +200,23 @@ public class AutonomousTest extends OpMode {
         Worm.setPower(-1);
         while(whenAreWe.time()<=100){}
         Worm.setPower(0);
+    }
+    public void LaunchSeveralRings(int amount){
+        ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+        Flywheel.setPower(1);
+        while (localTime.time() <= 1000) {}
+        Pushrod.setPosition(1);
+        while (localTime.time() <= 1100) {}
+        Pushrod.setPosition(0);
+        for(int i=0;i<=amount--;i++){
+            localTime.reset();
+            while (localTime.time() <= 500) {}
+            Flywheel.setPower(1);
+            while (localTime.time() <= 1500) {}
+            Pushrod.setPosition(1);
+            while (localTime.time() <= 1600) {}
+            Pushrod.setPosition(0);
+        }
+        Flywheel.setPower(0);
     }
 }
