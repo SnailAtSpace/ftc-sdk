@@ -21,7 +21,7 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 
-@Autonomous(name="Autonomous, but it's bad")
+@Autonomous(name="Autonomous, but it's so bad")
 
 public class AutonomousTest extends OpMode {
     OpenCvCamera webcam;

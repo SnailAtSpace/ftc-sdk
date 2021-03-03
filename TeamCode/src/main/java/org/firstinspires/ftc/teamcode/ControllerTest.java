@@ -3,10 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 //test commit
 @TeleOp(name = "Controller Test: Commit Of The Year Edition")
-public class ConTest extends LinearOpMode {
+public class ControllerTest extends LinearOpMode {
   @Override
   public void runOpMode() {                                                                         //Initialization phase
     final int LogPower=3;
@@ -14,49 +15,49 @@ public class ConTest extends LinearOpMode {
     DcMotor RRmotor = hardwareMap.get(DcMotor.class, "RRmotor");
     DcMotor FLmotor = hardwareMap.get(DcMotor.class, "FLmotor");
     DcMotor RLmotor = hardwareMap.get(DcMotor.class, "RLmotor");
-    DcMotor Flywheel = hardwareMap.get(DcMotor.class, "flywheel");
-    DcMotor Worm = hardwareMap.get(DcMotor.class, "worm");
-    Servo Grabber = hardwareMap.get(Servo.class,"grabber");
-    Servo Pushrod = hardwareMap.get(Servo.class,"pushrod");
+    DcMotor Flywheel = hardwareMap.get(DcMotor.class, "FWmotor");
+    DcMotor Worm = hardwareMap.get(DcMotor.class, "Wmotor");
+    Servo Grabber = hardwareMap.get(Servo.class,"Gservo");
+    Servo Pushrod = hardwareMap.get(Servo.class,"Pservo");
+    Flywheel.setDirection(-);
     FRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     FLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     RRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     RLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    Flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     waitForStart();
+    boolean grab = false;
+    boolean push = false;
+    boolean prevgrab;
+    boolean prevpush;
     if (opModeIsActive()) {                                                                         //Pre-run phase
-      boolean grab = false;
-      boolean flywheel=false;
-      boolean push=false;
       Grabber.scaleRange(0.2,0.66);
+      Pushrod.scaleRange(0.22,0.25);
       Grabber.setPosition(1);
-      Flywheel.setPower(1);
+      Pushrod.setPosition(0);
       while (opModeIsActive()) {                                                                    //Run phase
-        boolean prevgrab=grab;
-        boolean prevpush=push;
-        boolean prevfly=flywheel;
+        prevgrab=grab;
+        prevpush=push;
         double for_axis = LogarithmifyInput(gamepad1.left_stick_y,LogPower);
         double strafe_axis = LogarithmifyInput(gamepad1.left_stick_x,LogPower);
         double turn_axis = LogarithmifyInput(gamepad1.right_stick_x,LogPower);
         double worm_axis = LogarithmifyInput(gamepad2.right_stick_y,LogPower);
+        double flywheel_axis = LogarithmifyInput(gamepad2.left_stick_y,LogPower);
         grab = gamepad2.right_bumper;
-        flywheel=gamepad2.left_bumper;
-        int intpush=(int) (gamepad2.right_trigger+0.25);
-        push = intpush!=0;
+        push = gamepad2.left_bumper;
         FRmotor.setPower(for_axis + strafe_axis + turn_axis);                                       //wheel motor movement
         RRmotor.setPower(for_axis - strafe_axis + turn_axis);
         FLmotor.setPower(-for_axis + strafe_axis + turn_axis);
         RLmotor.setPower(-for_axis - strafe_axis + turn_axis);
         Worm.setPower(worm_axis);
+        Flywheel.setPower(flywheel_axis);
         if(!prevgrab && grab) {                                                                     //arm servo movement
           Grabber.setPosition(1-Grabber.getPosition());                                          //0.88=0.66(open state)+0.22(closed state)
         }
-        if(!prevpush&&push){
+        if(!prevpush && push){
           Pushrod.setPosition(1);
           sleep(50);
           Pushrod.setPosition(0);
-        }
-        if(flywheel){
-          Flywheel.setPower(1);
         }
       }
     }
