@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 //test commit
 @TeleOp(name = "Controller Test: Commit Of The Year Edition")
@@ -18,6 +19,7 @@ public class ConTest extends LinearOpMode {
     DcMotor Worm = hardwareMap.get(DcMotor.class, "Wmotor");
     Servo Grabber = hardwareMap.get(Servo.class,"Gservo");
     Servo Pushrod = hardwareMap.get(Servo.class,"Pservo");
+    Flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
     FRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     FLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     RRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
