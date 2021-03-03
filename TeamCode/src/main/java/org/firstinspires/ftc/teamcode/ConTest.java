@@ -22,6 +22,7 @@ public class ConTest extends LinearOpMode {
     FLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     RRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     RLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    Flywheel.setPower(1);
     waitForStart();
     if (opModeIsActive()) {                                                                         //Pre-run phase
       boolean grab = false;
