@@ -6,6 +6,7 @@ repositories {
     flatDir {
         dirs rootProject.file('libs')
     }
+    maven { url = "https://dl.bintray.com/first-tech-challenge/ftcsdk/" }
 }
 
 dependencies {
