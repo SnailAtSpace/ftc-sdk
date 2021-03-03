@@ -55,7 +55,7 @@ public class ConTest extends LinearOpMode {
           sleep(50);
           Pushrod.setPosition(0);
         }
-        if(!prevfly&&flywheel){
+        if(flywheel){
           Flywheel.setPower(1);
         }
       }
