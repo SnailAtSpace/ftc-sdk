@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -21,17 +21,18 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 
-@Autonomous(name="Autonomous, but it's so bad")
-
-public class AutonomousTest extends OpMode {
+@Autonomous
+public class AutoLinear extends LinearOpMode {
     OpenCvCamera webcam;
     BingusPipeline pipeline;
     Boolean ExecuteFlag;
-    DcMotor FRmotor;DcMotor RRmotor;DcMotor FLmotor;DcMotor RLmotor;DcMotor Worm;Servo Grabber;DcMotor Flywheel;Servo Pushrod;
-    public BingusPipeline.RandomizationFactor ringData;
+    DcMotor FRmotor;DcMotor RRmotor;DcMotor FLmotor;DcMotor RLmotor;DcMotor Worm;
+    Servo Grabber;DcMotor Flywheel;Servo Pushrod;
+    public AutoLinear.BingusPipeline.RandomizationFactor ringData;
     public ElapsedTime whenAreWe = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+    @SuppressLint("DefaultLocale")
     @Override
-    public void init(){
+    public void runOpMode(){
         FRmotor = hardwareMap.get(DcMotor.class, "FRmotor");                        //Hardware mapping and declaration of devices
         RRmotor = hardwareMap.get(DcMotor.class, "RRmotor");
         FLmotor = hardwareMap.get(DcMotor.class, "FLmotor");
@@ -60,62 +61,56 @@ public class AutonomousTest extends OpMode {
         telemetry.update();
         FRmotor.setDirection(DcMotorSimple.Direction.REVERSE);
         RRmotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException ignored) {
-        }
-    }
-    @SuppressLint("DefaultLocale")
-    @Override
-    public void init_loop(){
-        ringData=pipeline.getAnal();
-        telemetry.addData("Best guess of ring amount: ",ringData);
-        telemetry.addData("Lower: ",pipeline.getLower());
-        telemetry.addData("Higher: ",pipeline.getHigher());
-        telemetry.addData("Frame Count", webcam.getFrameCount());
-        telemetry.addData("FPS", String.format("%.2f", webcam.getFps()));
-        telemetry.addData("Total frame time ms", webcam.getTotalFrameTimeMs());
-        telemetry.addData("Pipeline time ms", webcam.getPipelineTimeMs());
-        telemetry.addData("Overhead time ms", webcam.getOverheadTimeMs());
-        telemetry.addData("Theoretical max FPS", webcam.getCurrentPipelineMaxFps());
-        telemetry.update();
-        try {
-            Thread.sleep(50);
-        } catch (InterruptedException ignored) {
-        }
-    }
-    @Override
-    public void start(){
-        Grabber.scaleRange(0.2,0.66);
-        Grabber.setPosition(0);
-        whenAreWe.reset();
-        ExecuteFlag=false;
-    }
-    @Override
-    public void loop(){
-        if(!ExecuteFlag) {
-            DeployArm();
-            MoveByMillimetres(2032, 2);
-            MoveByMillimetres(290,3);
-            LaunchSeveralRings(3);
-            if (ringData == BingusPipeline.RandomizationFactor.ONE) {
-                MoveByMillimetres(290, 3);
-                MoveByMillimetres(600, 2);
-                Grabber.setPosition(1);
-                MoveByMillimetres(600, 0);
-            } else {
-                MoveByMillimetres(290, 1);
-                if (ringData == BingusPipeline.RandomizationFactor.ZERO) {
-                    Grabber.setPosition(1);
-                } else {
-                    MoveByMillimetres(1200, 2);
-                    Grabber.setPosition(1);
-                    MoveByMillimetres(1200, 0);
-                }
+        while(!isStarted()){
+            ringData=pipeline.getAnal();
+            telemetry.addData("Best guess of ring amount: ",ringData);
+            telemetry.addData("Lower: ",pipeline.getLower());
+            telemetry.addData("Higher: ",pipeline.getHigher());
+            telemetry.addData("Frame Count", webcam.getFrameCount());
+            telemetry.addData("FPS", String.format("%.2f", webcam.getFps()));
+            telemetry.addData("Total frame time ms", webcam.getTotalFrameTimeMs());
+            telemetry.addData("Pipeline time ms", webcam.getPipelineTimeMs());
+            telemetry.addData("Overhead time ms", webcam.getOverheadTimeMs());
+            telemetry.addData("Theoretical max FPS", webcam.getCurrentPipelineMaxFps());
+            telemetry.update();
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException ignored) {
             }
-            ExecuteFlag=true;
         }
-        else try { Thread.sleep(50); } catch (InterruptedException ignored) {}
+        if(opModeIsActive()){
+            Grabber.scaleRange(0.2,0.66);
+            Pushrod.scaleRange(0.19,0.25);
+            Grabber.setPosition(0);
+            Pushrod.setPosition(0);
+            whenAreWe.reset();
+            ExecuteFlag=false;
+            while(opModeIsActive()){
+                if(!ExecuteFlag) {
+                    DeployArm();
+                    MoveByMillimetres(2032, 2);
+                    MoveByMillimetres(290,3);
+                    LaunchSeveralRings(3);
+                    if (ringData == BingusPipeline.RandomizationFactor.ONE) {
+                        MoveByMillimetres(290, 3);
+                        MoveByMillimetres(600, 2);
+                        Grabber.setPosition(1);
+                        MoveByMillimetres(600, 0);
+                    } else {
+                        MoveByMillimetres(290, 1);
+                        if (ringData == BingusPipeline.RandomizationFactor.ZERO) {
+                            Grabber.setPosition(1);
+                        } else {
+                            MoveByMillimetres(1200, 2);
+                            Grabber.setPosition(1);
+                            MoveByMillimetres(1200, 0);
+                        }
+                    }
+                    ExecuteFlag=true;
+                }
+                else try { Thread.sleep(50); } catch (InterruptedException ignored) {}
+            }
+        }
     }
     public static class BingusPipeline extends OpenCvPipeline {
         public enum RandomizationFactor {
@@ -125,23 +120,23 @@ public class AutonomousTest extends OpMode {
         }
         Mat region1_Cb = new Mat();
         Mat region2_Cb = new Mat();
-//        Mat region1_Cr;
+        //        Mat region1_Cr;
 //        Mat region2_Cr;
         Mat YCrCb = new Mat();
         Mat Cb = new Mat();
-//        Mat Cr = new Mat();
+        //        Mat Cr = new Mat();
         float avgB1;
         float avgB2;
         final int xL=0,yL=140,xH=00,yH=108;
         final int offsetX=60,offsetY=8;
         Point regLowerA=new Point(xL,yL), regHigherA=new Point(xH,yH);
         Point regLowerB=new Point(xL+offsetX, yL+offsetY), regHigherB=new Point(xH+offsetX, yH+offsetY);
-        private volatile RandomizationFactor position;
+        private volatile AutoLinear.BingusPipeline.RandomizationFactor position;
         void inputToCb(Mat input) {
             Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);
             Core.extractChannel(YCrCb, Cb, 2);
         }
-//        void inputToCr(Mat input){
+        //        void inputToCr(Mat input){
 //            Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);
 //            Core.extractChannel(YCrCb, Cr, 1);
 //        }
@@ -162,21 +157,21 @@ public class AutonomousTest extends OpMode {
             Imgproc.rectangle(input, regLowerA, regLowerB, new Scalar(255,0,0), 2);
             Imgproc.rectangle(input, regHigherA, regHigherB, new Scalar(255,0,0), 2);
             if(avgB1<=110&&avgB2<=110){
-                position = RandomizationFactor.FOUR;
+                position = AutoLinear.BingusPipeline.RandomizationFactor.FOUR;
                 Imgproc.rectangle(input, regLowerA, regLowerB, new Scalar(0,0,255), 2);
                 Imgproc.rectangle(input, regHigherA, regHigherB, new Scalar(0,0,255), 2);
             }                                  //both orange
             else if(avgB1<=110&&avgB2>110){
-                position = RandomizationFactor.ONE;
+                position = AutoLinear.BingusPipeline.RandomizationFactor.ONE;
                 Imgproc.rectangle(input, regLowerA, regLowerB, new Scalar(0,0,255), 2);
                 Imgproc.rectangle(input, regHigherA, regHigherB, new Scalar(255,0,0), 2);
             }
             else {
-                position = RandomizationFactor.ZERO;
+                position = AutoLinear.BingusPipeline.RandomizationFactor.ZERO;
             }
             return input;
         }
-        public RandomizationFactor getAnal() {
+        public AutoLinear.BingusPipeline.RandomizationFactor getAnal() {
             return position;
         }
         public float getLower() {
@@ -188,18 +183,18 @@ public class AutonomousTest extends OpMode {
     }
     public void MoveByMillimetres(float millis,int direction){
         //direction counted from 0, being backwards, counterclockwise
-        //0=backward, 1=left, 2=forward, 3=right
+        //0=backward, 1=right, 2=forward, 3=left
         ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         while(localTime.time()<=millis*1.131889763779527) { //what the fuck am i doing
-            RLmotor.setPower(1*Math.signum((direction-1)*2-1));
-            RRmotor.setPower(1*Math.signum(direction%3*2-1));
-            FLmotor.setPower(1*Math.signum(direction%3*2-1));
-            RLmotor.setPower(1*Math.signum((direction-1)*2-1));
+            RLmotor.setPower(Math.signum((direction-1)*2-1));
+            RRmotor.setPower(Math.signum(direction%3*2-1));
+            FLmotor.setPower(Math.signum(direction%3*2-1));
+            FRmotor.setPower(Math.signum((direction-1)*2-1));
         }
+        RLmotor.setPower(0);
         RRmotor.setPower(0);
         FLmotor.setPower(0);
-        RLmotor.setPower(0);
-        RLmotor.setPower(0);
+        FRmotor.setPower(0);
     }
     public void DeployArm(){
         whenAreWe.reset();
