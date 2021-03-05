@@ -12,6 +12,7 @@ public class EncoderCal extends LinearOpMode {
     public void runOpMode(){
         DcMotor Worm;
         Worm = hardwareMap.get(DcMotor.class, "Wmotor");
+        Worm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         waitForStart();
         if(opModeIsActive()){
             Worm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

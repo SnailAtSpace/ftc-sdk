@@ -26,8 +26,8 @@ public class ControllerTest extends LinearOpMode {
     RRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     RLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     Flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);//Initialization phase
+    Worm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     final int LogPower=3;
-    waitForStart();
     boolean grab = false;
     boolean push = false;
     boolean collector = false;
@@ -36,6 +36,7 @@ public class ControllerTest extends LinearOpMode {
     boolean prevpush;
     boolean prevfly;
     boolean prevcoll;
+    waitForStart();
     if (opModeIsActive()) {                                                                         //Pre-run phase
       Grabber.scaleRange(0.2,0.66);
       Pushrod.scaleRange(0.19,0.25);

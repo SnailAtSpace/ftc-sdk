@@ -47,6 +47,7 @@ public class AutoLinear extends LinearOpMode {
         RRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         RLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        Worm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //Flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);

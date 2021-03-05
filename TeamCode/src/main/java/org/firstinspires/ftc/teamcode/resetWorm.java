@@ -8,6 +8,7 @@ public class resetWorm extends LinearOpMode {
     @Override
     public void runOpMode(){
         DcMotor Worm = hardwareMap.get(DcMotor.class, "Wmotor");
+        Worm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         waitForStart();
         if(opModeIsActive()) {
             Worm.setPower(1);
