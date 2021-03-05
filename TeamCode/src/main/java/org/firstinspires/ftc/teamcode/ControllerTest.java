@@ -3,29 +3,30 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+
 //test commit
 @TeleOp(name = "Bingus Controller Test")
 public class ControllerTest extends LinearOpMode {
   @Override
-  public void runOpMode() {                                                                         //Initialization phase
-    final int LogPower=3;
-    DcMotor FRmotor = hardwareMap.get(DcMotor.class, "FRmotor");                        //Hardware mapping and declaration of devices
-    DcMotor RRmotor = hardwareMap.get(DcMotor.class, "RRmotor");
-    DcMotor FLmotor = hardwareMap.get(DcMotor.class, "FLmotor");
-    DcMotor RLmotor = hardwareMap.get(DcMotor.class, "RLmotor");
-    DcMotor Flywheel = hardwareMap.get(DcMotor.class, "FWmotor");
-    DcMotor Worm = hardwareMap.get(DcMotor.class, "Wmotor");
-    DcMotor Collector = hardwareMap.get(DcMotor.class, "Cmotor");
-    Servo Grabber = hardwareMap.get(Servo.class,"Gservo");
-    Servo Pushrod = hardwareMap.get(Servo.class,"Pservo");
-    Flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
+  public void runOpMode() {
+    DcMotor FRmotor, RRmotor, FLmotor, RLmotor, Worm, Flywheel, Collector;
+    Servo Grabber, Pushrod;
+    FRmotor = hardwareMap.get(DcMotor.class, "FRmotor");                        //Hardware mapping and declaration of devices
+    RRmotor = hardwareMap.get(DcMotor.class, "RRmotor");
+    FLmotor = hardwareMap.get(DcMotor.class, "FLmotor");
+    RLmotor = hardwareMap.get(DcMotor.class, "RLmotor");
+    Flywheel = hardwareMap.get(DcMotor.class, "FWmotor");
+    Worm = hardwareMap.get(DcMotor.class, "Wmotor");
+    Grabber = hardwareMap.get(Servo.class,"Gservo");
+    Pushrod = hardwareMap.get(Servo.class,"Pservo");
+    Collector = hardwareMap.get(DcMotor.class,"Cmotor");
     FRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     FLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     RRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     RLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    Flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    Flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);//Initialization phase
+    final int LogPower=3;
     waitForStart();
     boolean grab = false;
     boolean push = false;
@@ -57,7 +58,7 @@ public class ControllerTest extends LinearOpMode {
         RRmotor.setPower(for_axis - strafe_axis + turn_axis);
         FLmotor.setPower(-for_axis + strafe_axis + turn_axis);
         RLmotor.setPower(-for_axis - strafe_axis + turn_axis);
-        Worm.setPower(worm_axis);
+        Worm.setPower(-worm_axis);
         if(!prevgrab && grab) {                                                                     //arm servo movement
           Grabber.setPosition(1-Grabber.getPosition());                                          //0.88=0.66(open state)+0.22(closed state)
         }

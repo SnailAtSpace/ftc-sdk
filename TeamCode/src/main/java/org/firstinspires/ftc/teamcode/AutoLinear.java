@@ -26,8 +26,8 @@ public class AutoLinear extends LinearOpMode {
     OpenCvCamera webcam;
     BingusPipeline pipeline;
     Boolean ExecuteFlag;
-    DcMotor FRmotor;DcMotor RRmotor;DcMotor FLmotor;DcMotor RLmotor;DcMotor Worm;
-    Servo Grabber;DcMotor Flywheel;Servo Pushrod;
+    DcMotor FRmotor, RRmotor, FLmotor, RLmotor, Worm, Flywheel, Collector;
+    Servo Grabber, Pushrod;
     public AutoLinear.BingusPipeline.RandomizationFactor ringData;
     public ElapsedTime whenAreWe = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     @SuppressLint("DefaultLocale")
@@ -41,12 +41,13 @@ public class AutoLinear extends LinearOpMode {
         Worm = hardwareMap.get(DcMotor.class, "Wmotor");
         Grabber = hardwareMap.get(Servo.class,"Gservo");
         Pushrod = hardwareMap.get(Servo.class,"Pservo");
-        Flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
+        Collector = hardwareMap.get(DcMotor.class,"Cmotor");
         FRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         FLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         RRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         RLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        //Flywheel.setDirection(DcMotorSimple.Direction.REVERSE);
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
         pipeline = new BingusPipeline();
@@ -59,8 +60,8 @@ public class AutoLinear extends LinearOpMode {
         });
         telemetry.addLine("Waiting for start");
         telemetry.update();
-        FRmotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        RRmotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        FLmotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        RLmotor.setDirection(DcMotorSimple.Direction.REVERSE);
         while((!isStarted())&&(!isStopRequested())){
             ringData=pipeline.getAnal();
             telemetry.addData("Best guess of ring amount: ",ringData);
@@ -81,29 +82,33 @@ public class AutoLinear extends LinearOpMode {
         if(opModeIsActive()){
             Grabber.scaleRange(0.2,0.66);
             Pushrod.scaleRange(0.19,0.25);
-            Grabber.setPosition(0);
             Pushrod.setPosition(0);
             whenAreWe.reset();
             ExecuteFlag=false;
             while(opModeIsActive()){
                 if(!ExecuteFlag) {
-                    DeployArm();
+                    Grabber.setPosition(0);
                     MoveByMillimetres(2032, 2);
-                    MoveByMillimetres(290,3);
+                    TurnBySeconds(150,1);
                     LaunchSeveralRings(3);
+                    TurnBySeconds(1450,1);
+                    DeployArm();
                     if (ringData == BingusPipeline.RandomizationFactor.ONE) {
-                        MoveByMillimetres(290, 3);
-                        MoveByMillimetres(600, 2);
-                        Grabber.setPosition(1);
+                        MoveByMillimetres(400, 1);
                         MoveByMillimetres(600, 0);
+                        Grabber.setPosition(1);
+                        sleep(2000);
+                        MoveByMillimetres(600, 2);
                     } else {
-                        MoveByMillimetres(290, 1);
+                        MoveByMillimetres(290, 3);
                         if (ringData == BingusPipeline.RandomizationFactor.ZERO) {
                             Grabber.setPosition(1);
+                            sleep(2000);
                         } else {
-                            MoveByMillimetres(1200, 2);
-                            Grabber.setPosition(1);
                             MoveByMillimetres(1200, 0);
+                            Grabber.setPosition(1);
+                            sleep(2000);
+                            MoveByMillimetres(1200, 2);
                         }
                     }
                     ExecuteFlag=true;
@@ -127,8 +132,8 @@ public class AutoLinear extends LinearOpMode {
         //        Mat Cr = new Mat();
         float avgB1;
         float avgB2;
-        final int xL=0,yL=140,xH=00,yH=108;
-        final int offsetX=60,offsetY=8;
+        final int xL=0,yL=142,xH=0,yH=110;
+        final int offsetX=60,offsetY=7;
         Point regLowerA=new Point(xL,yL), regHigherA=new Point(xH,yH);
         Point regLowerB=new Point(xL+offsetX, yL+offsetY), regHigherB=new Point(xH+offsetX, yH+offsetY);
         private volatile AutoLinear.BingusPipeline.RandomizationFactor position;
@@ -185,7 +190,7 @@ public class AutoLinear extends LinearOpMode {
         //direction counted from 0, being backwards, counterclockwise
         //0=backward, 1=right, 2=forward, 3=left
         ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-        while(localTime.time()<=millis*1.131889763779527) { //what the fuck am i doing
+        while(localTime.time()<=millis*1.135) { //what the fuck am i doing
             RLmotor.setPower(Math.signum((direction-1)*2-1));
             RRmotor.setPower(Math.signum(direction%3*2-1));
             FLmotor.setPower(Math.signum(direction%3*2-1));
@@ -195,29 +200,41 @@ public class AutoLinear extends LinearOpMode {
         RRmotor.setPower(0);
         FLmotor.setPower(0);
         FRmotor.setPower(0);
+        sleep(250);
     }
     public void DeployArm(){
-        whenAreWe.reset();
         Worm.setPower(-1);
-        while(whenAreWe.time()<=100){}
+        sleep(2100);
         Worm.setPower(0);
     }
     public void LaunchSeveralRings(int amount){
         ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         Flywheel.setPower(1);
-        while (localTime.time() <= 1000) {}
+        while (localTime.time() <= 2000) {}
         Pushrod.setPosition(1);
-        while (localTime.time() <= 1100) {}
+        while (localTime.time() <= 2100) {}
         Pushrod.setPosition(0);
         for(int i=0;i<=amount--;i++){
             localTime.reset();
-            while (localTime.time() <= 500) {}
-            Flywheel.setPower(1);
-            while (localTime.time() <= 1500) {}
+            while (localTime.time() <= 1000) {}
             Pushrod.setPosition(1);
-            while (localTime.time() <= 1600) {}
+            while (localTime.time() <= 1100) {}
             Pushrod.setPosition(0);
         }
         Flywheel.setPower(0);
+    }
+    public void TurnBySeconds(int millis,int direction){
+        ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+        while(localTime.time()<=millis) { //what the fuck am i doing
+            RLmotor.setPower(1-direction*2);
+            RRmotor.setPower(direction*2-1);
+            FLmotor.setPower(1-direction*2);
+            FRmotor.setPower(direction*2-1);
+        }
+        RLmotor.setPower(0);
+        RRmotor.setPower(0);
+        FLmotor.setPower(0);
+        FRmotor.setPower(0);
+        sleep(100);
     }
 }
