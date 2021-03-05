@@ -61,7 +61,7 @@ public class AutoLinear extends LinearOpMode {
         telemetry.update();
         FRmotor.setDirection(DcMotorSimple.Direction.REVERSE);
         RRmotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        while(!isStarted()){
+        while((!isStarted())&&(!isStopRequested())){
             ringData=pipeline.getAnal();
             telemetry.addData("Best guess of ring amount: ",ringData);
             telemetry.addData("Lower: ",pipeline.getLower());
@@ -158,12 +158,12 @@ public class AutoLinear extends LinearOpMode {
             Imgproc.rectangle(input, regHigherA, regHigherB, new Scalar(255,0,0), 2);
             if(avgB1<=110&&avgB2<=110){
                 position = AutoLinear.BingusPipeline.RandomizationFactor.FOUR;
-                Imgproc.rectangle(input, regLowerA, regLowerB, new Scalar(0,0,255), 2);
-                Imgproc.rectangle(input, regHigherA, regHigherB, new Scalar(0,0,255), 2);
+                Imgproc.rectangle(input, regLowerA, regLowerB, new Scalar(255,255,0), 2);
+                Imgproc.rectangle(input, regHigherA, regHigherB, new Scalar(255,255,0), 2);
             }                                  //both orange
             else if(avgB1<=110&&avgB2>110){
                 position = AutoLinear.BingusPipeline.RandomizationFactor.ONE;
-                Imgproc.rectangle(input, regLowerA, regLowerB, new Scalar(0,0,255), 2);
+                Imgproc.rectangle(input, regLowerA, regLowerB, new Scalar(255,255,0), 2);
                 Imgproc.rectangle(input, regHigherA, regHigherB, new Scalar(255,0,0), 2);
             }
             else {
