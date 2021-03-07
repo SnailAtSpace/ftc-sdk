@@ -8,13 +8,15 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
+import org.firstinspires.ftc.teamcode.*;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous
+import java.util.stream.Collector;
+
+@Autonomous(name="Autonomous BLUE Edition",preselectTeleOp = "Bingus Controller Test")
 public class AutoBlue extends LinearOpMode {
     OpenCvCamera webcam;
     BingusPipeline pipeline;
@@ -23,6 +25,7 @@ public class AutoBlue extends LinearOpMode {
     Servo Grabber, Pushrod;
     public BingusPipeline.RandomizationFactor ringData;
     public ElapsedTime whenAreWe = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+
     @SuppressLint("DefaultLocale")
     @Override
     public void runOpMode(){
@@ -74,7 +77,7 @@ public class AutoBlue extends LinearOpMode {
             }
         }
         if(opModeIsActive()){
-            Grabber.scaleRange(0.19,0.66);
+            Grabber.scaleRange(0.16,0.66);
             Pushrod.scaleRange(0.19,0.25);
             Pushrod.setPosition(0);
             whenAreWe.reset();
@@ -82,38 +85,41 @@ public class AutoBlue extends LinearOpMode {
             while(opModeIsActive()){
                 if(!ExecuteFlag) {
                     Grabber.setPosition(0);
-                    MoveByMillimetres(2032, 2);
+                    MoveByMillimetres(1890, 2);
                     TurnBySeconds(90,1);
                     LaunchSeveralRings(3);
                     TurnBySeconds(90,0);
-                    if(ringData != BingusPipeline.RandomizationFactor.ZERO) {
-                        MoveByMillimetres(400, 3);
-                        Collector.setPower(0.75);
-                        MoveByMillimetres(870,0);
-                        MoveByMillimetres(870,2);
-                        Collector.setPower(0);
-                        MoveByMillimetres(400,1);
-                        TurnBySeconds(90,1);
-                        if(ringData==BingusPipeline.RandomizationFactor.ONE)LaunchSeveralRings(1);
-                        else LaunchSeveralRings(3);
-                        TurnBySeconds(90,0);
-                    }
-                    TurnBySeconds(1337,1);
+//                    if(ringData != BingusPipeline.RandomizationFactor.ZERO) {
+//                        MoveByMillimetres(550, 3);
+//                        Collector.setPower(0.75);
+//                        MoveByMillimetres(870,0);
+//                        sleep(100);
+//                        if(ringData== BingusPipeline.RandomizationFactor.FOUR){MoveByMillimetres(100,0);MoveByMillimetres(100,2);}
+//                        MoveByMillimetres(860,2);
+//                        Collector.setPower(0);
+//                        MoveByMillimetres(550,1);
+//                        TurnBySeconds(90,1);
+//                        if(ringData==BingusPipeline.RandomizationFactor.ONE)LaunchSeveralRings(1);
+//                        else LaunchSeveralRings(3);
+//                        TurnBySeconds(90,0);
+//                    }
+                    TurnBySeconds(1450,1);
                     if (ringData == BingusPipeline.RandomizationFactor.ONE) {
-                        MoveByMillimetres(400, 1);
                         MoveByMillimetres(600, 0);
+                        MoveByMillimetres(400, 1);
                         DeployArm();
                         Grabber.setPosition(1);
                         sleep(2000);
                         MoveByMillimetres(600, 2);
                     } else {
-                        MoveByMillimetres(900, 1);
                         if (ringData == BingusPipeline.RandomizationFactor.ZERO) {
+                            MoveByMillimetres(1200, 1);
                             DeployArm();
                             Grabber.setPosition(1);
                             sleep(2000);
                         } else {
                             MoveByMillimetres(1200, 0);
+                            MoveByMillimetres(1200, 1);
                             DeployArm();
                             Grabber.setPosition(1);
                             sleep(2000);
@@ -150,15 +156,15 @@ public class AutoBlue extends LinearOpMode {
     public void LaunchSeveralRings(int amount){
         ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         Flywheel.setPower(1);
-        while (localTime.time() <= 2000) {}
+        while (localTime.time() <= 3000) {}
         Pushrod.setPosition(1);
-        while (localTime.time() <= 2100) {}
+        while (localTime.time() <= 3100) {}
         Pushrod.setPosition(0);
         for(int i=0;i<=amount--;i++){
             localTime.reset();
-            while (localTime.time() <= 1500) {}
+            while (localTime.time() <= 2000) {}
             Pushrod.setPosition(1);
-            while (localTime.time() <= 1600) {}
+            while (localTime.time() <= 2100) {}
             Pushrod.setPosition(0);
         }
         Flywheel.setPower(0);

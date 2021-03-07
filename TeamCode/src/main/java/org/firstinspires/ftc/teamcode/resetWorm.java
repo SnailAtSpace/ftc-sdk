@@ -12,7 +12,7 @@ public class resetWorm extends LinearOpMode {
         waitForStart();
         if(opModeIsActive()) {
             Worm.setPower(1);
-            sleep(2100);
+            sleep(2075);
             Worm.setPower(0);
         }
     }

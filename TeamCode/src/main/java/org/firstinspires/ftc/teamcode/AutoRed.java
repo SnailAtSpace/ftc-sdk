@@ -14,7 +14,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous
+@Autonomous(name="Autonomous RED edition",preselectTeleOp = "Bingus Controller Test")
 public class AutoRed extends LinearOpMode {
     OpenCvCamera webcam;
     BingusPipeline pipeline;
@@ -74,7 +74,7 @@ public class AutoRed extends LinearOpMode {
             }
         }
         if(opModeIsActive()){
-            Grabber.scaleRange(0.19,0.66);
+            Grabber.scaleRange(0.16,0.66);
             Pushrod.scaleRange(0.19,0.25);
             Pushrod.setPosition(0);
             whenAreWe.reset();
@@ -82,37 +82,42 @@ public class AutoRed extends LinearOpMode {
             while(opModeIsActive()){
                 if(!ExecuteFlag) {
                     Grabber.setPosition(0);
-                    MoveByMillimetres(2032, 2);
-                    TurnBySeconds(90,1);
+                    MoveByMillimetres(1845, 2);
+                    TurnBySeconds(95,1);
                     LaunchSeveralRings(3);
-                    TurnBySeconds(90,0);
-                    if(ringData != BingusPipeline.RandomizationFactor.ZERO) {
-                        MoveByMillimetres(400, 3);
-                        Collector.setPower(0.75);
-                        MoveByMillimetres(870,0);
-                        MoveByMillimetres(870,2);
-                        Collector.setPower(0);
-                        MoveByMillimetres(400,1);
-                        TurnBySeconds(90,1);
-                        if(ringData==BingusPipeline.RandomizationFactor.ONE)LaunchSeveralRings(1);
-                        else LaunchSeveralRings(3);
-                        TurnBySeconds(90,0);
-                    }
-                    TurnBySeconds(1337,1);
-                    DeployArm();
+                    TurnBySeconds(95,0);
+//                    if(ringData != BingusPipeline.RandomizationFactor.ZERO) {
+//                        MoveByMillimetres(550, 3);
+//                        Collector.setPower(0.75);
+//                        MoveByMillimetres(870,0);
+//                        sleep(100);
+//                        if(ringData==BingusPipeline.RandomizationFactor.FOUR){MoveByMillimetres(100,0);MoveByMillimetres(100,2);}
+//                        MoveByMillimetres(860,2);
+//                        Collector.setPower(0);
+//                        MoveByMillimetres(550,1);
+//                        TurnBySeconds(95,1);
+//                        if(ringData==BingusPipeline.RandomizationFactor.ONE)LaunchSeveralRings(1);
+//                        else LaunchSeveralRings(3);
+//                        TurnBySeconds(95,0);
+//                    }
+                    TurnBySeconds(1450,1);
                     if (ringData == BingusPipeline.RandomizationFactor.ONE) {
-                        MoveByMillimetres(400, 1);
                         MoveByMillimetres(600, 0);
+                        MoveByMillimetres(400, 1);
+                        DeployArm();
                         Grabber.setPosition(1);
                         sleep(2000);
                         MoveByMillimetres(600, 2);
                     } else {
-                        MoveByMillimetres(400, 3);
                         if (ringData == BingusPipeline.RandomizationFactor.ZERO) {
+                            MoveByMillimetres(600, 3);
+                            DeployArm();
                             Grabber.setPosition(1);
                             sleep(2000);
                         } else {
+                            MoveByMillimetres(600, 3);
                             MoveByMillimetres(1200, 0);
+                            DeployArm();
                             Grabber.setPosition(1);
                             sleep(2000);
                             MoveByMillimetres(1200, 2);
@@ -148,15 +153,15 @@ public class AutoRed extends LinearOpMode {
     public void LaunchSeveralRings(int amount){
         ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         Flywheel.setPower(1);
-        while (localTime.time() <= 2000) {}
+        while (localTime.time() <= 3000) {}
         Pushrod.setPosition(1);
-        while (localTime.time() <= 2100) {}
+        while (localTime.time() <= 3100) {}
         Pushrod.setPosition(0);
         for(int i=0;i<=amount--;i++){
             localTime.reset();
-            while (localTime.time() <= 1000) {}
+            while (localTime.time() <= 2000) {}
             Pushrod.setPosition(1);
-            while (localTime.time() <= 1100) {}
+            while (localTime.time() <= 2100) {}
             Pushrod.setPosition(0);
         }
         Flywheel.setPower(0);
