@@ -101,7 +101,7 @@ public class AutoLinear extends LinearOpMode {
                         sleep(2000);
                         MoveByMillimetres(600, 2);
                     } else {
-                        MoveByMillimetres(290, 3);
+                        MoveByMillimetres(400, 3);
                         if (ringData == BingusPipeline.RandomizationFactor.ZERO) {
                             Grabber.setPosition(1);
                             sleep(2000);

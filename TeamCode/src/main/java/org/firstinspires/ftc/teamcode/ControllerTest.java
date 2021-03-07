@@ -54,12 +54,12 @@ public class ControllerTest extends LinearOpMode {
         grab = gamepad2.left_bumper;
         flywheel = gamepad2.right_bumper;
         push =((int)(gamepad2.right_trigger+0.25) != 0);
-        collector =((int)(gamepad2.left_trigger+0.25) != 0);
+        collector = (gamepad2.dpad_down)||(gamepad2.dpad_up);
         FRmotor.setPower(for_axis + strafe_axis + turn_axis);                                       //wheel motor movement
         RRmotor.setPower(for_axis - strafe_axis + turn_axis);
         FLmotor.setPower(-for_axis + strafe_axis + turn_axis);
         RLmotor.setPower(-for_axis - strafe_axis + turn_axis);
-        Worm.setPower(-worm_axis);
+        Worm.setPower(worm_axis);
         if(!prevgrab && grab) {                                                                     //arm servo movement
           Grabber.setPosition(1-Grabber.getPosition());                                          //0.88=0.66(open state)+0.22(closed state)
         }
@@ -72,7 +72,10 @@ public class ControllerTest extends LinearOpMode {
           Flywheel.setPower(1-Flywheel.getPower());
         }
         if(!prevcoll&&collector){
-          Collector.setPower(1-Collector.getPower());
+          if(gamepad2.dpad_down){
+            Collector.setPower(-0.75-Math.abs(Collector.getPower())*Math.signum(Math.signum(Collector.getPower())-1));
+          }
+          else Collector.setPower(0.75-Collector.getPower()*Math.signum(Math.signum(Collector.getPower())+1));
         }
       }
     }
