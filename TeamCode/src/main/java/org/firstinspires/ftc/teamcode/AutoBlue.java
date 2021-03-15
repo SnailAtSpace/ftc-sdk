@@ -85,19 +85,19 @@ public class AutoBlue extends LinearOpMode {
             while(opModeIsActive()){
                 if(!ExecuteFlag) {
                     Grabber.setPosition(0);
-                    MoveByMillimetres(1890, 2);
+                    MoveWithEncoder(1890, 2);
                     TurnBySeconds(90,1);
                     LaunchSeveralRings(3);
                     TurnBySeconds(90,0);
 //                    if(ringData != BingusPipeline.RandomizationFactor.ZERO) {
-//                        MoveByMillimetres(550, 3);
+//                        MoveWithEncoder(550, 3);
 //                        Collector.setPower(0.75);
-//                        MoveByMillimetres(870,0);
+//                        MoveWithEncoder(870,0);
 //                        sleep(100);
-//                        if(ringData== BingusPipeline.RandomizationFactor.FOUR){MoveByMillimetres(100,0);MoveByMillimetres(100,2);}
-//                        MoveByMillimetres(860,2);
+//                        if(ringData== BingusPipeline.RandomizationFactor.FOUR){MoveWithEncoder(100,0);MoveWithEncoder(100,2);}
+//                        MoveWithEncoder(860,2);
 //                        Collector.setPower(0);
-//                        MoveByMillimetres(550,1);
+//                        MoveWithEncoder(550,1);
 //                        TurnBySeconds(90,1);
 //                        if(ringData==BingusPipeline.RandomizationFactor.ONE)LaunchSeveralRings(1);
 //                        else LaunchSeveralRings(3);
@@ -105,25 +105,25 @@ public class AutoBlue extends LinearOpMode {
 //                    }
                     TurnBySeconds(1450,1);
                     if (ringData == BingusPipeline.RandomizationFactor.ONE) {
-                        MoveByMillimetres(600, 0);
-                        MoveByMillimetres(400, 1);
+                        MoveWithEncoder(600, 0);
+                        MoveWithEncoder(400, 1);
                         DeployArm();
                         Grabber.setPosition(1);
                         sleep(2000);
-                        MoveByMillimetres(600, 2);
+                        MoveWithEncoder(600, 2);
                     } else {
                         if (ringData == BingusPipeline.RandomizationFactor.ZERO) {
-                            MoveByMillimetres(1200, 1);
+                            MoveWithEncoder(1200, 1);
                             DeployArm();
                             Grabber.setPosition(1);
                             sleep(2000);
                         } else {
-                            MoveByMillimetres(1200, 0);
-                            MoveByMillimetres(1200, 1);
+                            MoveWithEncoder(1200, 0);
+                            MoveWithEncoder(1200, 1);
                             DeployArm();
                             Grabber.setPosition(1);
                             sleep(2000);
-                            MoveByMillimetres(1200, 2);
+                            MoveWithEncoder(1200, 2);
                         }
                     }
                     ExecuteFlag=true;
@@ -132,20 +132,36 @@ public class AutoBlue extends LinearOpMode {
             }
         }
     }
-    public void MoveByMillimetres(float millis,int direction){
+//    public void MoveByMillimetres(float millis,int direction){
+//        //direction counted from 0, being backwards, counterclockwise
+//        //0=backward, 1=right, 2=forward, 3=left
+//        ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+//        while(localTime.time()<=millis*1.135) { //what the fuck am i doing
+//            RLmotor.setPower(Math.signum((direction-1)*2-1));
+//            RRmotor.setPower(Math.signum(direction%3*2-1));
+//            FLmotor.setPower(Math.signum(direction%3*2-1));
+//            FRmotor.setPower(Math.signum((direction-1)*2-1));
+//        }
+//        RLmotor.setPower(0);
+//        RRmotor.setPower(0);
+//        FLmotor.setPower(0);
+//        FRmotor.setPower(0);
+//        sleep(250);
+//    }
+    public void MoveWithEncoder(int millis,int direction){
         //direction counted from 0, being backwards, counterclockwise
         //0=backward, 1=right, 2=forward, 3=left
-        ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-        while(localTime.time()<=millis*1.135) { //what the fuck am i doing
-            RLmotor.setPower(Math.signum((direction-1)*2-1));
-            RRmotor.setPower(Math.signum(direction%3*2-1));
-            FLmotor.setPower(Math.signum(direction%3*2-1));
-            FRmotor.setPower(Math.signum((direction-1)*2-1));
-        }
+        FRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        FRmotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        FRmotor.setTargetPosition(millis);
+        FRmotor.setPower(Math.signum((direction-1)*2-1));
+        RLmotor.setPower(Math.signum((direction-1)*2-1));
+        RRmotor.setPower(Math.signum(direction%3*2-1));
+        FLmotor.setPower(Math.signum(direction%3*2-1));
+        FRmotor.setPower(0);
         RLmotor.setPower(0);
         RRmotor.setPower(0);
         FLmotor.setPower(0);
-        FRmotor.setPower(0);
         sleep(250);
     }
     public void DeployArm(){

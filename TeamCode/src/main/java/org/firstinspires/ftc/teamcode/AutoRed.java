@@ -82,19 +82,19 @@ public class AutoRed extends LinearOpMode {
             while(opModeIsActive()){
                 if(!ExecuteFlag) {
                     Grabber.setPosition(0);
-                    MoveByMillimetres(1845, 2);
+                    MoveWithEncoder(1845, 2);
                     TurnBySeconds(95,1);
                     LaunchSeveralRings(3);
                     TurnBySeconds(95,0);
 //                    if(ringData != BingusPipeline.RandomizationFactor.ZERO) {
-//                        MoveByMillimetres(550, 3);
+//                        MoveWithEncoder(550, 3);
 //                        Collector.setPower(0.75);
-//                        MoveByMillimetres(870,0);
+//                        MoveWithEncoder(870,0);
 //                        sleep(100);
-//                        if(ringData==BingusPipeline.RandomizationFactor.FOUR){MoveByMillimetres(100,0);MoveByMillimetres(100,2);}
-//                        MoveByMillimetres(860,2);
+//                        if(ringData==BingusPipeline.RandomizationFactor.FOUR){MoveWithEncoder(100,0);MoveWithEncoder(100,2);}
+//                        MoveWithEncoder(860,2);
 //                        Collector.setPower(0);
-//                        MoveByMillimetres(550,1);
+//                        MoveWithEncoder(550,1);
 //                        TurnBySeconds(95,1);
 //                        if(ringData==BingusPipeline.RandomizationFactor.ONE)LaunchSeveralRings(1);
 //                        else LaunchSeveralRings(3);
@@ -102,25 +102,25 @@ public class AutoRed extends LinearOpMode {
 //                    }
                     TurnBySeconds(1450,1);
                     if (ringData == BingusPipeline.RandomizationFactor.ONE) {
-                        MoveByMillimetres(600, 0);
-                        MoveByMillimetres(400, 1);
+                        MoveWithEncoder(600, 0);
+                        MoveWithEncoder(400, 1);
                         DeployArm();
                         Grabber.setPosition(1);
                         sleep(2000);
-                        MoveByMillimetres(600, 2);
+                        MoveWithEncoder(600, 2);
                     } else {
                         if (ringData == BingusPipeline.RandomizationFactor.ZERO) {
-                            MoveByMillimetres(600, 3);
+                            MoveWithEncoder(600, 3);
                             DeployArm();
                             Grabber.setPosition(1);
                             sleep(2000);
                         } else {
-                            MoveByMillimetres(600, 3);
-                            MoveByMillimetres(1200, 0);
+                            MoveWithEncoder(600, 3);
+                            MoveWithEncoder(1200, 0);
                             DeployArm();
                             Grabber.setPosition(1);
                             sleep(2000);
-                            MoveByMillimetres(1200, 2);
+                            MoveWithEncoder(1200, 2);
                         }
                     }
                     ExecuteFlag=true;
@@ -129,7 +129,7 @@ public class AutoRed extends LinearOpMode {
             }
         }
     }
-    public void MoveByMillimetres(float millis,int direction){
+    public void MoveWithEncoderLegacy(float millis,int direction){
         //direction counted from 0, being backwards, counterclockwise
         //0=backward, 1=right, 2=forward, 3=left
         ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
@@ -149,6 +149,22 @@ public class AutoRed extends LinearOpMode {
         Worm.setPower(-1);
         sleep(2100);
         Worm.setPower(0);
+    }
+    public void MoveWithEncoder(int millis,int direction){
+        //direction counted from 0, being backwards, counterclockwise
+        //0=backward, 1=right, 2=forward, 3=left
+        FRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        FRmotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        FRmotor.setTargetPosition(millis);
+        FRmotor.setPower(Math.signum((direction-1)*2-1));
+        RLmotor.setPower(Math.signum((direction-1)*2-1));
+        RRmotor.setPower(Math.signum(direction%3*2-1));
+        FLmotor.setPower(Math.signum(direction%3*2-1));
+        FRmotor.setPower(0);
+        RLmotor.setPower(0);
+        RRmotor.setPower(0);
+        FLmotor.setPower(0);
+        sleep(250);
     }
     public void LaunchSeveralRings(int amount){
         ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
