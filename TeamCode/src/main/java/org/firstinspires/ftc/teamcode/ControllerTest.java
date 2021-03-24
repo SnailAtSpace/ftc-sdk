@@ -36,6 +36,10 @@ public class ControllerTest extends LinearOpMode {
     boolean prevpush;
     boolean prevfly;
     boolean prevcoll;
+    double for_axis;
+    double strafe_axis;
+    double turn_axis;
+    double worm_axis;
     waitForStart();
     if (opModeIsActive()) {                                                                         //Pre-run phase
       Grabber.scaleRange(0.2,0.66);
@@ -47,10 +51,10 @@ public class ControllerTest extends LinearOpMode {
         prevpush=push;
         prevfly=flywheel;
         prevcoll=collector;
-        double for_axis = LogarithmifyInput(gamepad1.left_stick_y,LogPower);
-        double strafe_axis = LogarithmifyInput(gamepad1.left_stick_x,LogPower);
-        double turn_axis = LogarithmifyInput(gamepad1.right_stick_x,LogPower);
-        double worm_axis = LogarithmifyInput(gamepad2.left_stick_y,LogPower);
+        for_axis = LogarithmifyInput(gamepad1.left_stick_y,LogPower);
+        strafe_axis = LogarithmifyInput(gamepad1.left_stick_x,LogPower);
+        turn_axis = LogarithmifyInput(gamepad1.right_stick_x,LogPower);
+        worm_axis = LogarithmifyInput(gamepad2.left_stick_y,LogPower);
         grab = gamepad2.left_bumper;
         flywheel = gamepad2.right_bumper;
         push =((int)(gamepad2.right_trigger+0.25) != 0);
