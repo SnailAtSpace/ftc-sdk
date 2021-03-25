@@ -137,8 +137,8 @@ public class AutoRedEnc extends LinearOpMode {
         //direction counted from 0, being backwards, counterclockwise
         //0=backward, 1=right, 2=forward, 3=left
         commonValues.FRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        commonValues.FRmotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         commonValues.FRmotor.setTargetPosition(millis);
+        commonValues.FRmotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         commonValues.FRmotor.setPower(Math.signum((direction-1)*2-1));
         commonValues.RLmotor.setPower(Math.signum((direction-1)*2-1));
         commonValues.RRmotor.setPower(Math.signum(direction%3*2-1));

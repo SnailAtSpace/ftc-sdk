@@ -150,8 +150,8 @@ public class AutoBlueEnc extends LinearOpMode {
         //direction counted from 0, being backwards, counterclockwise
         //0=backward, 1=right, 2=forward, 3=left
         FRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        FRmotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         FRmotor.setTargetPosition(millis);
+        FRmotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         FRmotor.setPower(Math.signum((direction-1)*2-1));
         RLmotor.setPower(Math.signum((direction-1)*2-1));
         RRmotor.setPower(Math.signum(direction%3*2-1));
