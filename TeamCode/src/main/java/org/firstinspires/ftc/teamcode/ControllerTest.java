@@ -3,30 +3,20 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
+import java.util.stream.Collector;
 
 //test commit 2
 @TeleOp(name = "Bingus Controller Test")
 public class ControllerTest extends LinearOpMode {
+  CommonValues commonValues = new CommonValues();
   @Override
   public void runOpMode() {
-    DcMotor FRmotor, RRmotor, FLmotor, RLmotor, Worm, Flywheel, Collector;
-    Servo Grabber, Pushrod;
-    FRmotor = hardwareMap.get(DcMotor.class, "FRmotor");                        //Hardware mapping and declaration of devices
-    RRmotor = hardwareMap.get(DcMotor.class, "RRmotor");
-    FLmotor = hardwareMap.get(DcMotor.class, "FLmotor");
-    RLmotor = hardwareMap.get(DcMotor.class, "RLmotor");
-    Flywheel = hardwareMap.get(DcMotor.class, "FWmotor");
-    Worm = hardwareMap.get(DcMotor.class, "Wmotor");
-    Grabber = hardwareMap.get(Servo.class,"Gservo");
-    Pushrod = hardwareMap.get(Servo.class,"Pservo");
-    Collector = hardwareMap.get(DcMotor.class,"Cmotor");
-    FRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    FLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    RRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    RLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    Flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);//Initialization phase
-    Worm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     final int LogPower=3;
     boolean grab = false;
     boolean push = false;
@@ -40,12 +30,16 @@ public class ControllerTest extends LinearOpMode {
     double strafe_axis;
     double turn_axis;
     double worm_axis;
+    boolean isFlywheelRunning = false;
+    commonValues.Initialize(hardwareMap);
     waitForStart();
     if (opModeIsActive()) {                                                                         //Pre-run phase
-      Grabber.scaleRange(0.2,0.66);
-      Pushrod.scaleRange(0.19,0.25);
-      Grabber.setPosition(1);
-      Pushrod.setPosition(0);
+      commonValues.Grabber.scaleRange(0.2,0.66);
+      commonValues.Pushrod.scaleRange(0.19,0.3);
+      commonValues.Grabber.setPosition(1);
+      commonValues.Pushrod.setPosition(0);
+      DcMotorEx FlywheelEx = (DcMotorEx)(commonValues.Flywheel);
+      //FlywheelEx.setVelocityPIDFCoefficients();
       while (opModeIsActive()) {                                                                    //Run phase
         prevgrab=grab;
         prevpush=push;
@@ -59,28 +53,32 @@ public class ControllerTest extends LinearOpMode {
         flywheel = gamepad2.right_bumper;
         push =((int)(gamepad2.right_trigger+0.25) != 0);
         collector = (gamepad2.dpad_down)||(gamepad2.dpad_up);
-        FRmotor.setPower(for_axis + strafe_axis + turn_axis);                                       //wheel motor movement
-        RRmotor.setPower(for_axis - strafe_axis + turn_axis);
-        FLmotor.setPower(-for_axis + strafe_axis + turn_axis);
-        RLmotor.setPower(-for_axis - strafe_axis + turn_axis);
-        Worm.setPower(worm_axis);
+        commonValues.FRmotor.setPower(for_axis + strafe_axis + turn_axis);                                       //wheel motor movement
+        commonValues.RRmotor.setPower(for_axis - strafe_axis + turn_axis);
+        commonValues.FLmotor.setPower(-for_axis + strafe_axis + turn_axis);
+        commonValues.RLmotor.setPower(-for_axis - strafe_axis + turn_axis);
+        commonValues.Worm.setPower(worm_axis);
         if(!prevgrab && grab) {                                                                     //arm servo movement
-          Grabber.setPosition(1-Grabber.getPosition());                                          //0.88=0.66(open state)+0.22(closed state)
+          commonValues.Grabber.setPosition(1-commonValues.Grabber.getPosition());                                          //0.88=0.66(open state)+0.22(closed state)
         }
         if(!prevpush && push){
-          Pushrod.setPosition(1);
+          commonValues.Pushrod.setPosition(1);
           sleep(100);
-          Pushrod.setPosition(0);
+          commonValues.Pushrod.setPosition(0);
         }
         if(!prevfly&&flywheel){
-          Flywheel.setPower(1-Flywheel.getPower());
+          FlywheelEx.setVelocity(4500-(isFlywheelRunning?1:0)*4500);
+          isFlywheelRunning=!isFlywheelRunning;
         }
         if(!prevcoll&&collector){
           if(gamepad2.dpad_down){
-            Collector.setPower(-0.75-Math.abs(Collector.getPower())*Math.signum(Math.signum(Collector.getPower())-1));
+            commonValues.Collector.setPower(-0.75-Math.abs(commonValues.Collector.getPower())*Math.signum(Math.signum(commonValues.Collector.getPower())-1));
           }
-          else Collector.setPower(0.75-Collector.getPower()*Math.signum(Math.signum(Collector.getPower())+1));
+          else commonValues.Collector.setPower(0.75-commonValues.Collector.getPower()*Math.signum(Math.signum(commonValues.Collector.getPower())+1));
         }
+        double vel = FlywheelEx.getVelocity()/28*60;
+        telemetry.addData("Flywheel Velocity: ",vel);
+        telemetry.update();
       }
     }
   }

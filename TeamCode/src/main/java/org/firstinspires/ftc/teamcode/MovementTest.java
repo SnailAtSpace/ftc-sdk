@@ -17,8 +17,8 @@ import java.util.Locale;
 @TeleOp(name="Movement Test")
 public class MovementTest extends LinearOpMode {
     BNO055IMU imu;
-    Orientation angles;
-    Acceleration gravity;
+    Orientation angles = new Orientation();
+    Acceleration gravity = new Acceleration();
     double for_axis;
     double strafe_axis;
     double turn_axis;
@@ -31,7 +31,7 @@ public class MovementTest extends LinearOpMode {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.calibrationDataFile = "BNO055IMUCalibration.json"; // see the calibration sample opmode
+        parameters.calibrationDataFile = "calib.json"; // see the calibration sample opmode
         parameters.loggingEnabled      = true;
         parameters.loggingTag          = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
@@ -52,58 +52,21 @@ public class MovementTest extends LinearOpMode {
                 commonValues.RRmotor.setPower(for_axis - strafe_axis + turn_axis);
                 commonValues.FLmotor.setPower(-for_axis + strafe_axis + turn_axis);
                 commonValues.RLmotor.setPower(-for_axis - strafe_axis + turn_axis);
+                angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                gravity  = imu.getGravity();
+                telemetry.addData("status", imu.getSystemStatus().toShortString());
+                telemetry.addData("calib", imu.getCalibrationStatus().toString());
+                telemetry.addData("heading", formatAngle(angles.angleUnit, angles.firstAngle));
+                telemetry.addData("roll", formatAngle(angles.angleUnit, angles.secondAngle));
+                telemetry.addData("pitch", formatAngle(angles.angleUnit, angles.thirdAngle));
+                telemetry.addData("grvty", gravity.toString());
+                telemetry.addData("mag", String.format(Locale.getDefault(), "%.3f",
+                        Math.sqrt(gravity.xAccel*gravity.xAccel
+                                + gravity.yAccel*gravity.yAccel
+                                + gravity.zAccel*gravity.zAccel)));
                 telemetry.update();
             }
         }
-    }
-    void composeTelemetry() {
-        telemetry.addAction(new Runnable() { @Override public void run()
-        {
-            angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-            gravity  = imu.getGravity();
-        }
-        });
-        telemetry.addLine().addData("status", new Func<String>() {
-                    @Override public String value() {
-                        return imu.getSystemStatus().toShortString();
-                    }
-                }).addData("calib", new Func<String>() {
-                    @Override public String value() {
-                        return imu.getCalibrationStatus().toString();
-                    }
-                });
-
-        telemetry.addLine()
-                .addData("heading", new Func<String>() {
-                    @Override public String value() {
-                        return formatAngle(angles.angleUnit, angles.firstAngle);
-                    }
-                })
-                .addData("roll", new Func<String>() {
-                    @Override public String value() {
-                        return formatAngle(angles.angleUnit, angles.secondAngle);
-                    }
-                })
-                .addData("pitch", new Func<String>() {
-                    @Override public String value() {
-                        return formatAngle(angles.angleUnit, angles.thirdAngle);
-                    }
-                });
-
-        telemetry.addLine()
-                .addData("grvty", new Func<String>() {
-                    @Override public String value() {
-                        return gravity.toString();
-                    }
-                })
-                .addData("mag", new Func<String>() {
-                    @Override public String value() {
-                        return String.format(Locale.getDefault(), "%.3f",
-                                Math.sqrt(gravity.xAccel*gravity.xAccel
-                                        + gravity.yAccel*gravity.yAccel
-                                        + gravity.zAccel*gravity.zAccel));
-                    }
-                });
     }
     String formatAngle(AngleUnit angleUnit, double angle) {
         return formatDegrees(AngleUnit.DEGREES.fromUnit(angleUnit, angle));

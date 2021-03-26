@@ -23,7 +23,6 @@ public class AutoBlueEnc extends LinearOpMode {
     Servo Grabber, Pushrod;
     public BingusPipeline.RandomizationFactor ringData;
     public ElapsedTime whenAreWe = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-
     @SuppressLint("DefaultLocale")
     @Override
     public void runOpMode(){
@@ -126,7 +125,7 @@ public class AutoBlueEnc extends LinearOpMode {
                     }
                     ExecuteFlag=true;
                 }
-                else try { Thread.sleep(50); } catch (InterruptedException ignored) {}
+                else idle();
             }
         }
     }

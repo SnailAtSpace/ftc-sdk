@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import java.lang.reflect.*;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode.*;
 public class CommonValues{
     DcMotor FRmotor;
     DcMotor RRmotor;
@@ -15,7 +17,7 @@ public class CommonValues{
     Servo Grabber;
     Servo Pushrod;
     DcMotor Collector;
-    Method sleep;
+    LinearOpMode lol = new LinearOpMode() {@Override public void runOpMode() throws InterruptedException {}};
     public void Initialize(HardwareMap hardwareMap) {
         FRmotor = hardwareMap.get(DcMotor.class, "FRmotor");
         RRmotor = hardwareMap.get(DcMotor.class, "RRmotor");
@@ -32,9 +34,17 @@ public class CommonValues{
         RLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         Flywheel.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         Worm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        this.sleep = sleep;
+        FRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        FLmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RLmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Flywheel.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        FRmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        RRmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        FLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        RLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        Flywheel.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
-
     public void MoveByMillimetres(float millis, int direction){
         //direction counted from 0, being backwards, counterclockwise
         //0=backward, 1=right, 2=forward, 3=left
@@ -49,20 +59,35 @@ public class CommonValues{
         RRmotor.setPower(0);
         FLmotor.setPower(0);
         FRmotor.setPower(0);
-        try {
-            sleep(250);
-        } catch (InterruptedException ignored) {
-        }
+        sleep(250);
     }
-
+    public void MoveWithEncoder(int millis,int direction){
+        //direction counted from 0, being backwards, counterclockwise
+        //0=backward, 1=right, 2=forward, 3=left
+        FRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        FRmotor.setTargetPosition((int)(millis*((direction-1)*2-1)*1.71));
+        FRmotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        FRmotor.setPower(1);
+        while(FRmotor.isBusy()){
+            RLmotor.setPower(Math.signum((direction-1)*2-1));
+            RRmotor.setPower(Math.signum(direction%3*2-1));
+            FLmotor.setPower(Math.signum(direction%3*2-1));
+            lol.idle();
+        }
+        RLmotor.setPower(0);
+        RRmotor.setPower(0);
+        FLmotor.setPower(0);
+        FRmotor.setPower(0);
+        sleep(250);
+    }
     public void DeployArm() throws InterruptedException {
         Worm.setPower(-1);
         sleep(2100);
         Worm.setPower(0);
     }
 
-    private void sleep(long i) throws InterruptedException {
-        Thread.sleep(i);
+    public void sleep(long i){
+        lol.sleep(i);
     }
 
     public void LaunchSeveralRings(int amount) {

@@ -18,7 +18,7 @@ public class AutoRedEnc extends LinearOpMode {
     OpenCvCamera webcam;
     BingusPipeline pipeline;
     Boolean ExecuteFlag;
-    CommonValues commonValues;
+    CommonValues commonValues = new CommonValues();
     public BingusPipeline.RandomizationFactor ringData;
     public ElapsedTime whenAreWe = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     @SuppressLint("DefaultLocale")
@@ -108,7 +108,7 @@ public class AutoRedEnc extends LinearOpMode {
                     }
                     ExecuteFlag=true;
                 }
-                else try { Thread.sleep(50); } catch (InterruptedException ignored) {}
+                else idle();
             }
         }
     }
