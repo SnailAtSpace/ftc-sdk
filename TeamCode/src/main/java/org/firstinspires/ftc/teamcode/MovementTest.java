@@ -2,11 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.robotcore.external.Func;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -15,7 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 import java.util.Locale;
 @TeleOp(name="Movement Test")
-public class MovementTest extends LinearOpMode {
+public class MovementTest extends CommonOpMode {
     BNO055IMU imu;
     Orientation angles = new Orientation();
     Acceleration gravity = new Acceleration();
@@ -26,8 +24,6 @@ public class MovementTest extends LinearOpMode {
     int LogPower = 3;
     @Override
     public void runOpMode(){
-        CommonValues commonValues = new CommonValues();
-        commonValues.Initialize(hardwareMap);
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -39,19 +35,19 @@ public class MovementTest extends LinearOpMode {
         imu.initialize(parameters);
         waitForStart();
         if(opModeIsActive()){
-            commonValues.FRmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            commonValues.RRmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            commonValues.FLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            commonValues.FLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            FRmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            RRmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            FLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            FLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             while(opModeIsActive()){
                 for_axis = LogarithmifyInput(gamepad1.left_stick_y,LogPower);
                 strafe_axis = LogarithmifyInput(gamepad1.left_stick_x,LogPower);
                 turn_axis = LogarithmifyInput(gamepad1.right_stick_x,LogPower);
                 worm_axis = LogarithmifyInput(gamepad2.left_stick_y,LogPower);
-                commonValues.FRmotor.setPower(for_axis + strafe_axis + turn_axis);                                       //wheel motor movement
-                commonValues.RRmotor.setPower(for_axis - strafe_axis + turn_axis);
-                commonValues.FLmotor.setPower(-for_axis + strafe_axis + turn_axis);
-                commonValues.RLmotor.setPower(-for_axis - strafe_axis + turn_axis);
+                FRmotor.setPower(for_axis + strafe_axis + turn_axis);                                       //wheel motor movement
+                RRmotor.setPower(for_axis - strafe_axis + turn_axis);
+                FLmotor.setPower(for_axis - strafe_axis - turn_axis);
+                RLmotor.setPower(for_axis + strafe_axis - turn_axis);
                 angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
                 gravity  = imu.getGravity();
                 telemetry.addData("status", imu.getSystemStatus().toShortString());

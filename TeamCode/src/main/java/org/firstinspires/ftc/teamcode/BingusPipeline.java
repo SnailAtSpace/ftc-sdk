@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -75,6 +76,13 @@ public class BingusPipeline extends OpenCvPipeline {
     }
     public float getHigher() {
         return avgB2;
+    }
+    public void ComposeTelemetry(Telemetry telemetry){
+        RandomizationFactor ringData = getAnal();
+        telemetry.addData("Best guess of ring amount: ", ringData);
+        telemetry.addData("Lower: ", getLower());
+        telemetry.addData("Higher: ", getHigher());
+        telemetry.update();
     }
 }
 
