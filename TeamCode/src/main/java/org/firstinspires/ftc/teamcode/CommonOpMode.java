@@ -12,6 +12,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
@@ -38,8 +41,8 @@ public abstract class CommonOpMode extends LinearOpMode {
     public BingusPipeline.RandomizationFactor ringData;
     public ElapsedTime whenAreWe = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     final int LogPower=3;
-    boolean grab = false,push = false,collector = false,flywheel = false;
-    boolean prevgrab,prevpush,prevfly,prevcoll;
+    boolean grab = false,push = false,collector = false,flywheel = false,flick = false;
+    boolean prevgrab,prevpush,prevfly,prevcoll,prevflick;
     double for_axis,strafe_axis,turn_axis,worm_axis;
     public void Initialize(HardwareMap hardwareMap,boolean isAuto) {
         FRmotor = hardwareMap.get(DcMotor.class, "FRmotor");
@@ -146,7 +149,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         FRmotor.setTargetPosition((int)(millis*((direction-1)*2-1)*1.71));
         FRmotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         FRmotor.setPower(1);
-        while(FRmotor.getCurrentPosition()!=FRmotor.getTargetPosition()){
+        while(FRmotor.getCurrentPosition()!=FRmotor.getTargetPosition()&&opModeIsActive()){
             RLmotor.setPower(Math.signum((direction-1)*2-1));
             RRmotor.setPower(Math.signum(direction%3*2-1));
             FLmotor.setPower(Math.signum(direction%3*2-1));
@@ -173,18 +176,18 @@ public abstract class CommonOpMode extends LinearOpMode {
     public void LaunchSeveralRings(int amount) {
         ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         Flywheel.setPower(1);
-        while (localTime.time() <= 3000) {
+        while (localTime.time() <= 3000 && opModeIsActive()) {
         }
         Pushrod.setPosition(1);
-        while (localTime.time() <= 3100) {
+        while (localTime.time() <= 3100 && opModeIsActive()) {
         }
         Pushrod.setPosition(0);
         for (int i = 0; i <= amount--; i++) {
             localTime.reset();
-            while (localTime.time() <= 2000) {
+            while (localTime.time() <= 2000 && opModeIsActive()) {
             }
             Pushrod.setPosition(1);
-            while (localTime.time() <= 2100) {
+            while (localTime.time() <= 2100 && opModeIsActive()) {
             }
             Pushrod.setPosition(0);
         }
@@ -192,7 +195,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
     public void TurnBySeconds(int millis, int direction){
         ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-        while (localTime.time() <= millis) { //what the fuck am i doing
+        while (localTime.time() <= millis && opModeIsActive()) { //what the fuck am i doing
             RLmotor.setPower(1 - direction * 2);
             RRmotor.setPower(direction * 2 - 1);
             FLmotor.setPower(1 - direction * 2);
@@ -212,20 +215,22 @@ public abstract class CommonOpMode extends LinearOpMode {
         prevpush=push;
         prevfly=flywheel;
         prevcoll=collector;
+        prevflick=flick;
         for_axis = logarithmifyInput(gamepad1.left_stick_y,LogPower);
         strafe_axis = logarithmifyInput(gamepad1.left_stick_x,LogPower);
         turn_axis = logarithmifyInput(gamepad1.right_stick_x,LogPower);
         worm_axis = logarithmifyInput(gamepad2.left_stick_y,LogPower);
+        flick = gamepad1.a;
         grab = gamepad2.left_bumper;
         flywheel = gamepad2.right_bumper;
         push = ((int)(gamepad2.right_trigger+0.25) != 0);
         collector = (gamepad2.dpad_down)||(gamepad2.dpad_up);
     }
     public void operatePeripherals(){
-        FRmotor.setPower(for_axis + strafe_axis + turn_axis);
-        RRmotor.setPower(for_axis - strafe_axis + turn_axis);
-        FLmotor.setPower(for_axis - strafe_axis - turn_axis);
-        RLmotor.setPower(for_axis + strafe_axis - turn_axis);
+        FRmotor.setPower(for_axis - strafe_axis + turn_axis);
+        RRmotor.setPower(for_axis + strafe_axis + turn_axis);
+        FLmotor.setPower(for_axis + strafe_axis - turn_axis);
+        RLmotor.setPower(for_axis - strafe_axis - turn_axis);
         Worm.setPower(worm_axis);
         if(!prevgrab && grab) {
             Grabber.setPosition(1-Grabber.getPosition());
@@ -245,5 +250,31 @@ public abstract class CommonOpMode extends LinearOpMode {
             }
             else Collector.setPower(0.75-Collector.getPower()*Math.signum(Math.signum(Collector.getPower())+1));
         }
+        if(!prevflick&&flick)OrientToDegrees(-170);
+    }
+    public void OrientToDegrees(float angle){
+        float currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        while((currentAngle<--angle||currentAngle>++angle)&&opModeIsActive()){
+            currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+            if(currentAngle>++angle){
+                FLmotor.setPower(1);
+                FRmotor.setPower(-1);
+                RRmotor.setPower(-1);
+                RLmotor.setPower(1);
+            }
+            if(currentAngle<--angle){
+                FLmotor.setPower(-1);
+                FRmotor.setPower(1);
+                RRmotor.setPower(1);
+                RLmotor.setPower(-1);
+            }
+            telemetry.addData("Heading in degrees:",angles.firstAngle);
+            telemetry.update();
+        }
+        FLmotor.setPower(0);
+        FRmotor.setPower(0);
+        RRmotor.setPower(0);
+        RLmotor.setPower(0);
+        sleep(50);
     }
 }
