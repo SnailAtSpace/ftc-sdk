@@ -220,7 +220,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         strafe_axis = logarithmifyInput(gamepad1.left_stick_x,LogPower);
         turn_axis = logarithmifyInput(gamepad1.right_stick_x,LogPower);
         worm_axis = logarithmifyInput(gamepad2.left_stick_y,LogPower);
-        flick = gamepad1.a;
+        flick = gamepad1.x;
         grab = gamepad2.left_bumper;
         flywheel = gamepad2.right_bumper;
         push = ((int)(gamepad2.right_trigger+0.25) != 0);
@@ -250,25 +250,24 @@ public abstract class CommonOpMode extends LinearOpMode {
             }
             else Collector.setPower(0.75-Collector.getPower()*Math.signum(Math.signum(Collector.getPower())+1));
         }
-        if(!prevflick&&flick)OrientToDegrees(-170);
+        if(!prevflick&&flick)OrientToDegrees(0);
     }
     public void OrientToDegrees(float angle){
         float currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        float prev_err=0, integral=0;
         while((currentAngle<--angle||currentAngle>++angle)&&opModeIsActive()){
             currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
-            if(currentAngle>++angle){
-                FLmotor.setPower(1);
-                FRmotor.setPower(-1);
-                RRmotor.setPower(-1);
-                RLmotor.setPower(1);
-            }
-            if(currentAngle<--angle){
-                FLmotor.setPower(-1);
-                FRmotor.setPower(1);
-                RRmotor.setPower(1);
-                RLmotor.setPower(-1);
-            }
-            telemetry.addData("Heading in degrees:",angles.firstAngle);
+            float err = (currentAngle-angle)/180;
+            float proportional = err;
+            integral = integral+err;
+            float derivative = err-prev_err;
+            float output = 15*proportional+0*integral+0*derivative;
+            prev_err=err;
+            FLmotor.setPower(-output);
+            RLmotor.setPower(-output);
+            FRmotor.setPower(output);
+            RRmotor.setPower(output);
+            telemetry.addData("Heading in degrees:",currentAngle);
             telemetry.update();
         }
         FLmotor.setPower(0);
