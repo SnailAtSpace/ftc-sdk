@@ -241,7 +241,7 @@ public abstract class CommonOpMode extends LinearOpMode {
             Pushrod.setPosition(0);
         }
         if(!prevfly&&flywheel){
-            FlywheelEx.setVelocity(4500-(isFlywheelRunning?1:0)*4500);
+            FlywheelEx.setVelocity((4000-(isFlywheelRunning?1:0)*4000)*28.0/60.0);
             isFlywheelRunning=!isFlywheelRunning;
         }
         if(!prevcoll&&collector){
@@ -250,23 +250,25 @@ public abstract class CommonOpMode extends LinearOpMode {
             }
             else Collector.setPower(0.75-Collector.getPower()*Math.signum(Math.signum(Collector.getPower())+1));
         }
-        if(!prevflick&&flick)OrientToDegrees(0);
+        if(!prevflick&&flick)OrientToDegrees(-10);
     }
     public void OrientToDegrees(float angle){
         float currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
-        float prev_err=0, integral=0;
-        while((currentAngle<--angle||currentAngle>++angle)&&opModeIsActive()){
+        float err = (currentAngle-angle)/180;
+        float prev_err=0, integral=0, derivative=err;
+        while(((int)currentAngle<(int)angle||(int)currentAngle>(int)angle)&&opModeIsActive()||derivative>0.2){
             currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
-            float err = (currentAngle-angle)/180;
+            err = (currentAngle-angle)/180;
             float proportional = err;
             integral = integral+err;
-            float derivative = err-prev_err;
-            float output = 15*proportional+0*integral+0*derivative;
+            derivative = err-prev_err;
+            float output = 2*proportional+0.03f*integral+1*derivative;
+            if(prev_err*err<0)integral=0;
             prev_err=err;
-            FLmotor.setPower(-output);
-            RLmotor.setPower(-output);
-            FRmotor.setPower(output);
-            RRmotor.setPower(output);
+            FLmotor.setPower(-output*0.2);
+            RLmotor.setPower(-output*0.2);
+            FRmotor.setPower(output*0.2);
+            RRmotor.setPower(output*0.2);
             telemetry.addData("Heading in degrees:",currentAngle);
             telemetry.update();
         }
@@ -275,5 +277,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         RRmotor.setPower(0);
         RLmotor.setPower(0);
         sleep(50);
+        currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        if((int)currentAngle!=(int)angle)OrientToDegrees(angle);
     }
 }
