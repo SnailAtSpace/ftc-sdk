@@ -82,6 +82,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         parameters.loggingEnabled      = true;
         parameters.loggingTag          = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
+        parameters.mode = BNO055IMU.SensorMode.NDOF;
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
         if(isAuto) {
@@ -108,9 +109,9 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
     public void AutoRingLaunch(){
         MoveWithEncoder(1890, 2);
-        TurnBySeconds(90,1);
+        OrientToDegrees(-10);
         LaunchSeveralRings(3);
-        TurnBySeconds(90,0);
+        OrientToDegrees(0);
         if(ringData!=BingusPipeline.RandomizationFactor.ZERO) {
             MoveWithEncoder(550, 3);
             Collector.setPower(0.75);
@@ -119,10 +120,10 @@ public abstract class CommonOpMode extends LinearOpMode {
             sleep(100);
             MoveWithEncoder(1860,2);
             MoveWithEncoder(550,1);
-            TurnBySeconds(90,1);
+            OrientToDegrees(-10);
             if(ringData==BingusPipeline.RandomizationFactor.ONE)LaunchSeveralRings(1);
             else LaunchSeveralRings(3);
-            TurnBySeconds(90,0);
+            OrientToDegrees(0);
         }
         TurnBySeconds(1450,1);
     }
@@ -130,7 +131,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         //direction counted from 0, being backwards, counterclockwise
         //0=backward, 1=right, 2=forward, 3=left
         ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-        while (localTime.time() <= millis * 1.135) { //what the fuck am i doing
+        while (localTime.time() <= millis * 1.) { //what the fuck am i doing
             RLmotor.setPower(Math.signum((direction - 1) * 2 - 1));
             RRmotor.setPower(Math.signum(direction % 3 * 2 - 1));
             FLmotor.setPower(Math.signum(direction % 3 * 2 - 1));
