@@ -127,22 +127,24 @@ public abstract class CommonOpMode extends LinearOpMode {
         }
         TurnBySeconds(1450,1);
     }
-    public void MoveByMillimetres(float millis, int direction){
-        //direction counted from 0, being backwards, counterclockwise
-        //0=backward, 1=right, 2=forward, 3=left
-        ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-        while (localTime.time() <= millis * 1.) { //what the fuck am i doing
-            RLmotor.setPower(Math.signum((direction - 1) * 2 - 1));
-            RRmotor.setPower(Math.signum(direction % 3 * 2 - 1));
-            FLmotor.setPower(Math.signum(direction % 3 * 2 - 1));
-            FRmotor.setPower(Math.signum((direction - 1) * 2 - 1));
-        }
-        RLmotor.setPower(0);
-        RRmotor.setPower(0);
-        FLmotor.setPower(0);
-        FRmotor.setPower(0);
-        sleep(250);
-    }
+    //DEPRECATED====================================================================================
+//    public void MoveByMillimetres(float millis, int direction){
+//        //direction counted from 0, being backwards, counterclockwise
+//        //0=backward, 1=right, 2=forward, 3=left
+//        ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+//        while (localTime.time() <= millis * 1) { //what the fuck am i doing
+//            RLmotor.setPower(Math.signum((direction - 1) * 2 - 1));
+//            RRmotor.setPower(Math.signum(direction % 3 * 2 - 1));
+//            FLmotor.setPower(Math.signum(direction % 3 * 2 - 1));
+//            FRmotor.setPower(Math.signum((direction - 1) * 2 - 1));
+//        }
+//        RLmotor.setPower(0);
+//        RRmotor.setPower(0);
+//        FLmotor.setPower(0);
+//        FRmotor.setPower(0);
+//        sleep(250);
+//    }
+    //DEPRECATED====================================================================================
     public void MoveWithEncoder(int millis,int direction){
         //direction counted from 0, being backwards, counterclockwise
         //0=backward, 1=right, 2=forward, 3=left
@@ -177,19 +179,15 @@ public abstract class CommonOpMode extends LinearOpMode {
     public void LaunchSeveralRings(int amount) {
         ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         Flywheel.setPower(1);
-        while (localTime.time() <= 3000 && opModeIsActive()) {
-        }
+        while (localTime.time() <= 1500 && opModeIsActive()) {}
         Pushrod.setPosition(1);
-        while (localTime.time() <= 3100 && opModeIsActive()) {
-        }
+        while (localTime.time() <= 1600 && opModeIsActive()) {}
         Pushrod.setPosition(0);
         for (int i = 0; i <= amount--; i++) {
             localTime.reset();
-            while (localTime.time() <= 2000 && opModeIsActive()) {
-            }
+            while (localTime.time() <= 1000 && opModeIsActive()) {}
             Pushrod.setPosition(1);
-            while (localTime.time() <= 2100 && opModeIsActive()) {
-            }
+            while (localTime.time() <= 1100 && opModeIsActive()) {}
             Pushrod.setPosition(0);
         }
         Flywheel.setPower(0);
