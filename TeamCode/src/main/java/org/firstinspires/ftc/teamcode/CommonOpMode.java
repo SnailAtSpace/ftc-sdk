@@ -156,7 +156,6 @@ public abstract class CommonOpMode extends LinearOpMode {
             RLmotor.setPower(Math.signum((direction-1)*2-1));
             RRmotor.setPower(Math.signum(direction%3*2-1));
             FLmotor.setPower(Math.signum(direction%3*2-1));
-            idle();
         }
         RLmotor.setPower(0);
         RRmotor.setPower(0);
@@ -178,7 +177,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
     public void LaunchSeveralRings(int amount) {
         ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-        Flywheel.setPower(1);
+        FlywheelEx.setVelocity(4000*28/60.0);
         while (localTime.time() <= 1500 && opModeIsActive()) {}
         Pushrod.setPosition(1);
         while (localTime.time() <= 1600 && opModeIsActive()) {}

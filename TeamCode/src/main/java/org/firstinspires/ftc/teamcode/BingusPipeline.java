@@ -24,7 +24,7 @@ public class BingusPipeline extends OpenCvPipeline {
     //        Mat Cr = new Mat();
     float avgB1;
     float avgB2;
-    final int xL=0,yL=142,xH=0,yH=110;
+    final int xL=0,yL=151,xH=0,yH=123;
     final int offsetX=60,offsetY=7;
     Point regLowerA=new Point(xL,yL), regHigherA=new Point(xH,yH);
     Point regLowerB=new Point(xL+offsetX, yL+offsetY), regHigherB=new Point(xH+offsetX, yH+offsetY);

@@ -37,9 +37,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.external.Func;
+import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.MagneticFlux;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 
@@ -47,7 +49,7 @@ import java.io.File;
 import java.util.Locale;
 
 /**
- * {@link BNO055Calib} calibrates the IMU accelerometer per
+ * {@link SensorBNO055IMUCalibration} calibrates the IMU accelerometer per
  * "Section 3.11 Calibration" of the BNO055 specification.
  *
  * <p>Manual calibration of the IMU is definitely NOT necessary: except for the magnetometer
@@ -98,9 +100,9 @@ import java.util.Locale;
  * @see <a href="https://www.bosch-sensortec.com/bst/products/all_products/bno055">BNO055 product page</a>
  * @see <a href="https://ae-bst.resource.bosch.com/media/_tech/media/datasheets/BST_BNO055_DS000_14.pdf">BNO055 specification</a>
  */
-@TeleOp(name = "b", group = "Sensor")
+@TeleOp(name = "Sensor: BNO055 IMU Calibration", group = "Sensor")
 //@Disabled                            // Uncomment this to add to the opmode list
-public class BNO055Calib extends LinearOpMode
+public class SensorBNO055IMUCalibration extends LinearOpMode
     {
     //----------------------------------------------------------------------------------------------
     // State
@@ -111,6 +113,8 @@ public class BNO055Calib extends LinearOpMode
 
     // State used for updating telemetry
     Orientation angles;
+    Acceleration gravity;
+    MagneticFlux mag;
 
     //----------------------------------------------------------------------------------------------
     // Main logic
@@ -159,7 +163,7 @@ public class BNO055Calib extends LinearOpMode
                 // when you initialize the IMU in an opmode in which it is used. If you
                 // have more than one IMU on your robot, you'll of course want to use
                 // different configuration file names for each.
-                String filename = "calib.json";
+                String filename = "AdafruitIMUCalibration.json";
                 File file = AppUtil.getInstance().getSettingsFile(filename);
                 ReadWriteFile.writeFile(file, calibrationData.serialize());
                 telemetry.log().add("saved to '%s'", filename);
@@ -185,6 +189,8 @@ public class BNO055Calib extends LinearOpMode
                 // to do that in each of the three items that need that info, as that's
                 // three times the necessary expense.
                 angles   = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                gravity = imu.getGravity();
+                mag = imu.getMagneticFieldStrength();
                 }
             });
 
@@ -216,6 +222,22 @@ public class BNO055Calib extends LinearOpMode
                     return formatAngle(angles.angleUnit, angles.thirdAngle);
                     }
                 });
+        telemetry.addLine()
+                .addData("grvty", new Func<String>() {
+                    @Override public String value() {
+                        return gravity.toString();
+                    }
+                })
+                .addData("mag", new Func<String>() {
+                    @Override public String value() {
+                        return String.format(Locale.getDefault(), "%.3f",
+                                Math.sqrt(gravity.xAccel*gravity.xAccel
+                                        + gravity.yAccel*gravity.yAccel
+                                        + gravity.zAccel*gravity.zAccel));
+                    }
+                });
+        telemetry.addLine()
+                .addData("mag7", mag);
     }
 
     //----------------------------------------------------------------------------------------------

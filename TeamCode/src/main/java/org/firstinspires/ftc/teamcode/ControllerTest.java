@@ -18,12 +18,13 @@ public class ControllerTest extends CommonOpMode {
       while (opModeIsActive()) {
         composeInputs();
         operatePeripherals();
-        int vel = (int)FlywheelEx.getVelocity()/28*60;
+        double vel = FlywheelEx.getVelocity()/28*60;
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         telemetry.addData("Flywheel RPM: ",vel);
         telemetry.addData("Heading in degrees:",angles.firstAngle);
         telemetry.addData("Sensor Calibration Status:",imu.getCalibrationStatus());
         telemetry.addData("Sensor Mode:",imu.getParameters().mode);
+        telemetry.addData("Encoder Data:",FRmotor.getCurrentPosition());
         telemetry.update();
       }
     }
