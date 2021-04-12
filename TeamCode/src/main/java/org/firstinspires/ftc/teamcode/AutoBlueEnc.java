@@ -21,20 +21,20 @@ public class AutoBlueEnc extends CommonOpMode{
                     AutoRingLaunch();
                     switch (ringData){
                         case ZERO:
-                            MoveWithEncoder(1200, 1);
+                            MoveWithEncoder(866, 1);
                             DeployArm();
                             break;
                         case ONE:
-                            MoveWithEncoder(600, 0);
-                            MoveWithEncoder(400, 1);
+                            MoveWithEncoder(285, 0);
+                            MoveWithEncoder(285, 1);
                             DeployArm();
-                            MoveWithEncoder(600, 2);
+                            MoveWithEncoder(285, 2);
                             break;
                         case FOUR:
-                            MoveWithEncoder(1200, 0);
-                            MoveWithEncoder(1200, 1);
+                            MoveWithEncoder(866, 0);
+                            MoveWithEncoder(866, 1);
                             DeployArm();
-                            MoveWithEncoder(1200, 2);
+                            MoveWithEncoder(866, 2);
                             break;
                     }
                     RetractArm();
