@@ -11,11 +11,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -35,8 +33,6 @@ public abstract class CommonOpMode extends LinearOpMode {
     BingusPipeline pipeline;
     Boolean ExecuteFlag;
     BNO055IMU imu;
-    Orientation angles = new Orientation();
-    Acceleration gravity = new Acceleration();
     boolean isFlywheelRunning = false;
     public BingusPipeline.RandomizationFactor ringData;
     public ElapsedTime whenAreWe = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
@@ -125,26 +121,27 @@ public abstract class CommonOpMode extends LinearOpMode {
             else LaunchSeveralRings(3);
             OrientToDegrees(0);
         }
-        TurnBySeconds(1450,1);
+        OrientToDegrees(180);
     }
-    //DEPRECATED====================================================================================
-//    public void MoveByMillimetres(float millis, int direction){
-//        //direction counted from 0, being backwards, counterclockwise
-//        //0=backward, 1=right, 2=forward, 3=left
-//        ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-//        while (localTime.time() <= millis * 1) { //what the fuck am i doing
-//            RLmotor.setPower(Math.signum((direction - 1) * 2 - 1));
-//            RRmotor.setPower(Math.signum(direction % 3 * 2 - 1));
-//            FLmotor.setPower(Math.signum(direction % 3 * 2 - 1));
-//            FRmotor.setPower(Math.signum((direction - 1) * 2 - 1));
-//        }
-//        RLmotor.setPower(0);
-//        RRmotor.setPower(0);
-//        FLmotor.setPower(0);
-//        FRmotor.setPower(0);
-//        sleep(250);
-//    }
-    //DEPRECATED====================================================================================
+//DO NOT USE =======================================================================================
+    @Deprecated
+    public void MoveByMillimetres(float millis, int direction){
+        //direction counted from 0, being backwards, counterclockwise
+        //0=backward, 1=right, 2=forward, 3=left
+        ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+        while (localTime.time() <= millis * 1) { //what the fuck am i doing
+            RLmotor.setPower(Math.signum((direction - 1) * 2 - 1));
+            RRmotor.setPower(Math.signum(direction % 3 * 2 - 1));
+            FLmotor.setPower(Math.signum(direction % 3 * 2 - 1));
+            FRmotor.setPower(Math.signum((direction - 1) * 2 - 1));
+        }
+        RLmotor.setPower(0);
+        RRmotor.setPower(0);
+        FLmotor.setPower(0);
+        FRmotor.setPower(0);
+        sleep(250);
+    }
+//DO NOT USE =======================================================================================
     public void MoveWithEncoder(int millis,int direction){
         //direction counted from 0, being backwards, counterclockwise
         //0=backward, 1=right, 2=forward, 3=left
@@ -179,19 +176,21 @@ public abstract class CommonOpMode extends LinearOpMode {
     public void LaunchSeveralRings(int amount) {
         ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         FlywheelEx.setVelocity(4000*28/60.0);
-        while (localTime.time() <= 1500 && opModeIsActive()) {}
+        while (FlywheelEx.getVelocity()<400*28/60.0 && opModeIsActive() && localTime.time()<=1500) {}
         Pushrod.setPosition(1);
-        while (localTime.time() <= 1600 && opModeIsActive()) {}
+        safeSleep(100);
         Pushrod.setPosition(0);
         for (int i = 0; i <= amount--; i++) {
             localTime.reset();
-            while (localTime.time() <= 1000 && opModeIsActive()) {}
+            while (FlywheelEx.getVelocity()<400*28/60.0 && opModeIsActive() && localTime.time()<=1500) {}
             Pushrod.setPosition(1);
-            while (localTime.time() <= 1100 && opModeIsActive()) {}
+            safeSleep(100);
             Pushrod.setPosition(0);
         }
         Flywheel.setPower(0);
     }
+//DO NOT USE =======================================================================================
+    @Deprecated
     public void TurnBySeconds(int millis, int direction){
         ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         while (localTime.time() <= millis && opModeIsActive()) { //what the fuck am i doing
@@ -206,8 +205,13 @@ public abstract class CommonOpMode extends LinearOpMode {
         FRmotor.setPower(0);
         sleep(100);
     }
+//DO NOT USE =======================================================================================
     public static double logarithmifyInput(double input, int power) {
         return Math.abs(Math.pow(input,power))*Math.signum(input);
+    }
+    public void safeSleep(int millis){
+        ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+        while (localTime.time() <= millis && opModeIsActive()) {}
     }
     public void composeInputs(){
         prevgrab=grab;
@@ -254,14 +258,14 @@ public abstract class CommonOpMode extends LinearOpMode {
     public void OrientToDegrees(float angle){
         float currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
         float err = (currentAngle-angle)/180;
-        float prev_err=0, integral=0, derivative=err;
-        while(((int)currentAngle<(int)--angle||(int)currentAngle>(int)++angle)&&opModeIsActive()||derivative>0.2){
+        float prev_err=0, integral=0, derivative=err*180;
+        while(((int)currentAngle<(int)--angle||(int)currentAngle>(int)++angle) && opModeIsActive() || derivative>0.2){
             currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
             err = (currentAngle-angle)/180;
             float proportional = err;
             integral = integral+err;
             derivative = err-prev_err;
-            float output = 2*proportional+0.05f*integral+1*derivative;
+            float output = 2.5f*proportional+0.05f*integral+0.75f*derivative;
             if(prev_err*err<0)integral=0;
             prev_err=err;
             FLmotor.setPower(-output*0.2);

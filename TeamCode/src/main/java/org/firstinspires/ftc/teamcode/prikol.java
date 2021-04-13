@@ -1,27 +1,32 @@
 package org.firstinspires.ftc.teamcode;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@TeleOp
-@Disabled
-public class prikol extends LinearOpMode {
-    DcMotor RRmotor;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+
+@TeleOp(name = "Bingus Debug OpMode", group = "debug")
+public class prikol extends CommonOpMode {
     @Override
     public void runOpMode(){
-        RRmotor = hardwareMap.get(DcMotor.class, "FWmotor");
-        RRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        RRmotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        Initialize(hardwareMap,false);
         waitForStart();
         if(opModeIsActive()){
-            RRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            RRmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            Grabber.setPosition(1);
+            Pushrod.setPosition(0);
             while(opModeIsActive()){
-                RRmotor.setPower(1);
-                telemetry.addData("Pos: ",((DcMotorEx)RRmotor).getVelocity()*360/7);
+                composeInputs();
+                operatePeripherals();
+                double vel = FlywheelEx.getVelocity()/28*60;
+                Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+                telemetry.addData("Flywheel RPM: ",vel);
+                telemetry.addData("Flywheel Pos: ", Flywheel.getCurrentPosition());
+                telemetry.addData("Heading in degrees:",angles.firstAngle);
+                telemetry.addData("Sensor Calibration Status:",imu.getCalibrationStatus());
+                telemetry.addData("Sensor Mode:",imu.getParameters().mode);
+                telemetry.addData("Encoder Data:",FRmotor.getCurrentPosition());
                 telemetry.update();
             }
         }
