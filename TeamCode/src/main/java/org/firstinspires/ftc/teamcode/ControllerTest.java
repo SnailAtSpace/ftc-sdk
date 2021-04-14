@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-//test commit 2
 @TeleOp(name = "Bingus Controller Test")
 public class ControllerTest extends LinearOpMode {
   @Override
