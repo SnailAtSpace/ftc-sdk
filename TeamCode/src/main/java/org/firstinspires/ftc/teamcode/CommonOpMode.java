@@ -33,6 +33,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     BingusPipeline pipeline;
     Boolean ExecuteFlag;
     BNO055IMU imu;
+    final double rpm = 3625;
     boolean isFlywheelRunning = false;
     public BingusPipeline.RandomizationFactor ringData;
     public ElapsedTime whenAreWe = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
@@ -81,6 +82,12 @@ public abstract class CommonOpMode extends LinearOpMode {
         parameters.mode = BNO055IMU.SensorMode.NDOF;
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
+        FlywheelEx.setVelocityPIDFCoefficients(
+                10,
+                1.5,
+                4,
+                FlywheelEx.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).f
+        );
         if(isAuto) {
             int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
             webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
@@ -175,14 +182,14 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
     public void LaunchSeveralRings(int amount) {
         ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-        FlywheelEx.setVelocity(4000*28/60.0);
-        while (FlywheelEx.getVelocity()<400*28/60.0 && opModeIsActive() && localTime.time()<=1500) {}
+        FlywheelEx.setVelocity(rpm*28/60.0);
+        while (FlywheelEx.getVelocity()<rpm*28/60.0 && opModeIsActive() && localTime.time()<=1500) {}
         Pushrod.setPosition(1);
         safeSleep(100);
         Pushrod.setPosition(0);
         for (int i = 0; i <= amount--; i++) {
             localTime.reset();
-            while (FlywheelEx.getVelocity()<400*28/60.0 && opModeIsActive() && localTime.time()<=1500) {}
+            while (FlywheelEx.getVelocity()<rpm*28/60.0 && opModeIsActive() && localTime.time()<=1500) {}
             Pushrod.setPosition(1);
             safeSleep(100);
             Pushrod.setPosition(0);
@@ -244,7 +251,7 @@ public abstract class CommonOpMode extends LinearOpMode {
             Pushrod.setPosition(0);
         }
         if(!prevfly&&flywheel){
-            FlywheelEx.setVelocity((4000-(isFlywheelRunning?1:0)*4000)*28.0/60.0);
+            FlywheelEx.setVelocity((rpm-(isFlywheelRunning?1:0)*rpm)*28.0/60.0);
             isFlywheelRunning=!isFlywheelRunning;
         }
         if(!prevcoll&&collector){
@@ -258,21 +265,28 @@ public abstract class CommonOpMode extends LinearOpMode {
     public void OrientToDegrees(float angle){
         float currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
         float err = (currentAngle-angle)/180;
-        float prev_err=0, integral=0, derivative=err*180;
-        while(((int)currentAngle<(int)--angle||(int)currentAngle>(int)++angle) && opModeIsActive() || derivative>0.2){
+        float prev_err=0, integral=0, derivative=err;
+        float pcoef=3,icoef=0.2f,dcoef=0.5f;
+        while(((int)currentAngle<(int)--angle||(int)currentAngle>(int)++angle) && opModeIsActive()){
             currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
             err = (currentAngle-angle)/180;
             float proportional = err;
             integral = integral+err;
             derivative = err-prev_err;
-            float output = 2.5f*proportional+0.05f*integral+0.75f*derivative;
-            if(prev_err*err<0)integral=0;
+            float output = pcoef*proportional+icoef*integral+dcoef*derivative;
+            //if(prev_err*err<0)integral=0;
             prev_err=err;
-            FLmotor.setPower(-output*0.2);
-            RLmotor.setPower(-output*0.2);
-            FRmotor.setPower(output*0.2);
-            RRmotor.setPower(output*0.2);
+            FLmotor.setPower(-output*0.3);
+            RLmotor.setPower(-output*0.3);
+            FRmotor.setPower(output*0.3);
+            RRmotor.setPower(output*0.3);
             telemetry.addData("Heading in degrees:",currentAngle);
+            telemetry.addData("Error: ",err);
+            telemetry.addData("PrevError: ",prev_err);
+            telemetry.addData("P: ",pcoef*proportional);
+            telemetry.addData("I: ",icoef*integral);
+            telemetry.addData("D: ",dcoef*derivative);
+            telemetry.addData("O: ",output);
             telemetry.update();
         }
         FLmotor.setPower(0);
