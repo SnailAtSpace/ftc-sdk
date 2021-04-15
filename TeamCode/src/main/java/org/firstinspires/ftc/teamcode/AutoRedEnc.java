@@ -4,14 +4,14 @@ import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name="Autonomous RED edition: with BONUS encoders!",preselectTeleOp = "Bingus Controller Test")
+@Autonomous(name="Autonomous RED edition: with BONUS encoders!",preselectTeleOp = "Bingus Controller Test MkI")
 public class AutoRedEnc extends CommonOpMode {
     @SuppressLint("DefaultLocale")
     @Override
     public void runOpMode(){
         Initialize(hardwareMap,true);
         while((!isStarted())&&(!isStopRequested())){
-            pipeline.ComposeTelemetry(telemetry);
+            ringData = pipeline.ComposeTelemetry(telemetry);
             idle();
         }
         if(opModeIsActive()){
@@ -21,7 +21,12 @@ public class AutoRedEnc extends CommonOpMode {
                     AutoRingLaunch();
                     switch (ringData){
                         case ZERO:
+<<<<<<< Updated upstream
                             MoveWithEncoder(285, 3);
+=======
+                            OrientToDegrees(-90);
+                            MoveWithEncoder(600, 3);
+>>>>>>> Stashed changes
                             DeployArm();
                             break;
                         case ONE:

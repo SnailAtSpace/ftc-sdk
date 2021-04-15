@@ -77,12 +77,12 @@ public class BingusPipeline extends OpenCvPipeline {
     public float getHigher() {
         return avgB2;
     }
-    public void ComposeTelemetry(Telemetry telemetry){
-        RandomizationFactor ringData = getAnal();
-        telemetry.addData("Best guess of ring amount: ", ringData);
+    public RandomizationFactor ComposeTelemetry(Telemetry telemetry){
+        telemetry.addData("Best guess of ring amount: ", getAnal());
         telemetry.addData("Lower: ", getLower());
         telemetry.addData("Higher: ", getHigher());
         telemetry.update();
+        return getAnal();
     }
 }
 
