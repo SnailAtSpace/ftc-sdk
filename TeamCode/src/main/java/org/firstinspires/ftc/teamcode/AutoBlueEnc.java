@@ -12,6 +12,7 @@ public class AutoBlueEnc extends CommonOpMode{
         Initialize(hardwareMap,true);
         while((!isStarted())&&(!isStopRequested())){
             ringData = pipeline.ComposeTelemetry(telemetry);
+            telemetry.addData("testifff",ringData);
             idle();
         }
         if(opModeIsActive()){

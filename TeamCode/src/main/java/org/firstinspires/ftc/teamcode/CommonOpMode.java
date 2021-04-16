@@ -35,7 +35,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     BNO055IMU imu;
     final double rpm = 3625;
     boolean isFlywheelRunning = false;
-    public BingusPipeline.RandomizationFactor ringData;
+    public BingusPipeline.RandomizationFactor ringData=BingusPipeline.RandomizationFactor.ZERO;
     final int LogPower=3;
     boolean grab = false,push = false,collector = false,flywheel = false,flick = false;
     boolean prevgrab,prevpush,prevfly,prevcoll,prevflick;
@@ -101,6 +101,7 @@ public abstract class CommonOpMode extends LinearOpMode {
             telemetry.addLine("Waiting for start.");
             telemetry.addLine("Please calibrate starting position.");
             telemetry.update();
+
         }
     }
 
@@ -161,7 +162,7 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public void RetractArm(){
         Worm.setPower(1);
-        sleep(2099);
+        sleep(1050);
         Worm.setPower(0);
     }
 
