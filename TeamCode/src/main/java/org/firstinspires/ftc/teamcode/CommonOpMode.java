@@ -33,12 +33,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     BingusPipeline pipeline;
     Boolean ExecuteFlag;
     BNO055IMU imu;
-<<<<<<< Updated upstream
     final double rpm = 3625;
-=======
-    final double rpm = 3620;
-    Orientation angles = new Orientation();
->>>>>>> Stashed changes
     boolean isFlywheelRunning = false;
     public BingusPipeline.RandomizationFactor ringData;
     final int LogPower=3;
@@ -108,16 +103,17 @@ public abstract class CommonOpMode extends LinearOpMode {
             telemetry.update();
         }
     }
+
     public void ReadyPeripherals(){
         Grabber.setPosition(0);
         Pushrod.setPosition(0);
         ExecuteFlag=false;
     }
+
     public void AutoRingLaunch(){
         MoveWithEncoder(1454, 2);
         OrientToDegrees(-10);
         LaunchSeveralRings(3);
-<<<<<<< Updated upstream
         OrientToDegrees(0);
         if(ringData!=BingusPipeline.RandomizationFactor.ZERO) {
             MoveWithEncoder(285, 3);
@@ -134,60 +130,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         }
         OrientToDegrees(180);
     }
-//DO NOT USE =======================================================================================
-    @Deprecated
-    public void MoveByMillimetres(float millis, int direction){
-        //direction counted from 0, being backwards, counterclockwise
-        //0=backward, 1=right, 2=forward, 3=left
-        ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-        while (localTime.time() <= millis * 1) { //what the fuck am i doing
-            RLmotor.setPower(Math.signum((direction - 1) * 2 - 1));
-            RRmotor.setPower(Math.signum(direction % 3 * 2 - 1));
-            FLmotor.setPower(Math.signum(direction % 3 * 2 - 1));
-            FRmotor.setPower(Math.signum((direction - 1) * 2 - 1));
-        }
-        RLmotor.setPower(0);
-        RRmotor.setPower(0);
-        FLmotor.setPower(0);
-        FRmotor.setPower(0);
-        sleep(250);
-    }
-//DO NOT USE =======================================================================================
-=======
-//        if(ringData!=BingusPipeline.RandomizationFactor.ZERO) {
-//            MoveWithEncoder(285, 3);
-//            Collector.setPower(0.75);
-//            MoveWithEncoder(1450,0);
-//            Collector.setPower(-0.75);
-//            sleep(100);
-//            MoveWithEncoder(1450,2);
-//            MoveWithEncoder(285,1);
-//            OrientToDegrees(-10);
-//            if(ringData==BingusPipeline.RandomizationFactor.ONE)LaunchSeveralRings(1);
-//            else LaunchSeveralRings(3);
-//            OrientToDegrees(0);
-//        }
-    }
-    //DEPRECATED====================================================================================
-//    public void MoveByMillimetres(float millis, int direction){
-//        //direction counted from 0, being backwards, counterclockwise
-//        //0=backward, 1=right, 2=forward, 3=left
-//        ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-//        while (localTime.time() <= millis * 1) { //what the fuck am i doing
-//            RLmotor.setPower(Math.signum((direction - 1) * 2 - 1));
-//            RRmotor.setPower(Math.signum(direction % 3 * 2 - 1));
-//            FLmotor.setPower(Math.signum(direction % 3 * 2 - 1));
-//            FRmotor.setPower(Math.signum((direction - 1) * 2 - 1));
-//        }
-//        RLmotor.setPower(0);
-//        RRmotor.setPower(0);
-//        FLmotor.setPower(0);
-//        FRmotor.setPower(0);
-//        sleep(250);
-//    }
-    //DEPRECATED====================================================================================
-    /**Use this method in place of the deprecated MoveByMilliseconds.**/
->>>>>>> Stashed changes
+
     public void MoveWithEncoder(int millis,int direction){
         //direction counted from 0, being backwards, counterclockwise
         //0=backward, 1=right, 2=forward, 3=left
@@ -207,6 +150,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         FRmotor.setPower(0);
         sleep(250);
     }
+
     public void DeployArm(){
         Worm.setPower(-1);
         sleep(2100);
@@ -214,71 +158,41 @@ public abstract class CommonOpMode extends LinearOpMode {
         Grabber.setPosition(1);
         sleep(2000);
     }
+
     public void RetractArm(){
         Worm.setPower(1);
         sleep(2099);
         Worm.setPower(0);
     }
+
     public void LaunchSeveralRings(int amount) {
-<<<<<<< Updated upstream
-        ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         FlywheelEx.setVelocity(rpm*28/60.0);
-        while (FlywheelEx.getVelocity()<rpm*28/60.0 && opModeIsActive() && localTime.time()<=1500) {}
-        Pushrod.setPosition(1);
-        safeSleep(100);
-        Pushrod.setPosition(0);
-        for (int i = 0; i <= amount--; i++) {
-            localTime.reset();
-            while (FlywheelEx.getVelocity()<rpm*28/60.0 && opModeIsActive() && localTime.time()<=1500) {}
-=======
-        FlywheelEx.setVelocity(rpmToTps(rpm));
-        while (opModeIsActive() && FlywheelEx.getVelocity()<rpmToTps(rpm)){}
+        while (FlywheelEx.getVelocity()<rpmToTps(rpm) && opModeIsActive()) {}
         Pushrod.setPosition(1);
         safeSleep(100);
         Pushrod.setPosition(0);
         for (int i = 0; i <= amount-1; i++) {
             while (opModeIsActive()&&FlywheelEx.getVelocity()<rpmToTps(rpm)){}
->>>>>>> Stashed changes
             Pushrod.setPosition(1);
             safeSleep(100);
             Pushrod.setPosition(0);
         }
         Flywheel.setPower(0);
     }
-<<<<<<< Updated upstream
-//DO NOT USE =======================================================================================
-    @Deprecated
-=======
+
     public void safeSleep(int millis){
         ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         while(localTime.time()<millis&&opModeIsActive())idle();
     }
+
     public double rpmToTps(double rpm){
         return rpm*28/60.0;
     }
->>>>>>> Stashed changes
-    public void TurnBySeconds(int millis, int direction){
-        ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-        while (localTime.time() <= millis && opModeIsActive()) { //what the fuck am i doing
-            RLmotor.setPower(1 - direction * 2);
-            RRmotor.setPower(direction * 2 - 1);
-            FLmotor.setPower(1 - direction * 2);
-            FRmotor.setPower(direction * 2 - 1);
-        }
-        RLmotor.setPower(0);
-        RRmotor.setPower(0);
-        FLmotor.setPower(0);
-        FRmotor.setPower(0);
-        sleep(100);
-    }
-//DO NOT USE =======================================================================================
+
     public static double logarithmifyInput(double input, int power) {
         return Math.abs(Math.pow(input,power))*Math.signum(input);
     }
-    public void safeSleep(int millis){
-        ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-        while (localTime.time() <= millis && opModeIsActive()) {}
-    }
+
     public void composeInputs(){
         prevgrab=grab;
         prevpush=push;
@@ -295,6 +209,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         push = ((int)(gamepad2.right_trigger+0.25) != 0);
         collector = (gamepad2.dpad_down)||(gamepad2.dpad_up);
     }
+
     public void operatePeripherals(){
         FRmotor.setPower(for_axis - strafe_axis + turn_axis);
         RRmotor.setPower(for_axis + strafe_axis + turn_axis);
@@ -321,51 +236,31 @@ public abstract class CommonOpMode extends LinearOpMode {
         }
         if(!prevflick&&flick)OrientToDegrees(-10);
     }
+
     public void OrientToDegrees(float angle){
         float currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
-        float err = (currentAngle-angle)/180;
-<<<<<<< Updated upstream
-        float prev_err=0, integral=0, derivative=err;
-        float pcoef=3,icoef=0.2f,dcoef=0.5f;
-        while(((int)currentAngle<(int)--angle||(int)currentAngle>(int)++angle) && opModeIsActive()){
-=======
-        float prev_err=0, integral=0, derivative=0;
+        float err;
+        float prev_err=0, integral=0, derivative;
         final float pcoef=3,icoef=0.01f,dcoef=0.2f;
         while(((int)currentAngle<(int)angle-1||(int)currentAngle>(int)angle+1)&&opModeIsActive()){
->>>>>>> Stashed changes
             currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
             err = (currentAngle-angle)/180;
             float proportional = err*pcoef;
             integral = integral+err;
-<<<<<<< Updated upstream
-            derivative = err-prev_err;
-            float output = pcoef*proportional+icoef*integral+dcoef*derivative;
-            //if(prev_err*err<0)integral=0;
-=======
             derivative = (err-prev_err)*dcoef;
             float output = proportional+icoef*integral+derivative;
             if(prev_err*err<0)integral=0;
->>>>>>> Stashed changes
             prev_err=err;
             FLmotor.setPower(-output*0.3);
             RLmotor.setPower(-output*0.3);
             FRmotor.setPower(output*0.3);
             RRmotor.setPower(output*0.3);
             telemetry.addData("Heading in degrees:",currentAngle);
-<<<<<<< Updated upstream
-            telemetry.addData("Error: ",err);
-            telemetry.addData("PrevError: ",prev_err);
-            telemetry.addData("P: ",pcoef*proportional);
-            telemetry.addData("I: ",icoef*integral);
-            telemetry.addData("D: ",dcoef*derivative);
-            telemetry.addData("O: ",output);
-=======
             telemetry.addData("P",proportional);
             telemetry.addData("I",integral*icoef);
             telemetry.addData("D",derivative);
             telemetry.addData("O",output);
             telemetry.addData("R",angle);
->>>>>>> Stashed changes
             telemetry.update();
         }
         FLmotor.setPower(0);

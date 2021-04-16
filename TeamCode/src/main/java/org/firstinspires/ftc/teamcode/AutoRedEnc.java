@@ -21,28 +21,33 @@ public class AutoRedEnc extends CommonOpMode {
                     AutoRingLaunch();
                     switch (ringData){
                         case ZERO:
-<<<<<<< Updated upstream
-                            MoveWithEncoder(285, 3);
-=======
-                            OrientToDegrees(-90);
-                            MoveWithEncoder(600, 3);
->>>>>>> Stashed changes
+                            OrientToDegrees(90);
+                            MoveWithEncoder(200, 2);
                             DeployArm();
+                            MoveWithEncoder(200, 0);
+                            RetractArm();
+                            OrientToDegrees(0);
                             break;
                         case ONE:
-                            MoveWithEncoder(285, 0);
-                            MoveWithEncoder(285, 1);
-                            DeployArm();
                             MoveWithEncoder(285, 2);
+                            OrientToDegrees(-90);
+                            DeployArm();
+                            MoveWithEncoder(285, 0);
+                            RetractArm();
+                            OrientToDegrees(0);
+                            MoveWithEncoder(285, 0);
                             break;
                         case FOUR:
-                            MoveWithEncoder(285, 3);
-                            MoveWithEncoder(866, 0);
-                            DeployArm();
                             MoveWithEncoder(866, 2);
+                            OrientToDegrees(90);
+                            MoveWithEncoder(200, 2);
+                            DeployArm();
+                            MoveWithEncoder(200, 0);
+                            RetractArm();
+                            OrientToDegrees(0);
+                            MoveWithEncoder(866, 0);
                             break;
                     }
-                    RetractArm();
                     ExecuteFlag=true;
                 }
                 else idle();
