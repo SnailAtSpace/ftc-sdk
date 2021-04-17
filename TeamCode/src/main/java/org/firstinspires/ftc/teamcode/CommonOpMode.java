@@ -116,20 +116,30 @@ public abstract class CommonOpMode extends LinearOpMode {
         OrientToDegrees(-10);
         LaunchSeveralRings(3);
         OrientToDegrees(0);
-        if(ringData!=BingusPipeline.RandomizationFactor.ZERO) {
-            MoveWithEncoder(285, 3);
-            Collector.setPower(0.75);
-            MoveWithEncoder(1450,0);
-            Collector.setPower(-0.75);
-            sleep(100);
-            MoveWithEncoder(1450,2);
-            MoveWithEncoder(285,1);
-            OrientToDegrees(-10);
-            if(ringData==BingusPipeline.RandomizationFactor.ONE)LaunchSeveralRings(1);
-            else LaunchSeveralRings(3);
-            OrientToDegrees(0);
-        }
-        OrientToDegrees(180);
+//        if(ringData!=BingusPipeline.RandomizationFactor.ZERO) {
+//            MoveWithEncoder(285, 3);
+//            Collector.setPower(0.75);
+//            MoveWithEncoder(1450,0);
+//            Collector.setPower(-0.75);
+//            sleep(100);
+//            MoveWithEncoder(1450,2);
+//            MoveWithEncoder(285,1);
+//            OrientToDegrees(-10);
+//            if(ringData==BingusPipeline.RandomizationFactor.ONE)LaunchSeveralRings(1);
+//            else LaunchSeveralRings(3);
+//            OrientToDegrees(0);
+//        }
+    }
+
+    public void StopAndResetEncoders(){
+        FRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        FLmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RLmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        FRmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        RRmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        FLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        RLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     public void MoveWithEncoder(int millis,int direction){
@@ -149,6 +159,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         RRmotor.setPower(0);
         FLmotor.setPower(0);
         FRmotor.setPower(0);
+        FRmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         sleep(250);
     }
 
@@ -168,11 +179,7 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public void LaunchSeveralRings(int amount) {
         FlywheelEx.setVelocity(rpm*28/60.0);
-        while (FlywheelEx.getVelocity()<rpmToTps(rpm) && opModeIsActive()) {}
-        Pushrod.setPosition(1);
-        safeSleep(100);
-        Pushrod.setPosition(0);
-        for (int i = 0; i <= amount-1; i++) {
+        for (int i = 0; i < amount; i++) {
             while (opModeIsActive()&&FlywheelEx.getVelocity()<rpmToTps(rpm)){}
             Pushrod.setPosition(1);
             safeSleep(100);
@@ -243,7 +250,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         float err;
         float prev_err=0, integral=0, derivative;
         final float pcoef=3,icoef=0.01f,dcoef=0.2f;
-        while(((int)currentAngle<(int)angle-1||(int)currentAngle>(int)angle+1)&&opModeIsActive()){
+        while(((int)currentAngle<(int)angle-1||(int)currentAngle>(int)angle+1) && opModeIsActive() && !isStopRequested()){
             currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
             err = (currentAngle-angle)/180;
             float proportional = err*pcoef;
