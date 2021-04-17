@@ -34,7 +34,7 @@ public class BingusPipeline extends OpenCvPipeline {
     float avgB2r;
     final int xL=15,yL=172,yH=144,xLr=275;
     final int offsetX=30,offsetY=7;
-    Point regLowerA=new Point(xL,yL), regHigherA=new Point(xL,yH),regLowerAr=new Point(xLr,yL), regHigherAr=new Point(xLr,yH);;
+    Point regLowerA=new Point(xL,yL), regHigherA=new Point(xL,yH),regLowerAr=new Point(xLr,yL), regHigherAr=new Point(xLr,yH);
     Point regLowerB=new Point(xL+offsetX, yL+offsetY), regHigherB=new Point(xL+offsetX, yH+offsetY);
     Point regLowerBr=new Point(xLr+offsetX, yL+offsetY), regHigherBr=new Point(xLr+offsetX, yH+offsetY);
     private volatile BingusPipeline.RandomizationFactor position;

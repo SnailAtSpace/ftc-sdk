@@ -14,7 +14,6 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -249,7 +248,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         float currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
         float err;
         float prev_err=0, integral=0, derivative;
-        final float pcoef=3,icoef=0.01f,dcoef=0.3f;
+        final float pcoef=3,icoef=0.015f,dcoef=0.3f;
         while(((int)currentAngle<(int)angle-1||(int)currentAngle>(int)angle+1) && opModeIsActive() && !isStopRequested()){
             currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
             err = (currentAngle-angle)/180;
@@ -268,7 +267,6 @@ public abstract class CommonOpMode extends LinearOpMode {
             telemetry.addData("I",integral*icoef);
             telemetry.addData("D",derivative);
             telemetry.addData("O",output);
-            telemetry.addData("R",angle);
             telemetry.update();
         }
         FLmotor.setPower(0);
