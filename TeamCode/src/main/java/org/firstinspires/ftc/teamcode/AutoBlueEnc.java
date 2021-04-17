@@ -12,7 +12,8 @@ public class AutoBlueEnc extends CommonOpMode{
         Initialize(hardwareMap,true);
         while((!isStarted())&&(!isStopRequested())){
             ringData = pipeline.ComposeTelemetry(telemetry);
-            telemetry.addData("testifff",ringData);
+            startLine = pipeline.getSide();
+            telemetry.addData("testifff",startLine);
             idle();
         }
         if(opModeIsActive()){
@@ -22,31 +23,32 @@ public class AutoBlueEnc extends CommonOpMode{
                     AutoRingLaunch();
                     switch (ringData){
                         case ZERO:
+                            MoveWithEncoder(75, 2);
                             OrientToDegrees(-90);
-                            MoveWithEncoder(200, 2);
+                            MoveWithEncoder(175, 0);
                             DeployArm();
-                            MoveWithEncoder(200, 0);
+                            MoveWithEncoder(175, 2);
                             RetractArm();
                             OrientToDegrees(0);
                             break;
                         case ONE:
-                            MoveWithEncoder(285, 2);
+                            MoveWithEncoder(500, 2);
                             OrientToDegrees(-90);
                             DeployArm();
-                            MoveWithEncoder(285, 0);
+                            MoveWithEncoder(175, 2);
                             RetractArm();
                             OrientToDegrees(0);
-                            MoveWithEncoder(285, 0);
+                            MoveWithEncoder(100, 0);
                             break;
                         case FOUR:
-                            MoveWithEncoder(866, 2);
+                            MoveWithEncoder(1000, 2);
                             OrientToDegrees(-90);
-                            MoveWithEncoder(200, 2);
+                            MoveWithEncoder(175, 0);
                             DeployArm();
-                            MoveWithEncoder(200, 0);
+                            MoveWithEncoder(175, 2);
                             RetractArm();
                             OrientToDegrees(0);
-                            MoveWithEncoder(866, 0);
+                            MoveWithEncoder(250, 0);
                             break;
                     }
                     ExecuteFlag=true;
