@@ -33,15 +33,16 @@ public abstract class CommonOpMode extends LinearOpMode {
     BingusPipeline pipeline;
     Boolean ExecuteFlag;
     BNO055IMU imu;
+    BingusPipeline.StartLine side;
     BingusPipeline.StartLine startLine=BingusPipeline.StartLine.RIGHT;
-    final double rpm = 3625;
+    final double rpm = 3590;
     boolean isFlywheelRunning = false;
     public BingusPipeline.RandomizationFactor ringData=BingusPipeline.RandomizationFactor.ZERO;
     final int LogPower=3;
     boolean grab = false,push = false,collector = false,flywheel = false,flick = false;
     boolean prevgrab,prevpush,prevfly,prevcoll,prevflick;
     double for_axis,strafe_axis,turn_axis,worm_axis;
-    public void Initialize(HardwareMap hardwareMap,boolean isAuto) {
+    public void Initialize(HardwareMap hardwareMap, boolean isAuto, BingusPipeline.StartLine side) {
         FRmotor = hardwareMap.get(DcMotor.class, "FRmotor");
         RRmotor = hardwareMap.get(DcMotor.class, "RRmotor");
         FLmotor = hardwareMap.get(DcMotor.class, "FLmotor");
@@ -83,26 +84,27 @@ public abstract class CommonOpMode extends LinearOpMode {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
         FlywheelEx.setVelocityPIDFCoefficients(
-                10,
+                9,
                 1.5,
                 4,
                 FlywheelEx.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).f
         );
+        this.side = side;
         if(isAuto) {
             int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
             webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
             pipeline = new BingusPipeline();
             webcam.setPipeline(pipeline);
+            pipeline.setSide(side);
             webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
                 @Override
                 public void onOpened() {
-                    webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+                    webcam.startStreaming(640, 360, OpenCvCameraRotation.UPRIGHT);
                 }
             });
             telemetry.addLine("Waiting for start.");
             telemetry.addLine("Please calibrate starting position.");
             telemetry.update();
-
         }
     }
 
@@ -114,8 +116,10 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public void AutoRingLaunch(){
         MoveWithEncoder(1400, 2);
-        OrientToDegrees(-3);
+        if(side==BingusPipeline.StartLine.RIGHT)OrientToDegrees(-4);
+        else OrientToDegrees(-22);
         LaunchSeveralRings(3);
+        OrientToDegrees(0);
 //        if(ringData!=BingusPipeline.RandomizationFactor.ZERO) {
 //            MoveWithEncoder(285, 3);
 //            Collector.setPower(0.75);
@@ -146,10 +150,10 @@ public abstract class CommonOpMode extends LinearOpMode {
         FLmotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         RRmotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         RLmotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        FRmotor.setPower(0.6);
-        FLmotor.setPower(0.6);
-        RRmotor.setPower(0.6);
-        RLmotor.setPower(0.6);
+        FRmotor.setPower(0.75);
+        RLmotor.setPower(0.75);
+        FLmotor.setPower(0.75);
+        RRmotor.setPower(0.75);
         while(FRmotor.getCurrentPosition()!=FRmotor.getTargetPosition()&&opModeIsActive()&&FRmotor.isBusy()){}
         RLmotor.setPower(0);
         RRmotor.setPower(0);
@@ -172,7 +176,7 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public void RetractArm(){
         Worm.setPower(1);
-        sleep(1050);
+        sleep(1047);
         Worm.setPower(0);
     }
 
@@ -248,7 +252,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         float currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
         float err;
         float prev_err=0, integral=0, derivative;
-        final float pcoef=3,icoef=0.015f,dcoef=0.3f;
+        final float pcoef=3,icoef=0.02f,dcoef=0.3f;
         while(((int)currentAngle<(int)angle-1||(int)currentAngle>(int)angle+1) && opModeIsActive() && !isStopRequested()){
             currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
             err = (currentAngle-angle)/180;
@@ -258,10 +262,10 @@ public abstract class CommonOpMode extends LinearOpMode {
             float output = proportional+icoef*integral+derivative;
             if(prev_err*err<0)integral=0;
             prev_err=err;
-            FLmotor.setPower(-output*0.35);
-            RLmotor.setPower(-output*0.35);
-            FRmotor.setPower(output*0.35);
-            RRmotor.setPower(output*0.35);
+            FLmotor.setPower(-output*0.4);
+            RLmotor.setPower(-output*0.4);
+            FRmotor.setPower(output*0.4);
+            RRmotor.setPower(output*0.4);
             telemetry.addData("Heading in degrees:",currentAngle);
             telemetry.addData("P",proportional);
             telemetry.addData("I",integral*icoef);

@@ -8,11 +8,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@TeleOp(name = "Bingus Controller Test MkI")
+@TeleOp(name = "Bingus Controller Test")
 public class ControllerTest extends CommonOpMode {
     @Override
     public void runOpMode() {
-        Initialize(hardwareMap, false);
+        Initialize(hardwareMap, false, BingusPipeline.StartLine.RIGHT);
         waitForStart();
         if (opModeIsActive()) {
             Grabber.setPosition(1);

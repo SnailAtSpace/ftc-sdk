@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 public class prikol extends CommonOpMode {
     @Override
     public void runOpMode(){
-        Initialize(hardwareMap,false);
+        Initialize(hardwareMap,false, BingusPipeline.StartLine.RIGHT);
         waitForStart();
         if(opModeIsActive()){
             Grabber.setPosition(1);

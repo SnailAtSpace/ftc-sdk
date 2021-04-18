@@ -4,15 +4,14 @@ import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(name="Autonomous RED edition: with BONUS encoders!",preselectTeleOp = "Bingus Controller Test MkI")
+@Autonomous(name="Autonomous RED edition: Right Edition",preselectTeleOp = "Bingus Controller Test")
 public class AutoRedEnc extends CommonOpMode {
     @SuppressLint("DefaultLocale")
     @Override
     public void runOpMode(){
-        Initialize(hardwareMap,true);
+        Initialize(hardwareMap,true,BingusPipeline.StartLine.RIGHT);
         while((!isStarted())&&(!isStopRequested())){
             ringData = pipeline.ComposeTelemetry(telemetry);
-            startLine = pipeline.getSide();
             idle();
         }
         if(opModeIsActive()){
@@ -22,30 +21,36 @@ public class AutoRedEnc extends CommonOpMode {
                     AutoRingLaunch();
                     switch (ringData){
                         case ZERO:
-                            MoveWithEncoder(300, 2);
+                            MoveWithEncoder(500, 2);
                             OrientToDegrees(90);
                             DeployArm();
                             MoveWithEncoder(175, 2);
                             RetractArm();
                             OrientToDegrees(0);
+                            MoveWithEncoder(100,0);
+                            OrientToDegrees(0);
                             break;
                         case ONE:
-                            MoveWithEncoder(500, 2);
+                            MoveWithEncoder(800, 2);
                             OrientToDegrees(-90);
+                            MoveWithEncoder(150, 2);
                             DeployArm();
                             MoveWithEncoder(100, 2);
                             RetractArm();
                             OrientToDegrees(0);
-                            MoveWithEncoder(100, 0);
+                            MoveWithEncoder(200, 0);
+                            OrientToDegrees(0);
                             break;
                         case FOUR:
-                            MoveWithEncoder(1000, 2);
-                            OrientToDegrees(90);
+                            MoveWithEncoder(1300, 2);
+                            OrientToDegrees(130);
+                            MoveWithEncoder(50, 0);
                             DeployArm();
                             MoveWithEncoder(175, 2);
                             RetractArm();
                             OrientToDegrees(0);
-                            MoveWithEncoder(250, 0);
+                            MoveWithEncoder(300, 0);
+                            OrientToDegrees(0);
                             break;
                     }
                     ExecuteFlag=true;

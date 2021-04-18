@@ -6,8 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class resetWorm extends CommonOpMode {
     @Override
     public void runOpMode(){
-        DcMotor Worm = hardwareMap.get(DcMotor.class, "Wmotor");
-        Worm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        Initialize(hardwareMap,false, BingusPipeline.StartLine.RIGHT);
         waitForStart();
         if(opModeIsActive()) {
             RetractArm();
