@@ -23,6 +23,7 @@ public class AutoRedEnc extends CommonOpMode {
                         case ZERO:
                             MoveWithEncoder(500, 2);
                             OrientToDegrees(90);
+                            MoveWithEncoder(175, 2);
                             DeployArm();
                             MoveWithEncoder(175, 2);
                             RetractArm();
@@ -42,14 +43,15 @@ public class AutoRedEnc extends CommonOpMode {
                             OrientToDegrees(0);
                             break;
                         case FOUR:
-                            MoveWithEncoder(1300, 2);
-                            OrientToDegrees(130);
-                            MoveWithEncoder(50, 0);
+                            MoveWithEncoder(1350, 2);
+                            OrientToDegrees(100);
+                            OrientToDegrees(145);
+                            MoveWithEncoder(75, 2);
                             DeployArm();
-                            MoveWithEncoder(175, 2);
+                            MoveWithEncoder(50, 2);
                             RetractArm();
                             OrientToDegrees(0);
-                            MoveWithEncoder(300, 0);
+                            MoveWithEncoder(255, 0);
                             OrientToDegrees(0);
                             break;
                     }

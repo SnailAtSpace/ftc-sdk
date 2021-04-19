@@ -42,14 +42,14 @@ public class AutoRedLeft extends CommonOpMode {
                             OrientToDegrees(0);
                             break;
                         case FOUR:
-                            MoveWithEncoder(1000, 2);
-                            OrientToDegrees(130);
+                            MoveWithEncoder(650, 2);
+                            OrientToDegrees(135);
                             MoveWithEncoder(250, 0);
                             DeployArm();
-                            MoveWithEncoder(700, 2);
+                            MoveWithEncoder(800, 2);
                             RetractArm();
                             OrientToDegrees(0);
-                            MoveWithEncoder(175, 0);
+                            MoveWithEncoder(75, 0);
                             OrientToDegrees(0);
                             break;
                     }

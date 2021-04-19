@@ -33,9 +33,8 @@ public abstract class CommonOpMode extends LinearOpMode {
     BingusPipeline pipeline;
     Boolean ExecuteFlag;
     BNO055IMU imu;
-    BingusPipeline.StartLine side;
-    BingusPipeline.StartLine startLine=BingusPipeline.StartLine.RIGHT;
-    final double rpm = 3590;
+    BingusPipeline.StartLine side=BingusPipeline.StartLine.RIGHT;
+    final double rpm = 3580;
     boolean isFlywheelRunning = false;
     public BingusPipeline.RandomizationFactor ringData=BingusPipeline.RandomizationFactor.ZERO;
     final int LogPower=3;
@@ -84,12 +83,13 @@ public abstract class CommonOpMode extends LinearOpMode {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
         FlywheelEx.setVelocityPIDFCoefficients(
-                9,
-                1.5,
-                4,
+                10,
+                1.75,
+                6,
                 FlywheelEx.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER).f
         );
         this.side = side;
+        gamepad2.setJoystickDeadzone(0.1f);
         if(isAuto) {
             int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
             webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
@@ -117,9 +117,9 @@ public abstract class CommonOpMode extends LinearOpMode {
     public void AutoRingLaunch(){
         MoveWithEncoder(1400, 2);
         if(side==BingusPipeline.StartLine.RIGHT)OrientToDegrees(-4);
-        else OrientToDegrees(-22);
+        else OrientToDegrees(-21);
         LaunchSeveralRings(3);
-        OrientToDegrees(0);
+        OrientToDegrees(-4);
 //        if(ringData!=BingusPipeline.RandomizationFactor.ZERO) {
 //            MoveWithEncoder(285, 3);
 //            Collector.setPower(0.75);
@@ -183,7 +183,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     public void LaunchSeveralRings(int amount) {
         FlywheelEx.setVelocity(rpm*28/60.0);
         for (int i = 0; i <= amount; i++) {
-            while (opModeIsActive()&&FlywheelEx.getVelocity()<rpmToTps(rpm)&&!isStopRequested()){}
+            while (opModeIsActive()&&FlywheelEx.getVelocity()<rpmToTps(rpm)||FlywheelEx.getVelocity()>rpmToTps(rpm+100)&&!isStopRequested()){}
             Pushrod.setPosition(1);
             safeSleep(100);
             Pushrod.setPosition(0);
@@ -213,7 +213,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         for_axis = logarithmifyInput(gamepad1.left_stick_y,LogPower);
         strafe_axis = logarithmifyInput(gamepad1.left_stick_x,LogPower);
         turn_axis = logarithmifyInput(gamepad1.right_stick_x,LogPower);
-        worm_axis = logarithmifyInput(gamepad2.left_stick_y,LogPower);
+        worm_axis = gamepad2.left_stick_y;
         flick = gamepad1.x;
         grab = gamepad2.left_bumper;
         flywheel = gamepad2.right_bumper;
@@ -230,7 +230,9 @@ public abstract class CommonOpMode extends LinearOpMode {
         if(!prevgrab && grab) {
             Grabber.setPosition(1-Grabber.getPosition());
         }
-        if(!prevpush && push){
+        if(!prevpush && push
+            //&& FlywheelEx.getVelocity()>rpmToTps(rpm-100)&&FlywheelEx.getVelocity()<rpmToTps(rpm+100)
+        ){
             Pushrod.setPosition(1);
             sleep(100);
             Pushrod.setPosition(0);
@@ -241,21 +243,25 @@ public abstract class CommonOpMode extends LinearOpMode {
         }
         if(!prevcoll&&collector){
             if(gamepad2.dpad_down){
-                Collector.setPower(-0.75-Math.abs(Collector.getPower())*Math.signum(Math.signum(Collector.getPower())-1));
+                Collector.setPower(-1-Math.abs(Collector.getPower())*Math.signum(Math.signum(Collector.getPower())-1));
             }
-            else Collector.setPower(0.75-Collector.getPower()*Math.signum(Math.signum(Collector.getPower())+1));
+            else Collector.setPower(1-Collector.getPower()*Math.signum(Math.signum(Collector.getPower())+1));
         }
         if(!prevflick&&flick)OrientToDegrees(-10);
+        idle();
     }
 
     public void OrientToDegrees(float angle){
         float currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
         float err;
         float prev_err=0, integral=0, derivative;
-        final float pcoef=3,icoef=0.02f,dcoef=0.3f;
-        while(((int)currentAngle<(int)angle-1||(int)currentAngle>(int)angle+1) && opModeIsActive() && !isStopRequested()){
+        final float pcoef=2.4f,icoef=0.016f,dcoef=0.35f;
+        while(((int)currentAngle<(int)angle-1||(int)currentAngle>(int)(angle+1)) && opModeIsActive() && !isStopRequested()){
             currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
-            err = (currentAngle-angle)/180;
+            err = currentAngle-angle;
+            if(Math.abs(err)>180)err=-err+360;
+            if(Math.abs(err)<-180)err=-err-360;
+            err/=180.0f;
             float proportional = err*pcoef;
             integral = integral+err;
             derivative = (err-prev_err)*dcoef;
