@@ -26,15 +26,16 @@ public class AutoBlueEnc extends CommonOpMode{
                             OrientToDegrees(-90);
                             MoveWithEncoder(150, 0);
                             DeployArm();
-                            MoveWithEncoder(800, 2);
+                            MoveWithEncoder(600, 2);
                             RetractArm();
                             OrientToDegrees(0);
                             break;
                         case ONE:
                             MoveWithEncoder(500, 2);
                             OrientToDegrees(-90);
+                            MoveWithEncoder(50, 0);
                             DeployArm();
-                            MoveWithEncoder(650, 2);
+                            MoveWithEncoder(450, 2);
                             RetractArm();
                             OrientToDegrees(0);
                             MoveWithEncoder(100, 0);
@@ -42,13 +43,13 @@ public class AutoBlueEnc extends CommonOpMode{
                             break;
                         case FOUR:
                             MoveWithEncoder(300, 2);
-                            OrientToDegrees(-135);
-                            MoveWithEncoder(225, 0);
+                            OrientToDegrees(-125);
+                            MoveWithEncoder(300, 0);
                             DeployArm();
                             MoveWithEncoder(825, 2);
                             RetractArm();
                             OrientToDegrees(0);
-                            MoveWithEncoder(100, 0);
+                            MoveWithEncoder(75, 0);
                             OrientToDegrees(0);
                             break;
                     }

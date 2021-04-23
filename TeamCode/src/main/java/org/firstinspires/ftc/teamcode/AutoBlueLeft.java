@@ -22,12 +22,14 @@ public class AutoBlueLeft extends CommonOpMode{
                     AutoRingLaunch();
                     switch (ringData){
                         case ZERO:
-                            MoveWithEncoder(200, 2);
+                            MoveWithEncoder(100, 2);
                             OrientToDegrees(-90);
+                            MoveWithEncoder(75, 2);
                             DeployArm();
-                            MoveWithEncoder(175, 2);
+                            MoveWithEncoder(75, 2);
                             RetractArm();
                             OrientToDegrees(0);
+                            MoveWithEncoder(75, 2);
                             break;
                         case ONE:
                             MoveWithEncoder(1200, 2);
@@ -41,7 +43,8 @@ public class AutoBlueLeft extends CommonOpMode{
                             break;
                         case FOUR:
                             MoveWithEncoder(1050, 2);
-                            OrientToDegrees(-120);
+                            OrientToDegrees(-115);
+                            MoveWithEncoder(25,0);
                             DeployArm();
                             MoveWithEncoder(175, 2);
                             RetractArm();

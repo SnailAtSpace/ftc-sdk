@@ -32,7 +32,7 @@ public class AutoRedEnc extends CommonOpMode {
                             OrientToDegrees(0);
                             break;
                         case ONE:
-                            MoveWithEncoder(500, 2);
+                            MoveWithEncoder(550, 2);
                             OrientToDegrees(-90);
                             MoveWithEncoder(75, 2);
                             DeployArm();

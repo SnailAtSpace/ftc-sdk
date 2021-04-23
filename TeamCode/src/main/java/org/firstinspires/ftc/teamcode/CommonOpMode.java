@@ -40,11 +40,12 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
     Color color;
     final double rpm = 3550;
+    final double speed = 1;
     boolean isFlywheelRunning = false;
     public BingusPipeline.RandomizationFactor ringData=BingusPipeline.RandomizationFactor.ZERO;
     final int LogPower=3;
-    boolean grab = false,push = false,collector = false,flywheel = false,flick = false;
-    boolean prevgrab,prevpush,prevfly,prevcoll,prevflick;
+    boolean grab = false,push = false,collector = false,flywheel = false,flick = false,target=false;
+    boolean prevgrab,prevpush,prevfly,prevcoll,prevflick,prevtarg;
     double for_axis,strafe_axis,turn_axis,worm_axis;
     public void Initialize(HardwareMap hardwareMap, boolean isAuto, BingusPipeline.StartLine side) {
         FRmotor = hardwareMap.get(DcMotor.class, "FRmotor");
@@ -120,11 +121,16 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void AutoRingLaunch(){
-        if(side==BingusPipeline.StartLine.RIGHT){OrientToDegrees(-4);
-        MoveWithEncoder(1400+20*((color==Color.RED)?1:0), 2);}
-        else MoveWithEncoder(1400, 2);
-        if(side==BingusPipeline.StartLine.RIGHT)OrientToDegrees(-0.75f);
-        else OrientToDegrees(-20);
+        if(side==BingusPipeline.StartLine.RIGHT){
+            MoveWithEncoder(13,2);
+            OrientToDegrees(-4);
+            MoveWithEncoder(1400, 2);
+            OrientToDegrees(-0.75f);
+        }
+        else {
+            MoveWithEncoder(1413, 2);
+            OrientToDegrees(-20);
+        }
         LaunchSeveralRings(3);
         OrientToDegrees(-4);
 //        if(ringData!=BingusPipeline.RandomizationFactor.ZERO) {
@@ -158,10 +164,10 @@ public abstract class CommonOpMode extends LinearOpMode {
         RRmotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         RLmotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         while(FRmotor.getCurrentPosition()!=FRmotor.getTargetPosition() && opModeIsActive() && FRmotor.isBusy() && !isStopRequested()){
-            FRmotor.setPower(0.85);
-            RLmotor.setPower(0.85);
-            FLmotor.setPower(0.85);
-            RRmotor.setPower(0.85);
+            FRmotor.setPower(speed);
+            RLmotor.setPower(speed);
+            FLmotor.setPower(speed);
+            RRmotor.setPower(speed);
         }
         RLmotor.setPower(0);
         RRmotor.setPower(0);
@@ -218,11 +224,13 @@ public abstract class CommonOpMode extends LinearOpMode {
         prevfly=flywheel;
         prevcoll=collector;
         prevflick=flick;
+        prevtarg=target;
         for_axis = logarithmifyInput(gamepad1.left_stick_y,LogPower);
         strafe_axis = logarithmifyInput(gamepad1.left_stick_x,LogPower);
         turn_axis = logarithmifyInput(gamepad1.right_stick_x,LogPower);
         worm_axis = gamepad2.left_stick_y;
         flick = gamepad1.x;
+        target = gamepad1.y;
         grab = gamepad2.left_bumper;
         flywheel = gamepad2.right_bumper;
         push = ((int)(gamepad2.right_trigger+0.25) != 0);
@@ -256,6 +264,7 @@ public abstract class CommonOpMode extends LinearOpMode {
             else Collector.setPower(1-Collector.getPower()*Math.signum(Math.signum(Collector.getPower())+1));
         }
         if(!prevflick&&flick)OrientToDegrees(-10);
+        if(!prevtarg&&target)AutoPowerShot();
         idle();
     }
 
@@ -295,5 +304,13 @@ public abstract class CommonOpMode extends LinearOpMode {
         safeSleep(50);
         currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
         if((int)currentAngle>(int)angle+1||(int)currentAngle<(int)angle-1)OrientToDegrees(angle);
+    }
+    public void AutoPowerShot(){
+        OrientToDegrees(-10);
+        LaunchSeveralRings(1);
+        OrientToDegrees(-8);
+        LaunchSeveralRings(1);
+        OrientToDegrees(-6);
+        LaunchSeveralRings(1);
     }
 }
