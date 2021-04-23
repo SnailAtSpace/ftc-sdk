@@ -34,7 +34,12 @@ public abstract class CommonOpMode extends LinearOpMode {
     Boolean ExecuteFlag;
     BNO055IMU imu;
     BingusPipeline.StartLine side=BingusPipeline.StartLine.RIGHT;
-    final double rpm = 3580;
+    public enum Color {
+        BLUE,
+        RED
+    }
+    Color color;
+    final double rpm = 3550;
     boolean isFlywheelRunning = false;
     public BingusPipeline.RandomizationFactor ringData=BingusPipeline.RandomizationFactor.ZERO;
     final int LogPower=3;
@@ -115,9 +120,11 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void AutoRingLaunch(){
-        MoveWithEncoder(1400, 2);
-        if(side==BingusPipeline.StartLine.RIGHT)OrientToDegrees(-4);
-        else OrientToDegrees(-21);
+        if(side==BingusPipeline.StartLine.RIGHT){OrientToDegrees(-4);
+        MoveWithEncoder(1400+20*((color==Color.RED)?1:0), 2);}
+        else MoveWithEncoder(1400, 2);
+        if(side==BingusPipeline.StartLine.RIGHT)OrientToDegrees(-0.75f);
+        else OrientToDegrees(-20);
         LaunchSeveralRings(3);
         OrientToDegrees(-4);
 //        if(ringData!=BingusPipeline.RandomizationFactor.ZERO) {
@@ -125,7 +132,7 @@ public abstract class CommonOpMode extends LinearOpMode {
 //            Collector.setPower(0.75);
 //            MoveWithEncoder(1450,0);
 //            Collector.setPower(-0.75);
-//            sleep(100);
+//            safeSleep(100);
 //            MoveWithEncoder(1450,2);
 //            MoveWithEncoder(285,1);
 //            OrientToDegrees(-10);
@@ -150,11 +157,12 @@ public abstract class CommonOpMode extends LinearOpMode {
         FLmotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         RRmotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         RLmotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        FRmotor.setPower(0.75);
-        RLmotor.setPower(0.75);
-        FLmotor.setPower(0.75);
-        RRmotor.setPower(0.75);
-        while(FRmotor.getCurrentPosition()!=FRmotor.getTargetPosition()&&opModeIsActive()&&FRmotor.isBusy()){}
+        while(FRmotor.getCurrentPosition()!=FRmotor.getTargetPosition() && opModeIsActive() && FRmotor.isBusy() && !isStopRequested()){
+            FRmotor.setPower(0.85);
+            RLmotor.setPower(0.85);
+            FLmotor.setPower(0.85);
+            RRmotor.setPower(0.85);
+        }
         RLmotor.setPower(0);
         RRmotor.setPower(0);
         FLmotor.setPower(0);
@@ -163,27 +171,27 @@ public abstract class CommonOpMode extends LinearOpMode {
         FLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         RRmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         RLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        sleep(250);
+        safeSleep(250);
     }
 
     public void DeployArm(){
         Worm.setPower(-1);
-        sleep(2100);
+        safeSleep(2100);
         Worm.setPower(0);
         Grabber.setPosition(1);
-        sleep(2000);
+        safeSleep(750);
     }
 
     public void RetractArm(){
         Worm.setPower(1);
-        sleep(1047);
+        safeSleep(1040);
         Worm.setPower(0);
     }
 
     public void LaunchSeveralRings(int amount) {
         FlywheelEx.setVelocity(rpm*28/60.0);
         for (int i = 0; i <= amount; i++) {
-            while (opModeIsActive()&&FlywheelEx.getVelocity()<rpmToTps(rpm)||FlywheelEx.getVelocity()>rpmToTps(rpm+100)&&!isStopRequested()){}
+            while (opModeIsActive()&&FlywheelEx.getVelocity()<rpmToTps(rpm)||FlywheelEx.getVelocity()>rpmToTps(rpm+50)&&!isStopRequested()){}
             Pushrod.setPosition(1);
             safeSleep(100);
             Pushrod.setPosition(0);
@@ -234,7 +242,7 @@ public abstract class CommonOpMode extends LinearOpMode {
             //&& FlywheelEx.getVelocity()>rpmToTps(rpm-100)&&FlywheelEx.getVelocity()<rpmToTps(rpm+100)
         ){
             Pushrod.setPosition(1);
-            sleep(100);
+            safeSleep(100);
             Pushrod.setPosition(0);
         }
         if(!prevfly&&flywheel){
@@ -255,8 +263,8 @@ public abstract class CommonOpMode extends LinearOpMode {
         float currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
         float err;
         float prev_err=0, integral=0, derivative;
-        final float pcoef=2.4f,icoef=0.016f,dcoef=0.35f;
-        while(((int)currentAngle<(int)angle-1||(int)currentAngle>(int)(angle+1)) && opModeIsActive() && !isStopRequested()){
+        final float pcoef=3f,icoef=0.03f,dcoef=0.6f;
+        while((currentAngle<angle-1||currentAngle>angle+1) && opModeIsActive() && !isStopRequested()){
             currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
             err = currentAngle-angle;
             if(Math.abs(err)>180)err=-err+360;
@@ -278,12 +286,13 @@ public abstract class CommonOpMode extends LinearOpMode {
             telemetry.addData("D",derivative);
             telemetry.addData("O",output);
             telemetry.update();
+            idle();
         }
         FLmotor.setPower(0);
         FRmotor.setPower(0);
         RRmotor.setPower(0);
         RLmotor.setPower(0);
-        sleep(50);
+        safeSleep(50);
         currentAngle = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
         if((int)currentAngle>(int)angle+1||(int)currentAngle<(int)angle-1)OrientToDegrees(angle);
     }

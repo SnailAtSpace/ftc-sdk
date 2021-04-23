@@ -10,6 +10,7 @@ public class AutoBlueEnc extends CommonOpMode{
     @Override
     public void runOpMode(){
         Initialize(hardwareMap,true, BingusPipeline.StartLine.RIGHT);
+        color = Color.BLUE;
         while((!isStarted())&&(!isStopRequested())){
             ringData = pipeline.ComposeTelemetry(telemetry);
             idle();
@@ -41,7 +42,7 @@ public class AutoBlueEnc extends CommonOpMode{
                             break;
                         case FOUR:
                             MoveWithEncoder(300, 2);
-                            OrientToDegrees(-120);
+                            OrientToDegrees(-135);
                             MoveWithEncoder(225, 0);
                             DeployArm();
                             MoveWithEncoder(825, 2);

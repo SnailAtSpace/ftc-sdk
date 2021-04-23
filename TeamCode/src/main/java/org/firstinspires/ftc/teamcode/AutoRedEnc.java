@@ -10,6 +10,7 @@ public class AutoRedEnc extends CommonOpMode {
     @Override
     public void runOpMode(){
         Initialize(hardwareMap,true,BingusPipeline.StartLine.RIGHT);
+        color = Color.RED;
         while((!isStarted())&&(!isStopRequested())){
             ringData = pipeline.ComposeTelemetry(telemetry);
             idle();
@@ -21,25 +22,23 @@ public class AutoRedEnc extends CommonOpMode {
                     AutoRingLaunch();
                     switch (ringData){
                         case ZERO:
-                            MoveWithEncoder(500, 2);
+                            MoveWithEncoder(375, 2);
                             OrientToDegrees(90);
-                            MoveWithEncoder(175, 2);
+                            MoveWithEncoder( 150, 2);
                             DeployArm();
-                            MoveWithEncoder(175, 2);
                             RetractArm();
                             OrientToDegrees(0);
-                            MoveWithEncoder(100,0);
+                            MoveWithEncoder(75,0);
                             OrientToDegrees(0);
                             break;
                         case ONE:
-                            MoveWithEncoder(800, 2);
+                            MoveWithEncoder(500, 2);
                             OrientToDegrees(-90);
-                            MoveWithEncoder(150, 2);
+                            MoveWithEncoder(75, 2);
                             DeployArm();
-                            MoveWithEncoder(100, 2);
                             RetractArm();
                             OrientToDegrees(0);
-                            MoveWithEncoder(200, 0);
+                            MoveWithEncoder(150, 0);
                             OrientToDegrees(0);
                             break;
                         case FOUR:
@@ -51,7 +50,7 @@ public class AutoRedEnc extends CommonOpMode {
                             MoveWithEncoder(50, 2);
                             RetractArm();
                             OrientToDegrees(0);
-                            MoveWithEncoder(255, 0);
+                            MoveWithEncoder(275, 0);
                             OrientToDegrees(0);
                             break;
                     }
