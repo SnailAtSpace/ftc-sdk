@@ -25,7 +25,7 @@ public class BingusPipeline extends OpenCvPipeline {
     Mat Cb = new Mat();
     float avgB1;
     float avgB2;
-    final int xL=15,yL=232,yH=170,xLr=555;
+    final int xL=15,yL=230,yH=170,xLr=555;
     final int offsetX=30,offsetY=7;
     final int sideOffset=10;
     Point regLowerA=new Point(xL,yL), regHigherA=new Point(xL,yH),regLowerAr=new Point(xLr,yL-sideOffset), regHigherAr=new Point(xLr,yH-sideOffset);
@@ -34,13 +34,16 @@ public class BingusPipeline extends OpenCvPipeline {
     Point LowerA,LowerB,HigherA,HigherB;
     private volatile BingusPipeline.RandomizationFactor position;
     private volatile BingusPipeline.StartLine side;
+
     void inputToCb(Mat input) {
         Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);
         Core.extractChannel(YCrCb, Cb, 2);
     }
+
     public void setSide(StartLine side){
         this.side = side;
     }
+
     public void init(Mat firstFrame){
         inputToCb(firstFrame);
         if(side == StartLine.RIGHT){
@@ -58,6 +61,7 @@ public class BingusPipeline extends OpenCvPipeline {
         region1_Cb = Cb.submat(new Rect(LowerA, LowerB));
         region2_Cb = Cb.submat(new Rect(HigherA, HigherB));
     }
+
     @Override
     public Mat processFrame(Mat input) {
         inputToCb(input);
@@ -76,15 +80,19 @@ public class BingusPipeline extends OpenCvPipeline {
         }
         return input;
     }
+
     public BingusPipeline.RandomizationFactor getAnal() {
         return position;
     }
+
     public float getLower() {
         return avgB1;
     }
+
     public float getHigher() {
         return avgB2;
     }
+
     public RandomizationFactor ComposeTelemetry(Telemetry telemetry){
         telemetry.addData("Best guess of ring amount: ", getAnal());
         telemetry.addData("Lower: ", getLower());
@@ -92,6 +100,7 @@ public class BingusPipeline extends OpenCvPipeline {
         telemetry.update();
         return getAnal();
     }
+
     public int BTI(boolean b){return b?1:0;}
 }
 
