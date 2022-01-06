@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -15,7 +16,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 public abstract class CommonOpMode extends LinearOpMode {
 
-    DcMotor[] movementMotors = new DcMotor[4];
+    DcMotorEx[] movementMotors = new DcMotorEx[4];
     OpenCvCamera webcam;
     BingusPipeline pipeline;
     Boolean ExecuteFlag;
@@ -28,22 +29,23 @@ public abstract class CommonOpMode extends LinearOpMode {
     Color color;
     public BingusPipeline.RandomizationFactor ringData=BingusPipeline.RandomizationFactor.ZERO;
     final int LogPower = 3;
+    final double restrictor = 0.8;
     double forward_axis,strafe_axis,turn_axis,worm_axis;
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
     public void Initialize(HardwareMap hardwareMap, boolean isAuto, BingusPipeline.StartLine side) {
-        movementMotors[0] = hardwareMap.get(DcMotor.class, "FRmotor");
-        movementMotors[1] = hardwareMap.get(DcMotor.class, "RRmotor");
-        movementMotors[2] = hardwareMap.get(DcMotor.class, "FLmotor");
-        movementMotors[3] = hardwareMap.get(DcMotor.class, "RLmotor");
+        movementMotors[0] = (DcMotorEx) hardwareMap.get(DcMotor.class, "FRmotor");
+        movementMotors[1] = (DcMotorEx) hardwareMap.get(DcMotor.class, "RRmotor");
+        movementMotors[2] = (DcMotorEx) hardwareMap.get(DcMotor.class, "FLmotor");
+        movementMotors[3] = (DcMotorEx) hardwareMap.get(DcMotor.class, "RLmotor");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         for (DcMotor motor:movementMotors) {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
+        movementMotors[0].setDirection(DcMotorSimple.Direction.REVERSE);
         movementMotors[2].setDirection(DcMotorSimple.Direction.REVERSE);
-        movementMotors[3].setDirection(DcMotorSimple.Direction.REVERSE);
         if(isAuto) {
             int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
             webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
@@ -73,7 +75,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         return rpm*28/60.0;
     }
 
-    public static double logarithmifyInput(double input, int power) {
+    public static double logifyInput(double input, int power) {
         return Math.abs(Math.pow(input,power))*Math.signum(input);
     }
 
