@@ -21,16 +21,16 @@ public class SloppyManualTest extends CommonOpMode {
         Initialize(hardwareMap,false, BingusPipeline.StartLine.RIGHT);
         waitForStart();
         while (opModeIsActive()){
-            forward_axis = logifyInput(gamepad1.left_stick_y, 3);
-            strafe_axis = logifyInput(gamepad1.left_stick_x,3);
-            turn_axis = logifyInput(gamepad1.right_stick_x,3);
+            forward_axis = logifyInput(gamepad1.left_stick_y, 2);
+            strafe_axis = logifyInput(gamepad1.left_stick_x,2);
+            turn_axis = logifyInput(gamepad1.right_stick_x,2);
             for (DcMotorEx motor:
                  movementMotors) {
                 motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
-            //movementMotors[0].setPower(Range.clip(forward_axis - strafe_axis - turn_axis,-1,1)*restrictor);
-            movementMotors[0].setPower(gamepad2.right_stick_y);
+            movementMotors[0].setPower(Range.clip(forward_axis - strafe_axis - turn_axis,-1,1)*restrictor);
+            //movementMotors[0].setPower(gamepad2.right_stick_y);
             movementMotors[1].setPower(Range.clip(forward_axis + strafe_axis + turn_axis,-1,1)*restrictor);
             movementMotors[2].setPower(Range.clip(forward_axis + strafe_axis - turn_axis,-1,1)*restrictor);
             movementMotors[3].setPower(Range.clip(forward_axis - strafe_axis + turn_axis,-1,1)*restrictor);

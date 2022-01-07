@@ -29,7 +29,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     Color color;
     public BingusPipeline.RandomizationFactor ringData=BingusPipeline.RandomizationFactor.ZERO;
     final int LogPower = 3;
-    final double restrictor = 0.8;
+    final double restrictor = 1;
     double forward_axis,strafe_axis,turn_axis,worm_axis;
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
