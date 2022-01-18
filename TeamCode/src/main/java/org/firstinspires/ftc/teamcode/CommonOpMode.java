@@ -19,6 +19,7 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     DcMotorEx[] movementMotors = new DcMotorEx[4];
     Servo freightServo;
+    DcMotor collectorMotor, riserMotor;
     OpenCvCamera webcam;
     BingusPipeline pipeline;
     Boolean ExecuteFlag;
@@ -32,14 +33,17 @@ public abstract class CommonOpMode extends LinearOpMode {
     public BingusPipeline.RandomizationFactor ringData=BingusPipeline.RandomizationFactor.ZERO;
     final int LogPower = 3;
     final double restrictor = 1;
-    double forward_axis,strafe_axis,turn_axis,worm_axis;
+    double forward_axis,strafe_axis,turn_axis,worm_axis, riser_axis;
+    boolean previous_collector=false;
+    boolean collector;
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-
     public void Initialize(HardwareMap hardwareMap, boolean isAuto, BingusPipeline.StartLine side) {
         movementMotors[0] = (DcMotorEx) hardwareMap.get(DcMotor.class, "FRmotor");
         movementMotors[1] = (DcMotorEx) hardwareMap.get(DcMotor.class, "RRmotor");
         movementMotors[2] = (DcMotorEx) hardwareMap.get(DcMotor.class, "FLmotor");
         movementMotors[3] = (DcMotorEx) hardwareMap.get(DcMotor.class, "RLmotor");
+        collectorMotor = hardwareMap.get(DcMotor.class,"collectorMotor");
+        riserMotor = hardwareMap.get(DcMotor.class,"riserMotor");
         freightServo = hardwareMap.get(Servo.class, "FreightServo");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         for (DcMotor motor:movementMotors) {

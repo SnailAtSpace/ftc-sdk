@@ -15,7 +15,10 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-@TeleOp(name="Please delete this")
+
+import java.util.stream.Collector;
+
+@TeleOp(name="1000-7?")
 public class SloppyManualTest extends CommonOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
@@ -25,13 +28,20 @@ public class SloppyManualTest extends CommonOpMode {
             forward_axis = logifyInput(gamepad1.left_stick_y, 2);
             strafe_axis = logifyInput(gamepad1.left_stick_x,2);
             turn_axis = logifyInput(gamepad1.right_stick_x,2);
-            for (DcMotorEx motor:
-                 movementMotors) {
+            riser_axis = logifyInput(gamepad2.right_stick_y,2);
+            collector = (gamepad2.dpad_down || gamepad2.dpad_up);
+                        for (DcMotorEx motor:movementMotors) {
                 motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
-            //movementMotors[0].setPower(Range.clip(forward_axis - strafe_axis - turn_axis,-1,1)*restrictor);
-            movementMotors[0].setPower(gamepad2.right_stick_y);
+            riserMotor.setPower(riser_axis);
+            if(!previous_collector&&collector){
+                if(gamepad2.dpad_down){
+                    collectorMotor.setPower(-1-Math.abs(collectorMotor.getPower())*Math.signum(Math.signum(collectorMotor.getPower())-1));
+                }
+                else collectorMotor.setPower(1-collectorMotor.getPower()*Math.signum(Math.signum(collectorMotor.getPower())+1));
+            }
+            movementMotors[0].setPower(Range.clip(forward_axis - strafe_axis - turn_axis,-1,1)*restrictor);
             movementMotors[1].setPower(Range.clip(forward_axis + strafe_axis + turn_axis,-1,1)*restrictor);
             movementMotors[2].setPower(Range.clip(forward_axis + strafe_axis - turn_axis,-1,1)*restrictor);
             movementMotors[3].setPower(Range.clip(forward_axis - strafe_axis + turn_axis,-1,1)*restrictor);
