@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -17,6 +18,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 public abstract class CommonOpMode extends LinearOpMode {
 
     DcMotorEx[] movementMotors = new DcMotorEx[4];
+    Servo freightServo;
     OpenCvCamera webcam;
     BingusPipeline pipeline;
     Boolean ExecuteFlag;
@@ -38,6 +40,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         movementMotors[1] = (DcMotorEx) hardwareMap.get(DcMotor.class, "RRmotor");
         movementMotors[2] = (DcMotorEx) hardwareMap.get(DcMotor.class, "FLmotor");
         movementMotors[3] = (DcMotorEx) hardwareMap.get(DcMotor.class, "RLmotor");
+        freightServo = hardwareMap.get(Servo.class, "FreightServo");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         for (DcMotor motor:movementMotors) {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
