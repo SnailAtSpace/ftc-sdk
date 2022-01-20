@@ -16,7 +16,6 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 public abstract class CommonOpMode extends LinearOpMode {
-
     DcMotorEx[] movementMotors = new DcMotorEx[4];
     Servo freightServo;
     DcMotor collectorMotor, riserMotor;
@@ -24,36 +23,43 @@ public abstract class CommonOpMode extends LinearOpMode {
     BingusPipeline pipeline;
     Boolean ExecuteFlag;
     BNO055IMU imu;
-    BingusPipeline.StartLine side=BingusPipeline.StartLine.RIGHT;
+    BingusPipeline.StartLine side = BingusPipeline.StartLine.RIGHT;
+
     public enum Color {
         BLUE,
         RED
     }
+
     Color color;
-    public BingusPipeline.RandomizationFactor ringData=BingusPipeline.RandomizationFactor.ZERO;
+    public BingusPipeline.RandomizationFactor ringData = BingusPipeline.RandomizationFactor.ZERO;
     final int LogPower = 3;
-    final double restrictor = 1;
-    double forward_axis,strafe_axis,turn_axis,worm_axis, riser_axis;
-    boolean previous_collector=false;
-    boolean collector;
+    double restrictor = 1;
+    double forward_axis, strafe_axis, turn_axis, worm_axis, riser_axis;
+    boolean previous_collector = false,previous_freight = false;
+    boolean collector, freight;
+    final double maxCollPower = 0.66;
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+
     public void Initialize(HardwareMap hardwareMap, boolean isAuto, BingusPipeline.StartLine side) {
-        movementMotors[0] = (DcMotorEx) hardwareMap.get(DcMotor.class, "FRmotor");
-        movementMotors[1] = (DcMotorEx) hardwareMap.get(DcMotor.class, "RRmotor");
-        movementMotors[2] = (DcMotorEx) hardwareMap.get(DcMotor.class, "FLmotor");
-        movementMotors[3] = (DcMotorEx) hardwareMap.get(DcMotor.class, "RLmotor");
-        collectorMotor = hardwareMap.get(DcMotor.class,"collectorMotor");
-        riserMotor = hardwareMap.get(DcMotor.class,"riserMotor");
+        movementMotors[0] = (DcMotorEx) hardwareMap.get(DcMotor.class, "leftFrontMotor");
+        movementMotors[1] = (DcMotorEx) hardwareMap.get(DcMotor.class, "leftRearMotor");
+        movementMotors[2] = (DcMotorEx) hardwareMap.get(DcMotor.class, "rightRearMotor");
+        movementMotors[3] = (DcMotorEx) hardwareMap.get(DcMotor.class, "rightFrontMotor");
+        collectorMotor = hardwareMap.get(DcMotor.class, "collectorMotor");
+        riserMotor = hardwareMap.get(DcMotor.class, "riserMotor");
         freightServo = hardwareMap.get(Servo.class, "FreightServo");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
-        for (DcMotor motor:movementMotors) {
+        for (DcMotor motor : movementMotors) {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
-        movementMotors[0].setDirection(DcMotorSimple.Direction.REVERSE);
+        riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        riserMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        freightServo.scaleRange(0,0.70);
         movementMotors[2].setDirection(DcMotorSimple.Direction.REVERSE);
-        if(isAuto) {
+        movementMotors[3].setDirection(DcMotorSimple.Direction.REVERSE);
+        if (isAuto) {
             int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
             webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
             pipeline = new BingusPipeline();
@@ -73,25 +79,25 @@ public abstract class CommonOpMode extends LinearOpMode {
         this.side = side;
     }
 
-    public void safeSleep(int millis){
+    public void safeSleep(int millis) {
         ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-        while(localTime.time()<millis&&opModeIsActive())idle();
+        while (localTime.time() < millis && opModeIsActive()) idle();
     }
 
-    public double rpmToTps(double rpm){
-        return rpm*28/60.0;
+    public double rpmToTps(double rpm) {
+        return rpm * 28 / 60.0;
     }
 
     public static double logifyInput(double input, int power) {
-        return Math.abs(Math.pow(input,power))*Math.signum(input);
+        return Math.abs(Math.pow(input, power)) * Math.signum(input);
     }
 
-    public void imuInitialization(){
-        parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+    public void imuInitialization() {
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
         parameters.calibrationDataFile = "calib.json"; // see the calibration sample opmode
-        parameters.loggingEnabled      = true;
-        parameters.loggingTag          = "IMU";
+        parameters.loggingEnabled = true;
+        parameters.loggingTag = "IMU";
         parameters.accelerationIntegrationAlgorithm = new JustLoggingAccelerationIntegrator();
         parameters.mode = BNO055IMU.SensorMode.NDOF;
         imu.initialize(parameters);
