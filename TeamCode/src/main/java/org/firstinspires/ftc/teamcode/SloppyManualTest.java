@@ -51,9 +51,9 @@ public class SloppyManualTest extends CommonOpMode {
 
             if(!previous_collector&&collector){
                 if(gamepad2.dpad_down){
-                    collectorMotor.setPower((-1-Math.abs(collectorMotor.getPower())*Math.signum(Math.signum(collectorMotor.getPower())-1)));
+                    collectorMotor.setPower((-maxCollPower-Math.abs(collectorMotor.getPower())*Math.signum(Math.signum(collectorMotor.getPower())-1)));
                 }
-                else collectorMotor.setPower((1-collectorMotor.getPower()*Math.signum(Math.signum(collectorMotor.getPower())+1)));
+                else collectorMotor.setPower((maxCollPower-Math.abs(collectorMotor.getPower())*Math.signum(Math.signum(collectorMotor.getPower())+1)));
             }
 
             if(!previous_freight && freight && -riserMotor.getCurrentPosition()>300){

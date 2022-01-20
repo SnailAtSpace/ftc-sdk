@@ -58,7 +58,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         }
         riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         riserMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        freightServo.scaleRange(0,0.70);
+        freightServo.scaleRange(0,0.66);
         movementMotors[2].setDirection(DcMotorSimple.Direction.REVERSE);
         movementMotors[3].setDirection(DcMotorSimple.Direction.REVERSE);
         if (isAuto) {
