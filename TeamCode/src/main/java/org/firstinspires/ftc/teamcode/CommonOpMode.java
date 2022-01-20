@@ -37,6 +37,8 @@ public abstract class CommonOpMode extends LinearOpMode {
     double forward_axis, strafe_axis, turn_axis, worm_axis, riser_axis;
     boolean previous_collector = false,previous_freight = false;
     boolean collector, freight;
+    //TODO: Change safeArmLimit according to the robot        VVVV
+    long upperArmLimit=20, lowerArmLimit=1045, safeArmLimit = 300;
     final double maxCollPower = 0.66;
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 

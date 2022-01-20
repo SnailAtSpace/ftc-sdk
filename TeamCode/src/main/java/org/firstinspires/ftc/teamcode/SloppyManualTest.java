@@ -20,30 +20,40 @@ public class SloppyManualTest extends CommonOpMode {
             forward_axis = -logifyInput(gamepad1.left_stick_y, 2);
             strafe_axis = -logifyInput(gamepad1.left_stick_x,2);
             turn_axis = -logifyInput(gamepad1.right_stick_x,2);
-            riser_axis = -logifyInput(gamepad2.right_stick_y,2);
             collector = (gamepad2.dpad_down || gamepad2.dpad_up);
             freight = gamepad2.right_bumper;
-            if(riserMotor.getCurrentPosition()>-20){
-                riserMotor.setPower((riser_axis+Math.abs(riser_axis))/8);
+            switch ((int) freightServo.getPosition()){
+                case 1:
+                    lowerArmLimit = 20;
+                    break;
+                case 0:
+                    lowerArmLimit = 300;
+                    break;
+            }
+            if(-riserMotor.getCurrentPosition()<lowerArmLimit){
+                riser_axis=(-gamepad2.right_stick_y+Math.abs(gamepad2.right_stick_y))/2;
                 restrictor = 1;
             }
-            else if(riserMotor.getCurrentPosition()<-1045){
-                riserMotor.setPower((riser_axis-Math.abs(riser_axis))/8);
+            else if(-riserMotor.getCurrentPosition()>upperArmLimit){
+                riser_axis=(-gamepad2.right_stick_y-Math.abs(gamepad2.right_stick_y))/2;
                 restrictor = 0.33;
             }
             else {
-                riserMotor.setPower(riser_axis/4);
+                riser_axis = -gamepad2.right_stick_y;
                 restrictor = 0.33;
             }
+
             if(!previous_collector&&collector){
                 if(gamepad2.dpad_down){
                     collectorMotor.setPower((-1-Math.abs(collectorMotor.getPower())*Math.signum(Math.signum(collectorMotor.getPower())-1)));
                 }
                 else collectorMotor.setPower((1-collectorMotor.getPower()*Math.signum(Math.signum(collectorMotor.getPower())+1)));
             }
-            if(!previous_freight && freight){
+
+            if(!previous_freight && freight && -riserMotor.getCurrentPosition()>300){
                 freightServo.setPosition(1-freightServo.getPosition());
             }
+
             movementMotors[0].setPower(Range.clip(forward_axis - strafe_axis - turn_axis,-1,1)*restrictor);
             movementMotors[1].setPower(Range.clip(forward_axis + strafe_axis - turn_axis,-1,1)*restrictor);
             movementMotors[2].setPower(Range.clip(forward_axis - strafe_axis + turn_axis,-1,1)*restrictor);
@@ -54,7 +64,13 @@ public class SloppyManualTest extends CommonOpMode {
             previous_freight = freight;
             previous_collector = collector;
             telemetry.addData("Riser: ",riserMotor.getCurrentPosition());
-            telemetry.addData("joy: ",gamepad2.right_stick_y);
+            switch ((int) restrictor){
+                case 1:
+                    telemetry.addData("Speed: ", "HIGH - ARM DISENGAGED, FULL SPEED");
+                    break;
+                default:
+                    telemetry.addData("Speed: ", "LOW - ARM ENGAGED");
+            }
             telemetry.update();
         }
     }
