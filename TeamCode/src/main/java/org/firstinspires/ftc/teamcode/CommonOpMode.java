@@ -23,7 +23,6 @@ public abstract class CommonOpMode extends LinearOpMode {
     BingusPipeline pipeline;
     Boolean ExecuteFlag;
     BNO055IMU imu;
-    BingusPipeline.StartLine side = BingusPipeline.StartLine.RIGHT;
 
     public enum Color {
         BLUE,
@@ -31,18 +30,18 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     Color color;
-    public BingusPipeline.RandomizationFactor ringData = BingusPipeline.RandomizationFactor.ZERO;
+    public BingusPipeline.RandomizationFactor ringData = BingusPipeline.RandomizationFactor.LEFT;
     final int LogPower = 3;
     double restrictor = 1;
     double forward_axis, strafe_axis, turn_axis, worm_axis, riser_axis;
     boolean previous_collector = false,previous_freight = false;
     boolean collector, freight;
     //TODO: Change safeArmLimit according to the robot        VVVV
-    long upperArmLimit=20, lowerArmLimit=1045, safeArmLimit = 300;
+    long upperArmLimit=1080, lowerArmLimit=10, safeArmLimit = 400;
     final double maxCollPower = 0.66;
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
-    public void Initialize(HardwareMap hardwareMap, boolean isAuto, BingusPipeline.StartLine side) {
+    public void Initialize(HardwareMap hardwareMap, boolean isAuto) {
         movementMotors[0] = (DcMotorEx) hardwareMap.get(DcMotor.class, "leftFrontMotor");
         movementMotors[1] = (DcMotorEx) hardwareMap.get(DcMotor.class, "leftRearMotor");
         movementMotors[2] = (DcMotorEx) hardwareMap.get(DcMotor.class, "rightRearMotor");
@@ -52,7 +51,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         freightServo = hardwareMap.get(Servo.class, "FreightServo");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         for (DcMotor motor : movementMotors) {
-            motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
@@ -66,11 +65,15 @@ public abstract class CommonOpMode extends LinearOpMode {
             webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
             pipeline = new BingusPipeline();
             webcam.setPipeline(pipeline);
-            pipeline.setSide(side);
             webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
                 @Override
                 public void onOpened() {
                     webcam.startStreaming(640, 360, OpenCvCameraRotation.UPRIGHT);
+                }
+
+                @Override
+                public void onError(int errorCode) {
+                    telemetry.addLine("error at "+ errorCode);
                 }
             });
             telemetry.addLine("Waiting for start.");
@@ -78,7 +81,6 @@ public abstract class CommonOpMode extends LinearOpMode {
             telemetry.update();
         }
         imuInitialization();
-        this.side = side;
     }
 
     public void safeSleep(int millis) {

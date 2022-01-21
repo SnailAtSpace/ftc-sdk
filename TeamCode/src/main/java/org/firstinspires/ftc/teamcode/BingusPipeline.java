@@ -11,92 +11,69 @@ import org.openftc.easyopencv.OpenCvPipeline;
 
 public class BingusPipeline extends OpenCvPipeline {
     public enum RandomizationFactor {
-        ZERO,
-        ONE,
-        FOUR
-    }
-    public enum StartLine {
         LEFT,
-        RIGHT
+        CENTER,
+        RIGHT,
+        UNDEFINED
     }
-    Mat region1_Cb = new Mat();
-    Mat region2_Cb = new Mat();
+    Mat left = new Mat();
+    Mat center = new Mat();
+    Mat right = new Mat();
     Mat YCrCb = new Mat();
     Mat Cb = new Mat();
-    float avgB1;
-    float avgB2;
-    final int xL=15,yL=230,yH=170,xLr=555;
+    double minCb;
+    double avgL,avgC,avgR;
+    final int xL=40, y=175, xC=320, xR=600;
     final int offsetX=30,offsetY=7;
     final int sideOffset=10;
-    Point regLowerA=new Point(xL,yL), regHigherA=new Point(xL,yH),regLowerAr=new Point(xLr,yL-sideOffset), regHigherAr=new Point(xLr,yH-sideOffset);
-    Point regLowerB=new Point(xL+offsetX, yL+offsetY), regHigherB=new Point(xL+offsetX, yH+offsetY);
-    Point regLowerBr=new Point(xLr+offsetX, yL+offsetY-sideOffset), regHigherBr=new Point(xLr+offsetX, yH+offsetY-sideOffset);
-    Point LowerA,LowerB,HigherA,HigherB;
-    private volatile BingusPipeline.RandomizationFactor position;
-    private volatile BingusPipeline.StartLine side;
+    Point leftA=new Point(xL,y),leftB = new Point(xL+offsetX,y+offsetY);
+    Point centerA=new Point(xC,y),centerB = new Point(xC+offsetX,y+offsetY);
+    Point rightA=new Point(xR,y),rightB = new Point(xR+offsetX,y+offsetY);
+    private volatile BingusPipeline.RandomizationFactor position = RandomizationFactor.UNDEFINED;
 
-    void inputToCb(Mat input) {
+    void inputToYCrCb(Mat input) {
         Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);
-        Core.extractChannel(YCrCb, Cb, 2);
-    }
-
-    public void setSide(StartLine side){
-        this.side = side;
     }
 
     public void init(Mat firstFrame){
-        inputToCb(firstFrame);
-        if(side == StartLine.RIGHT){
-            LowerA=regLowerA;
-            LowerB=regLowerB;
-            HigherA=regHigherA;
-            HigherB=regHigherB;
-        }
-        else if(side == StartLine.LEFT){
-            LowerA=regLowerAr;
-            LowerB=regLowerBr;
-            HigherA=regHigherAr;
-            HigherB=regHigherBr;
-        }
-        region1_Cb = Cb.submat(new Rect(LowerA, LowerB));
-        region2_Cb = Cb.submat(new Rect(HigherA, HigherB));
+        inputToYCrCb(firstFrame);
+        left = YCrCb.submat(new Rect(leftA, leftB));
+        center = YCrCb.submat(new Rect(centerA, centerB));
+        right = YCrCb.submat(new Rect(rightA,rightB));
     }
 
     @Override
     public Mat processFrame(Mat input) {
-        inputToCb(input);
-        avgB1 = (float) Core.mean(region1_Cb).val[0];
-        avgB2 = (float) Core.mean(region2_Cb).val[0];
-        Imgproc.rectangle(input, LowerA, LowerB, new Scalar(255,255*BTI(avgB1<=110),0), 2);
-        Imgproc.rectangle(input, HigherA, HigherB, new Scalar(255,255*BTI(avgB2<=110),0), 2);
-        if(avgB1<=110&&avgB2<=110){
-            position = BingusPipeline.RandomizationFactor.FOUR;
+        inputToYCrCb(input);
+        avgL = Core.mean(left).val[2];
+        avgC = Core.mean(center).val[2];
+        avgR = Core.mean(right).val[2];
+        minCb = Math.min(avgL,Math.min(avgC,avgR));
+        if(minCb == avgL){
+            position = RandomizationFactor.LEFT;
         }
-        else if(avgB1<=110&&avgB2>110){
-            position = BingusPipeline.RandomizationFactor.ONE;
+        else if(minCb == avgC){
+            position = RandomizationFactor.CENTER;
         }
-        else {
-            position = BingusPipeline.RandomizationFactor.ZERO;
+        else if(minCb == avgR){
+            position = RandomizationFactor.RIGHT;
         }
+        Imgproc.rectangle(input, leftA, leftB, new Scalar(255*BTI(position!=RandomizationFactor.LEFT),255*BTI(position==RandomizationFactor.LEFT),0), 2);
+        Imgproc.rectangle(input, centerA, centerB, new Scalar(255*BTI(position!=RandomizationFactor.CENTER),255*BTI(position==RandomizationFactor.CENTER),0), 2);
+        Imgproc.rectangle(input, rightA, rightB, new Scalar(255*BTI(position!=RandomizationFactor.RIGHT),255*BTI(position==RandomizationFactor.RIGHT),0), 2);
         return input;
     }
 
     public BingusPipeline.RandomizationFactor getAnal() {
         return position;
     }
-
-    public float getLower() {
-        return avgB1;
-    }
-
-    public float getHigher() {
-        return avgB2;
+    public double[] getVals(double left, double center, double right){
+        return new double[]{left,center,right};
     }
 
     public RandomizationFactor ComposeTelemetry(Telemetry telemetry){
-        telemetry.addData("Best guess of ring amount: ", getAnal());
-        telemetry.addData("Lower: ", getLower());
-        telemetry.addData("Higher: ", getHigher());
+        telemetry.addData("Best guess of duck position: ", getAnal());
+        telemetry.addData("Vals: ",getVals(avgL,avgC,avgR));
         telemetry.update();
         return getAnal();
     }

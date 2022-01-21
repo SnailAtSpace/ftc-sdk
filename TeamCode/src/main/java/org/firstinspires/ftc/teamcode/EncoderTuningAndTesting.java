@@ -24,7 +24,7 @@ public class EncoderTuningAndTesting extends CommonOpMode {
                 movementMotors[i].setPower(gamepad1.left_stick_y);
                 movementMotors[i].setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 motorsPos[i]=movementMotors[i].getCurrentPosition();
-                telemetry.addData(String.format("Pos%s:",i), motorsPos);
+                telemetry.addData("Pos "+i+": ", motorsPos[i]);
             }
             riserMotor.setPower(gamepad2.left_stick_y*(0.25));
             Arrays.sort(motorsPos);
