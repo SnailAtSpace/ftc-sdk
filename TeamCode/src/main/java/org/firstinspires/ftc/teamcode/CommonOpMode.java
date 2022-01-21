@@ -50,16 +50,9 @@ public abstract class CommonOpMode extends LinearOpMode {
         riserMotor = hardwareMap.get(DcMotor.class, "riserMotor");
         freightServo = hardwareMap.get(Servo.class, "FreightServo");
         imu = hardwareMap.get(BNO055IMU.class, "imu");
-        for (DcMotor motor : movementMotors) {
-            motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        }
-        riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        riserMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         riserMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         freightServo.scaleRange(0,0.66);
-        movementMotors[2].setDirection(DcMotorSimple.Direction.REVERSE);
-        movementMotors[3].setDirection(DcMotorSimple.Direction.REVERSE);
         if (isAuto) {
             int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
             webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
@@ -79,6 +72,15 @@ public abstract class CommonOpMode extends LinearOpMode {
             telemetry.addLine("Waiting for start.");
             telemetry.addLine("Please calibrate starting position.");
             telemetry.update();
+        }
+        else{
+            movementMotors[2].setDirection(DcMotorSimple.Direction.REVERSE);
+            movementMotors[3].setDirection(DcMotorSimple.Direction.REVERSE);
+            for (DcMotor motor : movementMotors) {
+                motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            }
         }
         imuInitialization();
     }
