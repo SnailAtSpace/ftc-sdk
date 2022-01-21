@@ -14,7 +14,7 @@ import java.util.Collections;
 public class EncoderTuningAndTesting extends CommonOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Initialize(hardwareMap,false, BingusPipeline.StartLine.RIGHT);
+        Initialize(hardwareMap,false);
         int[] motorsPos = new int[4];
         riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
