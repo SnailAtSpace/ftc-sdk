@@ -12,16 +12,16 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 import java.util.jar.Attributes;
 
-@Autonomous(name = "Auto RED",preselectTeleOp = "1000-7?")
-public class AutonomousRed extends CommonOpMode {
+@Autonomous(name = "Auto BLU",preselectTeleOp = "1000-7?")
+public class AutonomousBlue extends CommonOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         Initialize(hardwareMap,true);
         riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        TrajectorySequence preloadSequence = drive.trajectorySequenceBuilder(startPoseRed)
+        TrajectorySequence preloadSequence = drive.trajectorySequenceBuilder(startPoseBlue)
                 .setReversed(true)
-                .splineToConstantHeading(new Vector2d(-12,-41.5),Math.toRadians(180))
+                .splineToConstantHeading(new Vector2d(-12,41.5),Math.toRadians(180))
                 .UNSTABLE_addTemporalMarkerOffset(0,()->{
                     riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     if(duckPos==BingusPipeline.RandomizationFactor.LEFT) {
@@ -55,12 +55,12 @@ public class AutonomousRed extends CommonOpMode {
                 })
                 .waitSeconds(4.5)
                 .forward(0.5)
-                .splineToSplineHeading(new Pose2d(7.5,-fieldHalf+hDiag, Math.toRadians(0)),Math.toRadians(0))
-                .splineToConstantHeading(defaultPoseRed.vec(),Math.toRadians(270))
+                .splineToSplineHeading(new Pose2d(7.5,fieldHalf-hDiag, Math.toRadians(0)),Math.toRadians(0))
+                .splineToConstantHeading(defaultPoseBlue.vec(),Math.toRadians(90))
                 .build();
-        TrajectorySequence freightSequence = drive.trajectorySequenceBuilder(defaultPoseRed)
+        TrajectorySequence freightSequence = drive.trajectorySequenceBuilder(defaultPoseBlue)
                 .setReversed(true)
-                .lineTo(new Vector2d(fieldHalf-hLength-15,-fieldHalf+hWidth))
+                .lineTo(new Vector2d(fieldHalf-hLength-15,fieldHalf-hWidth))
                 .UNSTABLE_addTemporalMarkerOffset(-1,()->{
                     collectorMotor.setPower(maxCollPower);
                 })
@@ -70,12 +70,12 @@ public class AutonomousRed extends CommonOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(2,()->{
                     collectorMotor.setPower(0);
                 })
-                .lineTo(defaultPoseRed.vec())
+                .lineTo(defaultPoseBlue.vec())
                 .build();
-        TrajectorySequence deliverSequence = drive.trajectorySequenceBuilder(defaultPoseRed)
+        TrajectorySequence deliverSequence = drive.trajectorySequenceBuilder(defaultPoseBlue)
                 .setReversed(true)
-                .splineToConstantHeading(new Vector2d(7.5,-fieldHalf+hDiag),Math.toRadians(180))
-                .splineToSplineHeading(new Pose2d(-12,-41.5, Math.toRadians(270)),Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(7.5,fieldHalf-hDiag),Math.toRadians(180))
+                .splineToSplineHeading(new Pose2d(-12,41.5, Math.toRadians(90)),Math.toRadians(270))
                 .UNSTABLE_addTemporalMarkerOffset(0,()->{
                     riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     riserMotor.setTargetPosition(1000);
@@ -103,33 +103,34 @@ public class AutonomousRed extends CommonOpMode {
                 })
                 .waitSeconds(4.5)
                 .forward(0.5)
-                .splineToSplineHeading(new Pose2d(7.5,-fieldHalf+hDiag, Math.toRadians(0)),Math.toRadians(0))
-                .splineToConstantHeading(defaultPoseRed.vec(),Math.toRadians(270))
+                .splineToSplineHeading(new Pose2d(7.5,fieldHalf-hDiag, Math.toRadians(0)),Math.toRadians(0))
+                .splineToConstantHeading(defaultPoseBlue.vec(),Math.toRadians(90))
                 .build();
-        TrajectorySequence parkSequence = drive.trajectorySequenceBuilder(defaultPoseRed)
+        TrajectorySequence parkSequence = drive.trajectorySequenceBuilder(defaultPoseBlue)
                 .setReversed(true)
-                .lineTo(new Vector2d(fieldHalf-hLength-23,-fieldHalf+hWidth))
-                .splineToConstantHeading(new Vector2d(fieldHalf-hLength-23,-fieldHalf+hDiag+0.5),90)
-                .turn(Math.toRadians(90))
-                .lineTo(new Vector2d(fieldHalf-23-hLength,-fieldHalf+hWidth+20))
+                .lineTo(new Vector2d(fieldHalf-hLength-23,fieldHalf-hWidth))
+                .splineToConstantHeading(new Vector2d(fieldHalf-hLength-23,+fieldHalf-hDiag-0.5),270)
+                .turn(Math.toRadians(-90))
+                .lineTo(new Vector2d(fieldHalf-23-hLength,+fieldHalf-hWidth-20))
                 .build();
-        drive.setPoseEstimate(startPoseRed);
+        drive.setPoseEstimate(startPoseBlue);
         riserMotor.setTargetPosition(0);
         while(!opModeIsActive() && !isStopRequested()){
             duckPos = pipeline.ComposeTelemetry(telemetry);
         }
         waitForStart();
         drive.followTrajectorySequence(preloadSequence);
-        ramIntoWall(true);
-//        drive.setPoseEstimate(defaultPoseRed);
+        ramIntoWall(false);
+//        drive.setPoseEstimate(defaultPoseBlue);
 //        drive.followTrajectorySequence(freightSequence);
-//        drive.setPoseEstimate(defaultPoseRed);
+//        drive.setPoseEstimate(defaultPoseBlue);
 //        drive.followTrajectorySequence(deliverSequence);
-//        ramIntoWall(true);
-        drive.setPoseEstimate(defaultPoseRed);
+//        ramIntoWall(false);
+        drive.setPoseEstimate(defaultPoseBlue);
         drive.followTrajectorySequence(parkSequence);
         while (opModeIsActive()) {
             idle();
         }
     }
 }
+

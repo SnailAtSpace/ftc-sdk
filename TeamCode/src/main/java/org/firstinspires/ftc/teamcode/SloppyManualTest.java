@@ -24,7 +24,8 @@ public class SloppyManualTest extends CommonOpMode {
             turn_axis = -gamepad1.right_stick_x;
             collector = (gamepad2.dpad_down || gamepad2.dpad_up);
             freight = gamepad2.right_bumper;
-            double riserPos = -riserMotor.getCurrentPosition();
+            carousel_axis = gamepad2.right_trigger;
+            double riserPos = riserMotor.getCurrentPosition();
             switch ((int) Math.round(freightServo.getPosition())){
                 case 1:
                     lowerArmLimit = 5;
@@ -61,7 +62,7 @@ public class SloppyManualTest extends CommonOpMode {
             if(!previous_freight && freight && riserPos>safeArmLimit){
                 freightServo.setPosition(1-freightServo.getPosition());
             }
-
+            carouselMotor.setPower(carousel_axis);
             movementMotors[0].setPower(Range.clip(forward_axis - strafe_axis + turn_axis,-1,1)*restrictor);
             movementMotors[1].setPower(Range.clip(forward_axis + strafe_axis + turn_axis,-1,1)*restrictor);
             movementMotors[2].setPower(Range.clip(forward_axis - strafe_axis - turn_axis,-1,1)*restrictor);

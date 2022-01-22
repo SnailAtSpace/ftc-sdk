@@ -67,6 +67,7 @@ public class BingusPipeline extends OpenCvPipeline {
     public BingusPipeline.RandomizationFactor getAnal() {
         return position;
     }
+
     public double[] getVals(double left, double center, double right){
         return new double[]{left,center,right};
     }

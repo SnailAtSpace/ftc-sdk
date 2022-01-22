@@ -8,9 +8,13 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class ResetArmEncoder extends CommonOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Initialize(hardwareMap,false);
+        DcMotor riserMotor = hardwareMap.get(DcMotor.class, "riserMotor");
+        telemetry.addLine("Waiting...");
+        telemetry.update();
+        waitForStart();
         riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         telemetry.addLine("Arm set to 0 in this position.");
+        telemetry.update();
     }
 }
