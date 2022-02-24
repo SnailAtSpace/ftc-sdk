@@ -24,7 +24,7 @@ public class SloppyManualTest extends CommonOpMode {
             turn_axis = -gamepad1.right_stick_x;
             collector = (gamepad2.dpad_down || gamepad2.dpad_up);
             freight = gamepad2.right_bumper;
-            carousel_axis = gamepad2.right_trigger;
+            carousel_axis = gamepad2.left_stick_x;
             double riserPos = riserMotor.getCurrentPosition();
             switch ((int) Math.round(freightServo.getPosition())){
                 case 1:
@@ -43,10 +43,7 @@ public class SloppyManualTest extends CommonOpMode {
             }
             else {
                 restrictor = 0.33;
-                if(gamepad2.right_stick_y>0){
-                    riser_axis = Math.min(1,riserPos/150+0.2)*-gamepad2.right_stick_y;
-                }
-                else riser_axis = Math.min(1,-(riserPos-upperArmLimit-lowerArmLimit)/100+0.2)*-gamepad2.right_stick_y;
+                riser_axis = -gamepad2.right_stick_y;
             }
             if(riserPos<=10){
                 restrictor = 0.85;

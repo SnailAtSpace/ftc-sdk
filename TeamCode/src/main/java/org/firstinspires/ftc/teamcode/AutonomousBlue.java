@@ -21,7 +21,7 @@ public class AutonomousBlue extends CommonOpMode {
         riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         TrajectorySequence preloadSequence = drive.trajectorySequenceBuilder(startPoseBlue)
                 .setReversed(true)
-                .splineToConstantHeading(new Vector2d(-12,41.5),Math.toRadians(180))
+                .splineToConstantHeading(new Vector2d(-12.5,41.5+0.45*(duckPos == BingusPipeline.RandomizationFactor.LEFT ? 1 : 0)),Math.toRadians(180))
                 .UNSTABLE_addTemporalMarkerOffset(0,()->{
                     riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     if(duckPos==BingusPipeline.RandomizationFactor.LEFT) {
@@ -108,10 +108,9 @@ public class AutonomousBlue extends CommonOpMode {
                 .build();
         TrajectorySequence parkSequence = drive.trajectorySequenceBuilder(defaultPoseBlue)
                 .setReversed(true)
-                .lineTo(new Vector2d(fieldHalf-hLength-23,fieldHalf-hWidth))
-                .splineToConstantHeading(new Vector2d(fieldHalf-hLength-23,+fieldHalf-hDiag-0.5),270)
-                .turn(Math.toRadians(-90))
-                .lineTo(new Vector2d(fieldHalf-23-hLength,+fieldHalf-hWidth-20))
+                .lineTo(new Vector2d(fieldHalf-hLength-24,fieldHalf-hWidth))
+                .splineToConstantHeading(new Vector2d(fieldHalf-hLength-24,+fieldHalf-hDiag-0.5),270)
+                .lineTo(new Vector2d(fieldHalf-24-hLength,+fieldHalf-hWidth-25))
                 .build();
         drive.setPoseEstimate(startPoseBlue);
         riserMotor.setTargetPosition(0);
@@ -119,8 +118,9 @@ public class AutonomousBlue extends CommonOpMode {
             duckPos = pipeline.ComposeTelemetry(telemetry);
         }
         waitForStart();
+        safeSleep(14000);
         drive.followTrajectorySequence(preloadSequence);
-        ramIntoWall(false);
+        ramIntoWall(true);
 //        drive.setPoseEstimate(defaultPoseBlue);
 //        drive.followTrajectorySequence(freightSequence);
 //        drive.setPoseEstimate(defaultPoseBlue);

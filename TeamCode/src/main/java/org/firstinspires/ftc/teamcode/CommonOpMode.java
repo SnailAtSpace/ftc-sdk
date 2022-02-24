@@ -41,13 +41,13 @@ public abstract class CommonOpMode extends LinearOpMode {
     boolean collector, freight;
     //TODO: Change safeArmLimit according to the robot        VVVV
     long upperArmLimit=1100, lowerArmLimit=5, safeArmLimit = 400;
-    final double maxCollPower = 0.6;
+    final double maxCollPower = 0.5;
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
     final double width = 330.29/25.4, length = 430/25.4, diag = 542.3/25.4;
     final double hWidth = width/2, hLength = length/2,hDiag=diag/2, fieldHalf = 70.5;
     Pose2d startPoseRed = new Pose2d(7.5,-fieldHalf+hLength, Math.toRadians(270));
     Pose2d startPoseBlue = new Pose2d(15,fieldHalf-hLength, Math.toRadians(90));
-    Pose2d defaultPoseRed = new Pose2d(7.5,-fieldHalf+hWidth,Math.toRadians(0));
+    Pose2d defaultPoseRed = new Pose2d(7.5,-fieldHalf+hWidth,Math.toRadians(180));
     Pose2d defaultPoseBlue = new Pose2d(7.5,fieldHalf-hWidth,Math.toRadians(0));
     public void Initialize(HardwareMap hardwareMap, boolean isAuto) {
         movementMotors[0] = (DcMotorEx) hardwareMap.get(DcMotor.class, "leftFrontMotor");
@@ -118,11 +118,11 @@ public abstract class CommonOpMode extends LinearOpMode {
         imu.initialize(parameters);
     }
     public void ramIntoWall(boolean isRed){
-        movementMotors[0].setPower(0.2*(isRed?1:-1));
-        movementMotors[1].setPower(-0.2*(isRed?1:-1));
-        movementMotors[2].setPower(-0.2*(isRed?1:-1));
-        movementMotors[3].setPower(0.2*(isRed?1:-1));
-        safeSleep(500);
+        movementMotors[0].setPower(-0.2);
+        movementMotors[1].setPower(0.2);
+        movementMotors[2].setPower(-0.2);
+        movementMotors[3].setPower(0.2);
+        safeSleep(400);
         movementMotors[0].setPower(0);
         movementMotors[1].setPower(0);
         movementMotors[2].setPower(0);
