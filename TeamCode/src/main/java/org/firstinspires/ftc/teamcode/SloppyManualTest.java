@@ -21,7 +21,7 @@ public class SloppyManualTest extends CommonOpMode {
         while (opModeIsActive()){
             forward_axis = gamepad1.left_stick_y;
             strafe_axis = gamepad1.left_stick_x;
-            turn_axis = -gamepad1.right_stick_x;
+            turn_axis = -0.65*gamepad1.right_stick_x;
             collector = (gamepad2.dpad_down || gamepad2.dpad_up);
             freight = gamepad2.right_bumper;
             carousel_axis = gamepad2.left_stick_x;
@@ -46,7 +46,7 @@ public class SloppyManualTest extends CommonOpMode {
                 riser_axis = -gamepad2.right_stick_y;
             }
             if(riserPos<=10){
-                restrictor = 0.85;
+                restrictor = restrictorCap;
             }
 
             if(!previous_collector&&collector){
@@ -64,7 +64,7 @@ public class SloppyManualTest extends CommonOpMode {
             movementMotors[1].setPower(Range.clip(forward_axis + strafe_axis + turn_axis,-1,1)*restrictor);
             movementMotors[2].setPower(Range.clip(forward_axis - strafe_axis - turn_axis,-1,1)*restrictor);
             movementMotors[3].setPower(Range.clip(forward_axis + strafe_axis - turn_axis,-1,1)*restrictor);
-            riserMotor.setPower(riser_axis/3);
+            riserMotor.setPower(riser_axis*0.66);
             for (int i=0;i<4;i++){
                 telemetry.addData(String.format("Pos%s:",i), movementMotors[i].getCurrentPosition());
             }

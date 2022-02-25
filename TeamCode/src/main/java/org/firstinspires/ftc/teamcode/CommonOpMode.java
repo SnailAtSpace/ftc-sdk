@@ -35,13 +35,12 @@ public abstract class CommonOpMode extends LinearOpMode {
     Color color;
     public BingusPipeline.RandomizationFactor duckPos = BingusPipeline.RandomizationFactor.LEFT;
     final int LogPower = 3;
-    double restrictor = 1;
-    double forward_axis, strafe_axis, turn_axis, worm_axis, riser_axis, carousel_axis;
+    final double restrictorCap = 0.9;
+    double forward_axis, strafe_axis, turn_axis, worm_axis, riser_axis, carousel_axis, restrictor = 0.9;
     boolean previous_collector = false,previous_freight = false;
     boolean collector, freight;
-    //TODO: Change safeArmLimit according to the robot        VVVV
-    long upperArmLimit=1100, lowerArmLimit=5, safeArmLimit = 400;
-    final double maxCollPower = 0.5;
+    long upperArmLimit=1035, lowerArmLimit=5, safeArmLimit = 250;
+    final double maxCollPower = 0.6;
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
     final double width = 330.29/25.4, length = 430/25.4, diag = 542.3/25.4;
     final double hWidth = width/2, hLength = length/2,hDiag=diag/2, fieldHalf = 70.5;
@@ -59,7 +58,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         freightServo = hardwareMap.get(Servo.class, "FreightServo");
         carouselMotor = (DcMotorEx) hardwareMap.get(DcMotor.class,"carouselMotor");
         riserMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        freightServo.scaleRange(0,0.75);
+        freightServo.scaleRange(0.15,0.75);
         if (isAuto) {
             riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -83,8 +82,8 @@ public abstract class CommonOpMode extends LinearOpMode {
         }
         else{
             imu = hardwareMap.get(BNO055IMU.class, "imu");
-            movementMotors[2].setDirection(DcMotorSimple.Direction.REVERSE);
-            movementMotors[3].setDirection(DcMotorSimple.Direction.REVERSE);
+            movementMotors[0].setDirection(DcMotorSimple.Direction.REVERSE);
+            movementMotors[1].setDirection(DcMotorSimple.Direction.REVERSE);
             for (DcMotor motor : movementMotors) {
                 motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

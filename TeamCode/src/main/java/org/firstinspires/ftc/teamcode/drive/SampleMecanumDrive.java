@@ -54,10 +54,10 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
  */
 @Config
 public class SampleMecanumDrive extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(5.5, 0, 0);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8.5, 0, 0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(5, 0, 0);
 
-    public static double LATERAL_MULTIPLIER = 1.125;
+    public static double LATERAL_MULTIPLIER = 1.195;
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
@@ -128,8 +128,8 @@ public class SampleMecanumDrive extends MecanumDrive {
         }
 
         // TODO: reverse any motors using DcMotor.setDirection()
-        motors.get(0).setDirection(DcMotorSimple.Direction.REVERSE);
-        motors.get(1).setDirection(DcMotorSimple.Direction.REVERSE);
+        motors.get(2).setDirection(DcMotorSimple.Direction.REVERSE);
+        motors.get(3).setDirection(DcMotorSimple.Direction.REVERSE);
         // TODO: if desired, use setLocalizer() to change the localization method
         setLocalizer(new MecanumLocalizer(this,true));
 
@@ -310,7 +310,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         // expected). This bug does NOT affect orientation. 
         //
         // See https://github.com/FIRST-Tech-Challenge/FtcRobotController/issues/251 for details.
-        return (double) imu.getAngularVelocity().zRotationRate;
+        return (double) -imu.getAngularVelocity().yRotationRate;
     }
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {
