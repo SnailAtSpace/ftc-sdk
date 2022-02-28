@@ -3,7 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.hardware.broadcom.BroadcomColorSensor;
+import com.qualcomm.hardware.rev.RevColorSensorV3;
+import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -26,6 +30,8 @@ public abstract class CommonOpMode extends LinearOpMode {
     BingusPipeline pipeline;
     Boolean ExecuteFlag;
     BNO055IMU imu;
+    RevTouchSensor armButton;
+    RevColorSensorV3 freightSensor;
 
     public enum Color {
         BLUE,
@@ -34,19 +40,20 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     Color color;
     public BingusPipeline.RandomizationFactor duckPos = BingusPipeline.RandomizationFactor.LEFT;
-    final int LogPower = 3;
+    final int LogPower = 2;
     final double restrictorCap = 0.9;
-    double forward_axis, strafe_axis, turn_axis, worm_axis, riser_axis, carousel_axis, restrictor = 0.9;
-    boolean previous_collector = false,previous_freight = false;
+    double forward_axis, strafe_axis, turn_axis, riser_axis, carousel_axis;
+    double restrictor = restrictorCap;
+    boolean previousCollector = false, previousFreight = false, previousButtonState = false;
     boolean collector, freight;
-    long upperArmLimit=1035, lowerArmLimit=5, safeArmLimit = 250;
+    long upperArmLimit=1035, lowerArmLimit=5, safeArmLimit = 150;
     final double maxCollPower = 0.6;
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-    final double width = 330.29/25.4, length = 430/25.4, diag = 542.3/25.4;
+    final double width = 330.29/25.4, length = 380.78/25.4, diag = 503.8783666/25.4;
     final double hWidth = width/2, hLength = length/2,hDiag=diag/2, fieldHalf = 70.5;
-    Pose2d startPoseRed = new Pose2d(7.5,-fieldHalf+hLength, Math.toRadians(270));
+    Pose2d startPoseRed = new Pose2d(10.4,-fieldHalf+hLength, Math.toRadians(270));
     Pose2d startPoseBlue = new Pose2d(15,fieldHalf-hLength, Math.toRadians(90));
-    Pose2d defaultPoseRed = new Pose2d(7.5,-fieldHalf+hWidth,Math.toRadians(180));
+    Pose2d defaultPoseRed = new Pose2d(7.5,-fieldHalf+hWidth,Math.toRadians(0));
     Pose2d defaultPoseBlue = new Pose2d(7.5,fieldHalf-hWidth,Math.toRadians(0));
     public void Initialize(HardwareMap hardwareMap, boolean isAuto) {
         movementMotors[0] = (DcMotorEx) hardwareMap.get(DcMotor.class, "leftFrontMotor");
@@ -57,8 +64,11 @@ public abstract class CommonOpMode extends LinearOpMode {
         riserMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotor");
         freightServo = hardwareMap.get(Servo.class, "FreightServo");
         carouselMotor = (DcMotorEx) hardwareMap.get(DcMotor.class,"carouselMotor");
+        armButton = hardwareMap.get(RevTouchSensor.class, "armButton");
+        freightSensor = hardwareMap.get(RevColorSensorV3.class, "freightDetectionSensor");
         riserMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        freightServo.scaleRange(0.15,0.75);
+        //collectorMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        freightServo.scaleRange(0.15,0.74);
         if (isAuto) {
             riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -95,7 +105,7 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public void safeSleep(int millis) {
         ElapsedTime localTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-        while (localTime.time() < millis && opModeIsActive()) idle();
+        while (localTime.time() < millis && opModeIsActive() && !opModeIsActive()){}
     }
 
     public double rpmToTps(double rpm) {
@@ -117,11 +127,11 @@ public abstract class CommonOpMode extends LinearOpMode {
         imu.initialize(parameters);
     }
     public void ramIntoWall(boolean isRed){
-        movementMotors[0].setPower(-0.2);
-        movementMotors[1].setPower(0.2);
-        movementMotors[2].setPower(-0.2);
-        movementMotors[3].setPower(0.2);
-        safeSleep(400);
+        movementMotors[0].setPower(0.2 * (isRed?1:-1));
+        movementMotors[1].setPower(-0.2 * (isRed?1:-1));
+        movementMotors[2].setPower(0.2 * (isRed?1:-1));
+        movementMotors[3].setPower(-0.2 * (isRed?1:-1));
+        safeSleep(600);
         movementMotors[0].setPower(0);
         movementMotors[1].setPower(0);
         movementMotors[2].setPower(0);

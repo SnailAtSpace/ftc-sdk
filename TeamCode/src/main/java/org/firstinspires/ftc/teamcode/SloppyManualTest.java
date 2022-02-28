@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 @TeleOp(name="1000-7?")
 public class SloppyManualTest extends CommonOpMode {
     @Override
@@ -25,7 +27,9 @@ public class SloppyManualTest extends CommonOpMode {
             collector = (gamepad2.dpad_down || gamepad2.dpad_up);
             freight = gamepad2.right_bumper;
             carousel_axis = gamepad2.left_stick_x;
+            riser_axis = -gamepad2.right_stick_y;
             double riserPos = riserMotor.getCurrentPosition();
+
             switch ((int) Math.round(freightServo.getPosition())){
                 case 1:
                     lowerArmLimit = 5;
@@ -34,29 +38,31 @@ public class SloppyManualTest extends CommonOpMode {
                     lowerArmLimit = safeArmLimit;
                     break;
             }
-            if(riserPos<lowerArmLimit){
-                riser_axis=(-gamepad2.right_stick_y+Math.abs(gamepad2.right_stick_y))/2;//cap lower-bound
-            }
-            else if(riserPos>upperArmLimit){
-                riser_axis=(-gamepad2.right_stick_y-Math.abs(gamepad2.right_stick_y))/2;
+
+            if(armButton.isPressed()){
                 restrictor = 0.33;
+                previousButtonState = true;
+                riser_axis = Math.max(0,riser_axis);
+                freight = false;
+                riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
-            else {
-                restrictor = 0.33;
-                riser_axis = -gamepad2.right_stick_y;
-            }
-            if(riserPos<=10){
+            else{
                 restrictor = restrictorCap;
             }
 
-            if(!previous_collector&&collector){
+            if(riserPos>upperArmLimit){
+                riser_axis = Math.min(0,riser_axis);
+            }
+
+            if(!previousCollector&&collector){
                 if(gamepad2.dpad_down){
                     collectorMotor.setPower((-maxCollPower-Math.abs(collectorMotor.getPower())*Math.signum(Math.signum(collectorMotor.getPower())-1)));
                 }
                 else collectorMotor.setPower((maxCollPower-Math.abs(collectorMotor.getPower())*Math.signum(Math.signum(collectorMotor.getPower())+1)));
             }
 
-            if(!previous_freight && freight && riserPos>safeArmLimit){
+            if(!previousFreight && freight && riserPos>safeArmLimit){
                 freightServo.setPosition(1-freightServo.getPosition());
             }
             carouselMotor.setPower(carousel_axis);
@@ -64,13 +70,12 @@ public class SloppyManualTest extends CommonOpMode {
             movementMotors[1].setPower(Range.clip(forward_axis + strafe_axis + turn_axis,-1,1)*restrictor);
             movementMotors[2].setPower(Range.clip(forward_axis - strafe_axis - turn_axis,-1,1)*restrictor);
             movementMotors[3].setPower(Range.clip(forward_axis + strafe_axis - turn_axis,-1,1)*restrictor);
-            riserMotor.setPower(riser_axis*0.66);
+            riserMotor.setPower(riser_axis);
             for (int i=0;i<4;i++){
                 telemetry.addData(String.format("Pos%s:",i), movementMotors[i].getCurrentPosition());
             }
-            previous_freight = freight;
-            previous_collector = collector;
-            telemetry.addData("Riser: ",riserPos + " " + riser_axis + " " + lowerArmLimit);
+            previousFreight = freight;
+            previousCollector = collector;
             switch ((int)Math.round(restrictor)){
                 case 1:
                     telemetry.addData("Speed: ", "HIGH - ARM DISENGAGED, FULL SPEED");
@@ -78,8 +83,8 @@ public class SloppyManualTest extends CommonOpMode {
                 default:
                     telemetry.addData("Speed: ", "LOW - ARM ENGAGED");
             }
-            telemetry.addData("Servo: ", freightServo.getPosition() + " "+ (int) Math.round(freightServo.getPosition()));
-            telemetry.addData("Stick: ", gamepad2.right_stick_y+" "+gamepad2.right_stick_y);
+            telemetry.addData("Button state: ",armButton.isPressed());
+            telemetry.addData("Element: ", freightSensor.getDistance(DistanceUnit.MM));
             telemetry.update();
         }
     }

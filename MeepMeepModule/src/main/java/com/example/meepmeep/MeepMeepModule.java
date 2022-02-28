@@ -1,6 +1,5 @@
 package com.example.meepmeep;
 
-
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
@@ -28,22 +27,22 @@ public class MeepMeepModule {
                 .setColorScheme(new ColorSchemeRedLight())
                 .followTrajectorySequence(drive -> drive.trajectorySequenceBuilder(startPoseRed)
                         .setReversed(true)
-                        .splineToConstantHeading(new Vector2d(-12,-41.5),Math.toRadians(90))
-                        .waitSeconds(4.5)
+                        .splineToConstantHeading(new Vector2d(-12.5,-39.5),Math.toRadians(90))
+                        .waitSeconds(3)
                         .forward(0.5)
-                        .splineToSplineHeading(new Pose2d(7.5,-fieldHalf+hDiag, Math.toRadians(180)),Math.toRadians(270))
+                        .splineToSplineHeading(new Pose2d(7.5,-fieldHalf+hDiag, Math.toRadians(0)),Math.toRadians(270))
                         .splineToConstantHeading(defaultPoseRed.vec(),Math.toRadians(270))
                         .lineTo(new Vector2d(fieldHalf-hLength-15,-fieldHalf+hWidth))
                         .lineTo(defaultPoseRed.vec())
                         .splineToConstantHeading(new Vector2d(7.5,-fieldHalf+hDiag),Math.toRadians(90))
-                        .splineToSplineHeading(new Pose2d(-12,-41.5, Math.toRadians(270)),Math.toRadians(90))
-                        .waitSeconds(4.5)
+                        .splineToSplineHeading(new Pose2d(-12,-39.5, Math.toRadians(270)),Math.toRadians(90))
+                        .waitSeconds(2)
                         .forward(0.5)
-                        .splineToSplineHeading(new Pose2d(7.5,-fieldHalf+hDiag, Math.toRadians(180)),Math.toRadians(270))
+                        .splineToSplineHeading(new Pose2d(7.5,-fieldHalf+hDiag, Math.toRadians(0)),Math.toRadians(270))
                         .splineToConstantHeading(defaultPoseRed.vec(),Math.toRadians(270))
-                        .lineTo(new Vector2d(fieldHalf-hLength-23,-fieldHalf+hWidth))
-                        .splineToConstantHeading(new Vector2d(fieldHalf-hLength-23,-fieldHalf+hDiag+0.5),90)
-                        .lineTo(new Vector2d(fieldHalf-23-hLength,-fieldHalf+hWidth+25))
+                        .lineTo(new Vector2d(fieldHalf-hLength-20,-fieldHalf+hWidth))
+                        .splineToConstantHeading(new Vector2d(fieldHalf-hLength-20,-fieldHalf+hDiag+0.5),90)
+                        .lineTo(new Vector2d(fieldHalf-20-hLength,-fieldHalf+hWidth+27.5))
                         .build()
                 );
         RoadRunnerBotEntity robotblue = new DefaultBotBuilder(meep)
