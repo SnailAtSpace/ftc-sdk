@@ -3,21 +3,17 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
-import com.qualcomm.hardware.broadcom.BroadcomColorSensor;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -28,25 +24,18 @@ public abstract class CommonOpMode extends LinearOpMode {
     DcMotorEx collectorMotor, riserMotor, carouselMotor;
     OpenCvCamera webcam;
     BingusPipeline pipeline;
-    Boolean ExecuteFlag;
     BNO055IMU imu;
     RevTouchSensor armButton;
     RevColorSensorV3 freightSensor;
-
-    public enum Color {
-        BLUE,
-        RED
-    }
-
-    Color color;
     public BingusPipeline.RandomizationFactor duckPos = BingusPipeline.RandomizationFactor.LEFT;
     final int LogPower = 2;
     final double restrictorCap = 0.9;
     double forward_axis, strafe_axis, turn_axis, riser_axis, carousel_axis;
     double restrictor = restrictorCap;
-    boolean previousCollector = false, previousFreight = false, previousButtonState = false;
-    boolean collector, freight;
-    long upperArmLimit=1035, lowerArmLimit=5, safeArmLimit = 150;
+    boolean previousFreight = false;
+    int collector, previousCollector = 0;
+    boolean freight;
+    long upperArmLimit=1035;
     final double maxCollPower = 0.6;
     BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
     final double width = 330.29/25.4, length = 380.78/25.4, diag = 503.8783666/25.4;
@@ -67,8 +56,9 @@ public abstract class CommonOpMode extends LinearOpMode {
         armButton = hardwareMap.get(RevTouchSensor.class, "armButton");
         freightSensor = hardwareMap.get(RevColorSensorV3.class, "freightDetectionSensor");
         riserMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        //collectorMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        freightServo.scaleRange(0.15,0.74);
+        collectorMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        freightServo.scaleRange(0.15,0.72);
         if (isAuto) {
             riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());

@@ -4,13 +4,14 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ReadWriteFile;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-import java.util.jar.Attributes;
+import java.io.File;
 
 @Autonomous(name = "Auto RED",preselectTeleOp = "1000-7?")
 public class AutonomousRed extends CommonOpMode {
@@ -55,10 +56,10 @@ public class AutonomousRed extends CommonOpMode {
                 .setReversed(true)
                 .lineTo(new Vector2d(fieldHalf-hLength-15,-fieldHalf+hWidth))
                 .UNSTABLE_addTemporalMarkerOffset(-1,()->{
-                    collectorMotor.setPower(-maxCollPower*0.85);
+                    collectorMotor.setPower(maxCollPower*0.85);
                 })
                 .UNSTABLE_addTemporalMarkerOffset(1.25,()->{
-                    collectorMotor.setPower(maxCollPower*0.5);
+                    collectorMotor.setPower(-maxCollPower*0.5);
                 })
                 .UNSTABLE_addTemporalMarkerOffset(2,()->{
                     collectorMotor.setPower(0);
@@ -118,6 +119,10 @@ public class AutonomousRed extends CommonOpMode {
         ramIntoWall(true);
         drive.setPoseEstimate(defaultPoseRed);
         drive.followTrajectorySequence(parkSequence);
+        Pose2d lastPose = drive.getPoseEstimate();
+        String filename = "LastAutoPosition";
+        File file = AppUtil.getInstance().getSettingsFile(filename);
+        ReadWriteFile.writeFile(file, lastPose.getX()+" "+lastPose.getY()+" "+lastPose.getHeading());
         while (opModeIsActive()) {
             idle();
         }

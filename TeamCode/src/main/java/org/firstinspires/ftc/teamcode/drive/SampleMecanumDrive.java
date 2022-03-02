@@ -9,7 +9,6 @@ import com.acmerobotics.roadrunner.drive.MecanumDrive;
 import com.acmerobotics.roadrunner.followers.HolonomicPIDVAFollower;
 import com.acmerobotics.roadrunner.followers.TrajectoryFollower;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.localization.ThreeTrackingWheelLocalizer;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
@@ -263,6 +262,13 @@ public class SampleMecanumDrive extends MecanumDrive {
         return wheelPositions;
     }
 
+    public List<Integer> getWheelTicks(){
+        List<Integer> wheelTicks = new ArrayList<>();
+        for (DcMotorEx motor : motors){
+            wheelTicks.add(motor.getCurrentPosition());
+        }
+        return wheelTicks;
+    }
     @Override
     public List<Double> getWheelVelocities() {
         List<Double> wheelVelocities = new ArrayList<>();
