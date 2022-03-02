@@ -32,10 +32,10 @@ public class AutonomousRed extends CommonOpMode {
                     else if(duckPos == BingusPipeline.RandomizationFactor.CENTER){
                         tgtPos = 500;
                     }
-                    else if(duckPos == BingusPipeline.RandomizationFactor.RIGHT) tgtPos = 1050;
+                    else if(duckPos == BingusPipeline.RandomizationFactor.RIGHT) tgtPos = 1035;
                     riserMotor.setTargetPosition(tgtPos);
                     riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    riserMotor.setVelocity(200, AngleUnit.DEGREES);
+                    riserMotor.setPower(1);
                 })
                 .UNSTABLE_addTemporalMarkerOffset(1,()->{
                     freightServo.setPosition(0);
@@ -43,11 +43,10 @@ public class AutonomousRed extends CommonOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(2,()->{
                     freightServo.setPosition(1);
                     riserMotor.setTargetPosition(0);
-                    riserMotor.setVelocity(150, AngleUnit.DEGREES);
                     riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    riserMotor.setVelocity(150, AngleUnit.DEGREES);
+                    riserMotor.setPower(1);
                 })
-                .waitSeconds(3)
+                .waitSeconds(2)
                 .forward(0.5)
                 .splineToSplineHeading(new Pose2d(7.5,-fieldHalf+hDiag, Math.toRadians(0)),Math.toRadians(270))
                 .splineToConstantHeading(defaultPoseRed.vec(),Math.toRadians(270))
@@ -73,7 +72,7 @@ public class AutonomousRed extends CommonOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(0,()->{
                     riserMotor.setTargetPosition(500);
                     riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    riserMotor.setVelocity(200, AngleUnit.DEGREES);
+                    riserMotor.setPower(1);
                 })
                 .UNSTABLE_addTemporalMarkerOffset(0.5,()->{
                     freightServo.setPosition(0);
@@ -83,15 +82,8 @@ public class AutonomousRed extends CommonOpMode {
                 })
                 .UNSTABLE_addTemporalMarkerOffset(2,()->{
                     riserMotor.setTargetPosition(0);
-                    riserMotor.setVelocity(150, AngleUnit.DEGREES);
                     riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    riserMotor.setVelocity(150, AngleUnit.DEGREES);
-                })
-                .UNSTABLE_addTemporalMarkerOffset(3,()->{
-                    riserMotor.setTargetPosition(10);
-                    riserMotor.setVelocity(200, AngleUnit.DEGREES);
-                    riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    riserMotor.setVelocity(200, AngleUnit.DEGREES);
+                    riserMotor.setPower(1);
                 })
                 .waitSeconds(2)
                 .forward(0.5)

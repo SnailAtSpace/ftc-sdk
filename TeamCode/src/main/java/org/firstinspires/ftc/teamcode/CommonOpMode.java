@@ -121,7 +121,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         movementMotors[1].setPower(-0.2 * (isRed?1:-1));
         movementMotors[2].setPower(0.2 * (isRed?1:-1));
         movementMotors[3].setPower(-0.2 * (isRed?1:-1));
-        safeSleep(600);
+        sleep(600);
         movementMotors[0].setPower(0);
         movementMotors[1].setPower(0);
         movementMotors[2].setPower(0);
