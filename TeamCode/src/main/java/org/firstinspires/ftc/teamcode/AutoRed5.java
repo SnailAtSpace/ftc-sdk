@@ -3,11 +3,14 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+@Disabled
+@Deprecated
 @Autonomous(name = "Dota 2 Fifth Position", preselectTeleOp = "1000-7?")
 public class AutoRed5 extends CommonOpMode {
     @Override
@@ -65,15 +68,6 @@ public class AutoRed5 extends CommonOpMode {
 
         waitForStart();
         drive.followTrajectorySequence(loadSequence);
-        movementMotors[0].setPower(0.2);
-        movementMotors[1].setPower(0.2);
-        movementMotors[2].setPower(0.2);
-        movementMotors[3].setPower(0.2);
-        safeSleep(400);
-        movementMotors[0].setPower(0);
-        movementMotors[1].setPower(0);
-        movementMotors[2].setPower(0);
-        movementMotors[3].setPower(0);
         carouselMotor.setPower(-0.25);
         safeSleep(2500);
         carouselMotor.setPower(0);

@@ -9,25 +9,22 @@ import com.qualcomm.robotcore.util.ReadWriteFile;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 
 import java.io.File;
 import java.util.Arrays;
 
-@TeleOp(name="1000-7?")
-public class SloppyManualTest extends CommonOpMode {
+@TeleOp(name="Даниил, не разбей робота, прошу")
+public class GigachadTeleOp extends CommonOpMode {
     @SuppressLint("DefaultLocale")
     @Override
     public void runOpMode(){
         Initialize(hardwareMap,false);
         riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-        drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         double[] drivePose;
         try {
-            File file = AppUtil.getInstance().getSettingsFile("LastAutoPosition");
+            File file = AppUtil.getInstance().getSettingsFile("LastPosition");
             drivePose = Arrays.stream(ReadWriteFile.readFile(file).split(" ")).mapToDouble(Double::parseDouble).toArray();
         }
         catch (Exception e){
@@ -63,8 +60,14 @@ public class SloppyManualTest extends CommonOpMode {
             }
 
             //COLLECTOR DOUBLE ELEMENT PREVENTION
-            if(freightSensor.getDistance(DistanceUnit.MM)<40 && collector!=0){
-                collector = -1;
+            if(freightSensor.getDistance(DistanceUnit.MM)<40){
+                freightServo.scaleRange(0.15,0.62);
+                freightServo.setPosition(Math.round(freightServo.getPosition()));
+                if(collector!=0 || collectorMotor.getPower()>0) collector = -1;
+            }
+            else{
+                freightServo.scaleRange(0.15,0.72);
+                freightServo.setPosition(Math.round(freightServo.getPosition()));
             }
 
             /* POWER APPLICATION: most likely already working as intended, do not touch! */
@@ -86,13 +89,13 @@ public class SloppyManualTest extends CommonOpMode {
             );
             //miscellaneous power
             carouselMotor.setPower(carousel_axis);
-            riserMotor.setPower(riser_axis);
+            riserMotor.setPower(riser_axis*0.66);
             //utility variable assignment for buttons
             previousFreight = freight;
             previousCollector = collector;
 
             //TELEMETRY
-            telemetry.addData(String.format("Drive ticks: "), String.format("%1$d %2$d %3$d %4$d", drive.getWheelTicks().toArray()));
+            telemetry.addData("Drive ticks: ", String.format("%1$d %2$d %3$d %4$d", drive.getWheelTicks().toArray()));
             telemetry.addData("RR Position: ", drive.getPoseEstimate().toString());
             if(restrictor == restrictorCap){
                 telemetry.addData("Speed: ", "HIGH - ARM DISENGAGED, FULL SPEED");
@@ -102,8 +105,13 @@ public class SloppyManualTest extends CommonOpMode {
             telemetry.addData("Riser position: ", riserPos);
             telemetry.addData("Button state: ",armButton.isPressed());
             telemetry.addData("Element: ", freightSensor.getDistance(DistanceUnit.MM)<40?"YES":"NO");
+            telemetry.addData("Dead wheels: ", String.format("%d %d %d", ((StandardTrackingWheelLocalizer)drive.getLocalizer()).getWheelTicks().toArray()));
             telemetry.update();
             drive.update();
         }
+        Pose2d lastPose = drive.getPoseEstimate();
+        String filename = "LastPosition";
+        File file = AppUtil.getInstance().getSettingsFile(filename);
+        ReadWriteFile.writeFile(file, lastPose.getX()+" "+lastPose.getY()+" "+lastPose.getHeading());
     }
 }

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.annotation.SuppressLint;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -23,9 +25,9 @@ public class BingusPipeline extends OpenCvPipeline {
     Mat Cb = new Mat();
     double minCb;
     double avgL,avgC,avgR;
-    final int xL=0, y=175, xC=305, xR=610;
+    final int sideOffset=0;
+    final int xL=0+sideOffset, y=175, xC=305, xR=610-sideOffset;
     final int offsetX=30,offsetY=7;
-    final int sideOffset=10;
     Point leftA=new Point(xL,y),leftB = new Point(xL+offsetX,y+offsetY);
     Point centerA=new Point(xC,y),centerB = new Point(xC+offsetX,y+offsetY);
     Point rightA=new Point(xR,y),rightB = new Point(xR+offsetX,y+offsetY);
@@ -72,9 +74,10 @@ public class BingusPipeline extends OpenCvPipeline {
         return new double[]{left,center,right};
     }
 
+    @SuppressLint("DefaultLocale")
     public RandomizationFactor ComposeTelemetry(Telemetry telemetry){
         telemetry.addData("Best guess of duck position: ", getAnal());
-        telemetry.addData("Vals: ",getVals(avgL,avgC,avgR));
+        telemetry.addData("Vals: ",String.format("%1$.2f %2$.2f %3$.2f", avgL,avgC,avgR));
         telemetry.update();
         return getAnal();
     }
