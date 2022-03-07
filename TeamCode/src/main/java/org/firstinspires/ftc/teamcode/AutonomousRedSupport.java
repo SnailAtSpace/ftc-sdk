@@ -8,7 +8,7 @@ public class AutonomousRedSupport extends CommonOpMode {
     @Override
     public void runOpMode() {
         Initialize(hardwareMap, true);
-        riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        this.riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         waitForStart();
     }
 }

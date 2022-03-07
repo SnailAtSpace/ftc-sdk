@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-import org.opencv.core.Mat;
 
 @Autonomous(name = "Auto BLU: Support",preselectTeleOp = "1000-7?")
 public class AutonomousBlueSupport extends CommonOpMode {
@@ -24,7 +23,7 @@ public class AutonomousBlueSupport extends CommonOpMode {
                 .splineToSplineHeading(new Pose2d(-33,24, Math.toRadians(0)),Math.toRadians(0))
                 .UNSTABLE_addTemporalMarkerOffset(0,()->{
                     riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    if(duckPos==BingusPipeline.RandomizationFactor.LEFT) {
+                    if(duckPos== BingusPipeline.RandomizationFactor.LEFT) {
                         riserMotor.setTargetPosition(500);
                     }
                     else if(duckPos == BingusPipeline.RandomizationFactor.CENTER){

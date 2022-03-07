@@ -13,6 +13,9 @@ import java.util.List;
 public class DashboardUtil {
     private static final double DEFAULT_RESOLUTION = 2.0; // distance units; presumed inches
     private static final double ROBOT_RADIUS = 9; // in
+    private static final double width = 330.29/25.4, length = 380.78/25.4, diag = 503.8783666/25.4;
+    private static final double hWidth = width/2, hLength = length/2,hDiag=diag/2, fieldHalf = 70.5;
+    private static final double angleDev = Math.asin(hWidth/hDiag);
 
 
     public static void drawPoseHistory(Canvas canvas, List<Pose2d> poseHistory) {
@@ -45,9 +48,19 @@ public class DashboardUtil {
     }
 
     public static void drawRobot(Canvas canvas, Pose2d pose) {
-        canvas.strokeCircle(pose.getX(), pose.getY(), ROBOT_RADIUS);
-        Vector2d v = pose.headingVec().times(ROBOT_RADIUS);
-        double x1 = pose.getX() + v.getX() / 2, y1 = pose.getY() + v.getY() / 2;
+        canvas.strokeCircle(pose.getX(), pose.getY(), hDiag);
+        Vector2d v = pose.headingVec().times(hDiag);
+        canvas.strokePolygon(
+                new double[]{pose.getX()+v.rotated(angleDev).getX(),
+                                pose.getX()+v.rotated(-angleDev).getX(),
+                                pose.getX()-v.rotated(angleDev).getX(),
+                                pose.getX()-v.rotated(-angleDev).getX()},
+                new double[]{pose.getY()+v.rotated(angleDev).getY(),
+                                pose.getY()+v.rotated(-angleDev).getY(),
+                                pose.getY()-v.rotated(angleDev).getY(),
+                                pose.getY()-v.rotated(-angleDev).getY()});
+        v = pose.headingVec().times(hLength);
+        double x1 = pose.getX(), y1 = pose.getY();
         double x2 = pose.getX() + v.getX(), y2 = pose.getY() + v.getY();
         canvas.strokeLine(x1, y1, x2, y2);
     }

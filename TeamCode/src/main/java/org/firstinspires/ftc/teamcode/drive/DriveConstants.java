@@ -31,7 +31,7 @@ public class DriveConstants {
      * If using the built-in motor velocity PID, update MOTOR_VELO_PID with the tuned coefficients
      * from DriveVelocityPIDTuner.
      */
-    public static final boolean RUN_USING_ENCODER = true;
+    public static final boolean RUN_USING_ENCODER = false;
     public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(35,
                                                                         0,
             20,
@@ -55,8 +55,8 @@ public class DriveConstants {
      * motor encoders or have elected not to use them for velocity control, these values should be
      * empirically tuned.
      */
-    public static double kV = 1.0 / rpmToVelocity(MAX_RPM);
-    public static double kA = 0;
+    public static double kV = 0.01275;
+    public static double kA = 0.003;
     public static double kStatic = 0;
 
     /*
@@ -67,7 +67,7 @@ public class DriveConstants {
      * inches.
      */
     public static double MAX_VEL = 70;
-    public static double MAX_ACCEL = 55;
+    public static double MAX_ACCEL = 65;
     public static double MAX_ANG_VEL = 4;
     public static double MAX_ANG_ACCEL = 1.25;
 
