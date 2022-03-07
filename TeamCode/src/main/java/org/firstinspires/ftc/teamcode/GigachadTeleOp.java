@@ -104,7 +104,7 @@ public class GigachadTeleOp extends CommonOpMode {
             }
             telemetry.addData("Riser position: ", riserPos);
             telemetry.addData("Button state: ",armButton.isPressed());
-            telemetry.addData("Element: ", freightSensor.getDistance(DistanceUnit.MM)<40?"YES":"NO");
+            telemetry.addData("Element: ", freightSensor.hasElement()?"YES":"NO");
             telemetry.addData("Dead wheels: ", String.format("%d %d %d", ((StandardTrackingWheelLocalizer)drive.getLocalizer()).getWheelTicks().toArray()));
             telemetry.update();
             drive.update();

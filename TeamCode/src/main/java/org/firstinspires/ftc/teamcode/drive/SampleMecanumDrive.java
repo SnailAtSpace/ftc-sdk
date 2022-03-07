@@ -163,6 +163,13 @@ public class SampleMecanumDrive extends MecanumDrive {
         );
     }
 
+    public void runSplineToAsync(Pose2d targetPose, double endTangent){
+        trajectorySequenceRunner.followTrajectorySequenceAsync(
+                trajectorySequenceBuilder(getPoseEstimate())
+                .splineToSplineHeading(targetPose,endTangent)
+                .build()
+        );
+    }
     public void turn(double angle) {
         turnAsync(angle);
         waitForIdle();

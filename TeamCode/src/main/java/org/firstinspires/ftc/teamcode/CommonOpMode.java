@@ -8,23 +8,33 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.I2cDeviceSynchSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 public abstract class CommonOpMode extends LinearOpMode {
+    public class FreightSensor extends RevColorSensorV3{
+        public FreightSensor(I2cDeviceSynchSimple deviceClient) {
+            super(deviceClient);
+        }
+        public boolean hasElement(){
+            return getDistance(DistanceUnit.MM)<40;
+        }
+    }
     public SampleMecanumDrive drive;
     public Servo freightServo;
     public DcMotorEx collectorMotor, riserMotor, carouselMotor;
     public OpenCvCamera webcam;
     public BingusPipeline pipeline;
     public RevTouchSensor armButton;
-    public RevColorSensorV3 freightSensor;
+    public FreightSensor freightSensor;
     public BingusPipeline.RandomizationFactor duckPos = BingusPipeline.RandomizationFactor.LEFT;
     final double restrictorCap = 0.9;
     double forward_axis, strafe_axis, turn_axis, riser_axis, carousel_axis;
@@ -47,7 +57,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         freightServo = hardwareMap.get(Servo.class, "FreightServo");
         carouselMotor = (DcMotorEx) hardwareMap.get(DcMotor.class,"carouselMotor");
         armButton = hardwareMap.get(RevTouchSensor.class, "armButton");
-        freightSensor = hardwareMap.get(RevColorSensorV3.class, "freightDetectionSensor");
+        freightSensor = (FreightSensor) hardwareMap.get(RevColorSensorV3.class, "freightDetectionSensor");
         riserMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         collectorMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         freightServo.scaleRange(0.15,0.72);
