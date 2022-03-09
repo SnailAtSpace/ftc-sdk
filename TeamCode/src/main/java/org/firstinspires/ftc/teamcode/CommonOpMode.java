@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.I2cDeviceSynchSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -20,21 +19,13 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 public abstract class CommonOpMode extends LinearOpMode {
-    public class FreightSensor extends RevColorSensorV3{
-        public FreightSensor(I2cDeviceSynchSimple deviceClient) {
-            super(deviceClient);
-        }
-        public boolean hasElement(){
-            return getDistance(DistanceUnit.MM)<40;
-        }
-    }
     public SampleMecanumDrive drive;
     public Servo freightServo;
     public DcMotorEx collectorMotor, riserMotor, carouselMotor;
     public OpenCvCamera webcam;
     public BingusPipeline pipeline;
     public RevTouchSensor armButton;
-    public FreightSensor freightSensor;
+    public RevColorSensorV3 freightSensor;
     public BingusPipeline.RandomizationFactor duckPos = BingusPipeline.RandomizationFactor.LEFT;
     final double restrictorCap = 0.9;
     double forward_axis, strafe_axis, turn_axis, riser_axis, carousel_axis;
@@ -48,6 +39,8 @@ public abstract class CommonOpMode extends LinearOpMode {
     final double hWidth = width/2, hLength = length/2,hDiag=diag/2, fieldHalf = 70.5;
     public Pose2d startPoseRed = new Pose2d(10.5,-fieldHalf+hLength, Math.toRadians(270));
     public Pose2d startPoseBlue = new Pose2d(12.5,fieldHalf-hLength, Math.toRadians(90));
+    public Pose2d warehousePoseRed = new Pose2d(fieldHalf-hLength-27,-fieldHalf+hWidth,Math.toRadians(0));
+    public Pose2d warehousePoseBlue = new Pose2d(fieldHalf-hLength-27,fieldHalf-hWidth,Math.toRadians(0));
     public Pose2d defaultPoseRed = new Pose2d(7.5,-fieldHalf+hWidth,Math.toRadians(0));
     public Pose2d defaultPoseBlue = new Pose2d(7.5,fieldHalf-hWidth,Math.toRadians(0));
     public void Initialize(HardwareMap hardwareMap, boolean isAuto) {
@@ -57,7 +50,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         freightServo = hardwareMap.get(Servo.class, "FreightServo");
         carouselMotor = (DcMotorEx) hardwareMap.get(DcMotor.class,"carouselMotor");
         armButton = hardwareMap.get(RevTouchSensor.class, "armButton");
-        freightSensor = (FreightSensor) hardwareMap.get(RevColorSensorV3.class, "freightDetectionSensor");
+        freightSensor = hardwareMap.get(RevColorSensorV3.class, "freightDetectionSensor");
         riserMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         collectorMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         freightServo.scaleRange(0.15,0.72);
@@ -84,6 +77,10 @@ public abstract class CommonOpMode extends LinearOpMode {
         }
         else{
         }
+    }
+
+    public boolean hasElement(){
+        return freightSensor.getDistance(DistanceUnit.MM)<40;
     }
 
     public void safeSleep(int millis) {

@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import java.io.File;
 import java.util.Arrays;
 
-@TeleOp(name="Даниил, не разбей робота, прошу")
+@TeleOp(name="W+M1")
 public class GigachadTeleOp extends CommonOpMode {
     @SuppressLint("DefaultLocale")
     @Override
@@ -104,8 +104,8 @@ public class GigachadTeleOp extends CommonOpMode {
             }
             telemetry.addData("Riser position: ", riserPos);
             telemetry.addData("Button state: ",armButton.isPressed());
-            telemetry.addData("Element: ", freightSensor.hasElement()?"YES":"NO");
-            telemetry.addData("Dead wheels: ", String.format("%d %d %d", ((StandardTrackingWheelLocalizer)drive.getLocalizer()).getWheelTicks().toArray()));
+            telemetry.addData("Element: ", hasElement()?"YES":"NO");
+            telemetry.addData("Dead wheels: ", String.format("%.3f %.3f %.3f", ((StandardTrackingWheelLocalizer)drive.getLocalizer()).getWheelVelocities().toArray()));
             telemetry.update();
             drive.update();
         }

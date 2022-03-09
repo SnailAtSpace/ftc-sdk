@@ -9,9 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-import java.util.Locale;
-
-@Autonomous
+@Autonomous(preselectTeleOp = "W+M1", name = "AutoRED controlled by an FSM", group = "FSM")
 public class AutoRedFSM extends CommonOpMode {
     enum AutoState {
         EN_ROUTE_TO_HUB,
@@ -26,54 +24,59 @@ public class AutoRedFSM extends CommonOpMode {
         IDLE
     }
 
-    TrajectorySequence goToHubSequence = drive.trajectorySequenceBuilder(startPoseRed)
-            .setReversed(true)
-            .splineToConstantHeading(new Vector2d(-12.5,-41.5),Math.toRadians(90))
-            .UNSTABLE_addTemporalMarkerOffset(-0.5,()->{
-                int tgtPos = 600;
-                riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                if(duckPos==BingusPipeline.RandomizationFactor.LEFT) {
-                    tgtPos = 250;
-                }
-                else if(duckPos == BingusPipeline.RandomizationFactor.CENTER){
-                    tgtPos = 500;
-                }
-                else if(duckPos == BingusPipeline.RandomizationFactor.RIGHT) tgtPos = 1035;
-                riserMotor.setTargetPosition(tgtPos);
-                riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                riserMotor.setPower(1);
-            })
-            .build();
-    TrajectorySequence returnFromHubSequence = drive.trajectorySequenceBuilder(goToHubSequence.end())
-            .setReversed(true)
-            .forward(0.5)
-            .splineToLinearHeading(defaultPoseRed,Math.toRadians(270))
-            .build();
-    TrajectorySequence enterWarehouseSequence = drive.trajectorySequenceBuilder(defaultPoseRed)
-            .setReversed(true)
-            .lineTo(new Vector2d(fieldHalf-hLength-27,-fieldHalf+hWidth))
-            .splineToConstantHeading(new Vector2d(fieldHalf-hLength-27,-fieldHalf+hWidth+2),Math.toRadians(90))
-            .build();
-    TrajectorySequence exitWarehouseSequence = drive.trajectorySequenceBuilder(enterWarehouseSequence.end())
-            .setReversed(true)
-            .lineTo(defaultPoseRed.vec())
-            .splineToLinearHeading(startPoseRed,Math.toRadians(270))
-            .build();
-    TrajectorySequence parkSequence = drive.trajectorySequenceBuilder(defaultPoseRed)
-            .setReversed(true)
-            .lineTo(new Vector2d(fieldHalf-hLength-20,-fieldHalf+hWidth))
-            .splineToConstantHeading(new Vector2d(fieldHalf-hLength-20,-fieldHalf+hDiag+0.5),90)
-            .lineTo(new Vector2d(fieldHalf-20-hLength,-fieldHalf+hWidth+27.5))
-            .build();
     AutoState currentState = AutoState.IDLE;
     ElapsedTime timer = new ElapsedTime();
 
     @Override
     public void runOpMode() throws InterruptedException {
+        Initialize(hardwareMap,true);
+        riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        drive.setPoseEstimate(startPoseRed);
+        TrajectorySequence goToHubSequence = drive.trajectorySequenceBuilder(startPoseRed)
+                .setReversed(true)
+                .splineToConstantHeading(new Vector2d(-12.5,-40.5),Math.toRadians(90))
+                .UNSTABLE_addTemporalMarkerOffset(-1,()->{
+                    int tgtPos = 600;
+                    if(duckPos==BingusPipeline.RandomizationFactor.LEFT) {
+                        tgtPos = 250;
+                    }
+                    else if(duckPos == BingusPipeline.RandomizationFactor.CENTER){
+                        tgtPos = 500;
+                    }
+                    else if(duckPos == BingusPipeline.RandomizationFactor.RIGHT) tgtPos = 1035;
+                    riserMotor.setTargetPosition(tgtPos);
+                    riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    riserMotor.setPower(1);
+                })
+                .build();
+        TrajectorySequence returnFromHubSequence = drive.trajectorySequenceBuilder(goToHubSequence.end())
+                .setReversed(true)
+                .forward(0.5)
+                .splineToSplineHeading(defaultPoseRed,Math.toRadians(270))
+                .build();
+        TrajectorySequence enterWarehouseSequence = drive.trajectorySequenceBuilder(defaultPoseRed)
+                .setReversed(true)
+                .lineTo(warehousePoseRed.vec())
+                .splineToConstantHeading(warehousePoseRed.vec().plus(new Vector2d(0,2)),Math.toRadians(90))
+                .build();
+        TrajectorySequence exitWarehouseSequence = drive.trajectorySequenceBuilder(warehousePoseRed)
+                .setReversed(true)
+                .lineTo(new Vector2d(fieldHalf-hLength-48,-fieldHalf+hWidth))
+                .splineToLinearHeading(startPoseRed,Math.toRadians(270))
+                .build();
+        TrajectorySequence parkSequence = drive.trajectorySequenceBuilder(defaultPoseRed)
+                .setReversed(true)
+                .lineTo(new Vector2d(fieldHalf-hLength-20,-fieldHalf+hWidth))
+                .splineToConstantHeading(new Vector2d(fieldHalf-hLength-20,-fieldHalf+hDiag+0.5),90)
+                .lineTo(new Vector2d(fieldHalf-20-hLength,-fieldHalf+hWidth+27.5))
+                .build();
+
+
         int amountOfDeliveredElements = 0;
         final int targetDeliveries = 2;
-        Initialize(hardwareMap,true);
-        drive.setPoseEstimate(startPoseRed);
+        while(!opModeIsActive() && !isStopRequested()){
+            duckPos = pipeline.ComposeTelemetry(telemetry);
+        }
         waitForStart();
         if (isStopRequested()) return;
         currentState = AutoState.EN_ROUTE_TO_HUB;
@@ -87,30 +90,33 @@ public class AutoRedFSM extends CommonOpMode {
                     }
                     break;
                 case PLACING_ELEMENT:
-                    if(timer.time()<0.25){
+                    if (timer.time()>1){
+                        if(riserMotor.getCurrentPosition()<150){
+                            duckPos = BingusPipeline.RandomizationFactor.UNDEFINED;
+                            currentState = AutoState.RETURNING_TO_DEFAULT_POS_FROM_HUB;
+                            amountOfDeliveredElements++;
+                            drive.followTrajectorySequenceAsync(returnFromHubSequence);
+                        }
+                        else{
+                            freightServo.setPosition(1);
+                            riserMotor.setTargetPosition(0);
+                            riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                            riserMotor.setPower(1);
+                        }
+                    }
+                    else if(timer.time()>0.25){
                         freightServo.setPosition(0);
-                    }
-                    else if (timer.time()<1){
-                        freightServo.setPosition(1);
-                        riserMotor.setTargetPosition(0);
-                        riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        riserMotor.setPower(1);
-                    }
-                    if(riserMotor.getCurrentPosition()<150){
-                        amountOfDeliveredElements++;
-                        duckPos = BingusPipeline.RandomizationFactor.UNDEFINED;
-                        currentState = AutoState.RETURNING_TO_DEFAULT_POS_FROM_HUB;
-                        drive.followTrajectorySequenceAsync(returnFromHubSequence);
                     }
                     break;
                 case RETURNING_TO_DEFAULT_POS_FROM_HUB:
                     if(!drive.isBusy()){
                         currentState = AutoState.RAMMING_INTO_WALL;
                         drive.setWeightedDrivePower(new Pose2d(0, -0.25,0));
+                        timer.reset();
                     }
                     break;
                 case RAMMING_INTO_WALL:
-                    if(((StandardTrackingWheelLocalizer) drive.getLocalizer()).getWheelVelocities().get(2)<0.5){
+                    if(((StandardTrackingWheelLocalizer) drive.getLocalizer()).getWheelVelocities().get(2)<0.3 && timer.time()>0.5){
                         drive.setWeightedDrivePower(new Pose2d(0,0,0));
                         drive.setPoseEstimate(defaultPoseRed);
                         if(amountOfDeliveredElements<targetDeliveries){ // get more elements
@@ -122,28 +128,27 @@ public class AutoRedFSM extends CommonOpMode {
                             drive.followTrajectorySequenceAsync(parkSequence);
                         }
                     }
-                    else {
-                        drive.update();
-                    }
                     break;
                 case EN_ROUTE_TO_WAREHOUSE:
                     if(!drive.isBusy()){
                         currentState = AutoState.GETTING_ELEMENT;
+                        timer.reset();
                         drive.setWeightedDrivePower(new Pose2d(0.2,0,0));
                         collectorMotor.setPower(1);
                     }
                     break;
                 case GETTING_ELEMENT:
-                    if(freightSensor.hasElement() || drive.getPoseEstimate().getX()>=fieldHalf-hLength){
+                    if(hasElement() || drive.getPoseEstimate().getX()>=fieldHalf-hLength){
+                        freightServo.setPosition(0.9);
                         drive.setWeightedDrivePower(new Pose2d(0,0,0));
                         collectorMotor.setPower(-1);
                         currentState = AutoState.RESETTING_POSITION_IN_WAREHOUSE;
-                        drive.runSplineToAsync(enterWarehouseSequence.end(),Math.toRadians(180));
+                        drive.runSplineToAsync(warehousePoseRed,Math.toRadians(270));
                     }
                     break;
                 case RESETTING_POSITION_IN_WAREHOUSE:
                     if(!drive.isBusy()){
-                        drive.setPoseEstimate(enterWarehouseSequence.end());
+                        drive.setPoseEstimate(warehousePoseRed);
                         collectorMotor.setPower(0);
                         currentState = AutoState.RETURNING_TO_DEFAULT_POS_FROM_WAREHOUSE;
                         drive.followTrajectorySequenceAsync(exitWarehouseSequence);
@@ -164,10 +169,14 @@ public class AutoRedFSM extends CommonOpMode {
                 case IDLE:
                     break;
             }
+            drive.update();
             telemetry.addData("State: ", currentState.name());
-            telemetry.addData("Position: ", String.format(Locale.ENGLISH,"%.3f %.3f %.3f"),drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading());
-            telemetry.addData("Error: ",String.format(Locale.ENGLISH,"%.3f %.3f %.3f",drive.getLastError().getX(),drive.getLastError().getY(),drive.getLastError().getHeading()));
+            telemetry.addData("Position: ", "%.3f %.3f %.3f",drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading());
+            telemetry.addData("Error: ","%.3f %.3f %.3f",drive.getLastError().getX(),drive.getLastError().getY(),drive.getLastError().getHeading());
             telemetry.addData("Amount of delivered freight: ", amountOfDeliveredElements);
+            telemetry.addData("Dead wheel velo: ","%.3f %.3f %.3f", ((StandardTrackingWheelLocalizer) drive.getLocalizer()).getWheelVelocities().toArray());
+            telemetry.addData("Riser: ", riserMotor.getCurrentPosition());
+            telemetry.update();
         }
     }
 }

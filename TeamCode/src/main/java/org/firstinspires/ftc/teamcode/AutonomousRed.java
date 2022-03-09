@@ -22,7 +22,7 @@ public class AutonomousRed extends CommonOpMode {
                 .splineToConstantHeading(new Vector2d(-12.5,-41.5),Math.toRadians(90))
                 .UNSTABLE_addTemporalMarkerOffset(-0.5,()->{
                     int tgtPos = 600;
-                    riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                     if(duckPos== BingusPipeline.RandomizationFactor.LEFT) {
                         tgtPos = 250;
                     }
