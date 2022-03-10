@@ -12,11 +12,12 @@ public class CalibratePosition extends CommonOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
         Initialize(hardwareMap,false);
-        drive.setPoseEstimate(new Pose2d(-fieldHalf+hLength,-fieldHalf+hWidth,0));
+        final Pose2d calibratedPose = new Pose2d(-fieldHalf + hLength, -fieldHalf + hWidth, 0);
+        drive.setPoseEstimate(calibratedPose);
         drive.update();
         telemetry.addLine("Place the robot in the red storage unit corner, facing the warehouse.");
         waitForStart();
-        drive.setPoseEstimate(new Pose2d(-fieldHalf+hLength,fieldHalf+hWidth,0));
+        drive.setPoseEstimate(calibratedPose);
         Pose2d lastPose = drive.getPoseEstimate();
         String filename = "LastPosition";
         File file = AppUtil.getInstance().getSettingsFile(filename);

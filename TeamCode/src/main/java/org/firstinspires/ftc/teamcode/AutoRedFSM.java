@@ -15,7 +15,8 @@ public class AutoRedFSM extends CommonOpMode {
         EN_ROUTE_TO_HUB,
         PLACING_ELEMENT,
         RETURNING_TO_DEFAULT_POS_FROM_HUB,
-        RAMMING_INTO_WALL,
+        RAMMING_INTO_WALL_BEFORE_ENTERING,
+        RAMMING_INTO_WALL_BEFORE_LEAVING,
         EN_ROUTE_TO_WAREHOUSE,
         GETTING_ELEMENT,
         RESETTING_POSITION_IN_WAREHOUSE,
@@ -24,7 +25,7 @@ public class AutoRedFSM extends CommonOpMode {
         IDLE
     }
 
-    AutoState currentState = AutoState.IDLE;
+    AutoState currentState = AutoState.IDLE, prevState = AutoState.IDLE;
     ElapsedTime timer = new ElapsedTime();
 
     @Override
@@ -34,16 +35,15 @@ public class AutoRedFSM extends CommonOpMode {
         drive.setPoseEstimate(startPoseRed);
         TrajectorySequence goToHubSequence = drive.trajectorySequenceBuilder(startPoseRed)
                 .setReversed(true)
-                .splineToConstantHeading(new Vector2d(-12.5,-40.5),Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(-12.5,-41.5),Math.toRadians(90))
                 .UNSTABLE_addTemporalMarkerOffset(-1,()->{
-                    int tgtPos = 600;
+                    int tgtPos = 1035;
                     if(duckPos==BingusPipeline.RandomizationFactor.LEFT) {
                         tgtPos = 250;
                     }
                     else if(duckPos == BingusPipeline.RandomizationFactor.CENTER){
                         tgtPos = 500;
                     }
-                    else if(duckPos == BingusPipeline.RandomizationFactor.RIGHT) tgtPos = 1035;
                     riserMotor.setTargetPosition(tgtPos);
                     riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     riserMotor.setPower(1);
@@ -51,18 +51,19 @@ public class AutoRedFSM extends CommonOpMode {
                 .build();
         TrajectorySequence returnFromHubSequence = drive.trajectorySequenceBuilder(goToHubSequence.end())
                 .setReversed(true)
-                .forward(0.5)
-                .splineToSplineHeading(defaultPoseRed,Math.toRadians(270))
+                .lineTo(new Vector2d(-12.5,-50))
+                .splineToLinearHeading(defaultPoseRed,Math.toRadians(270))
                 .build();
         TrajectorySequence enterWarehouseSequence = drive.trajectorySequenceBuilder(defaultPoseRed)
                 .setReversed(true)
                 .lineTo(warehousePoseRed.vec())
-                .splineToConstantHeading(warehousePoseRed.vec().plus(new Vector2d(0,2)),Math.toRadians(90))
+                .splineToConstantHeading(warehousePoseRed.vec().plus(new Vector2d(0,5)),Math.toRadians(90))
                 .build();
         TrajectorySequence exitWarehouseSequence = drive.trajectorySequenceBuilder(warehousePoseRed)
                 .setReversed(true)
                 .lineTo(new Vector2d(fieldHalf-hLength-48,-fieldHalf+hWidth))
-                .splineToLinearHeading(startPoseRed,Math.toRadians(270))
+                .splineToLinearHeading(startPoseRed.plus(new Pose2d(0,5,0)),Math.toRadians(90))
+                .splineToConstantHeading(startPoseRed.vec(),Math.toRadians(270))
                 .build();
         TrajectorySequence parkSequence = drive.trajectorySequenceBuilder(defaultPoseRed)
                 .setReversed(true)
@@ -80,6 +81,7 @@ public class AutoRedFSM extends CommonOpMode {
         waitForStart();
         if (isStopRequested()) return;
         currentState = AutoState.EN_ROUTE_TO_HUB;
+        prevState = AutoState.EN_ROUTE_TO_HUB;
         drive.followTrajectorySequenceAsync(goToHubSequence);
         while(opModeIsActive() && !isStopRequested()){
             switch (currentState){
@@ -110,12 +112,12 @@ public class AutoRedFSM extends CommonOpMode {
                     break;
                 case RETURNING_TO_DEFAULT_POS_FROM_HUB:
                     if(!drive.isBusy()){
-                        currentState = AutoState.RAMMING_INTO_WALL;
-                        drive.setWeightedDrivePower(new Pose2d(0, -0.25,0));
+                        currentState = AutoState.RAMMING_INTO_WALL_BEFORE_ENTERING;
+                        drive.setWeightedDrivePower(new Pose2d(0, -0.33,0));
                         timer.reset();
                     }
                     break;
-                case RAMMING_INTO_WALL:
+                case RAMMING_INTO_WALL_BEFORE_ENTERING:
                     if(((StandardTrackingWheelLocalizer) drive.getLocalizer()).getWheelVelocities().get(2)<0.3 && timer.time()>0.5){
                         drive.setWeightedDrivePower(new Pose2d(0,0,0));
                         drive.setPoseEstimate(defaultPoseRed);
@@ -133,7 +135,7 @@ public class AutoRedFSM extends CommonOpMode {
                     if(!drive.isBusy()){
                         currentState = AutoState.GETTING_ELEMENT;
                         timer.reset();
-                        drive.setWeightedDrivePower(new Pose2d(0.2,0,0));
+                        drive.setWeightedDrivePower(new Pose2d(0.1,0,0));
                         collectorMotor.setPower(1);
                     }
                     break;
@@ -143,13 +145,22 @@ public class AutoRedFSM extends CommonOpMode {
                         drive.setWeightedDrivePower(new Pose2d(0,0,0));
                         collectorMotor.setPower(-1);
                         currentState = AutoState.RESETTING_POSITION_IN_WAREHOUSE;
-                        drive.runSplineToAsync(warehousePoseRed,Math.toRadians(270));
+                        drive.runConstantSplineToAsync(warehousePoseRed.plus(new Pose2d(0,5,0)),Math.toRadians(270));
                     }
                     break;
                 case RESETTING_POSITION_IN_WAREHOUSE:
                     if(!drive.isBusy()){
-                        drive.setPoseEstimate(warehousePoseRed);
+                        drive.setPoseEstimate(warehousePoseRed.plus(new Pose2d(0,5,0)));
                         collectorMotor.setPower(0);
+                        currentState = AutoState.RAMMING_INTO_WALL_BEFORE_LEAVING;
+                        drive.setWeightedDrivePower(new Pose2d(0, -0.33,0));
+                        timer.reset();
+                    }
+                    break;
+                case RAMMING_INTO_WALL_BEFORE_LEAVING:
+                    if(((StandardTrackingWheelLocalizer) drive.getLocalizer()).getWheelVelocities().get(2)<0.3 && timer.time()>0.5){
+                        drive.setWeightedDrivePower(new Pose2d(0,0,0));
+                        drive.setPoseEstimate(warehousePoseRed);
                         currentState = AutoState.RETURNING_TO_DEFAULT_POS_FROM_WAREHOUSE;
                         drive.followTrajectorySequenceAsync(exitWarehouseSequence);
                     }

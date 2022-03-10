@@ -30,9 +30,10 @@ public class GigachadTeleOp extends CommonOpMode {
         catch (Exception e){
             drivePose = new double[]{0,0,0};
         }
-        waitForStart();
         drive.setPoseEstimate(new Pose2d(drivePose[0],drivePose[1],drivePose[2]));
         freightServo.setPosition(1);
+        drive.update();
+        waitForStart();
         while (opModeIsActive()){
             //INPUT GATHERING
             forward_axis = gamepad1.left_stick_y;
@@ -93,7 +94,6 @@ public class GigachadTeleOp extends CommonOpMode {
             //utility variable assignment for buttons
             previousFreight = freight;
             previousCollector = collector;
-
             //TELEMETRY
             telemetry.addData("Drive ticks: ", String.format("%1$d %2$d %3$d %4$d", drive.getWheelTicks().toArray()));
             telemetry.addData("RR Position: ", drive.getPoseEstimate().toString());
