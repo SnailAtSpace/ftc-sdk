@@ -62,8 +62,7 @@ public class AutoRedFSM extends CommonOpMode {
         TrajectorySequence exitWarehouseSequence = drive.trajectorySequenceBuilder(warehousePoseRed)
                 .setReversed(true)
                 .lineTo(new Vector2d(fieldHalf-hLength-48,-fieldHalf+hWidth))
-                .splineToLinearHeading(startPoseRed.plus(new Pose2d(0,5,0)),Math.toRadians(90))
-                .splineToConstantHeading(startPoseRed.vec(),Math.toRadians(270))
+                .splineToLinearHeading(startPoseRed,Math.toRadians(270))
                 .build();
         TrajectorySequence parkSequence = drive.trajectorySequenceBuilder(defaultPoseRed)
                 .setReversed(true)
@@ -135,7 +134,7 @@ public class AutoRedFSM extends CommonOpMode {
                     if(!drive.isBusy()){
                         currentState = AutoState.GETTING_ELEMENT;
                         timer.reset();
-                        drive.setWeightedDrivePower(new Pose2d(0.1,0,0));
+                        drive.setWeightedDrivePower(new Pose2d(0.2,0,0));
                         collectorMotor.setPower(1);
                     }
                     break;

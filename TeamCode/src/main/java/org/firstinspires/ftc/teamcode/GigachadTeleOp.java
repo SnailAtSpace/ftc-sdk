@@ -57,7 +57,7 @@ public class GigachadTeleOp extends CommonOpMode {
                 if(riserPos>upperArmLimit){
                     riser_axis = Math.min(0,riser_axis);
                 }
-                restrictor = 0.33;
+                if(riserPos>50)restrictor = 0.33;
             }
 
             //COLLECTOR DOUBLE ELEMENT PREVENTION
