@@ -36,8 +36,8 @@ public class GigachadTeleOp extends CommonOpMode {
         waitForStart();
         while (opModeIsActive()){
             //INPUT GATHERING
-            forward_axis = gamepad1.left_stick_y;
-            strafe_axis = gamepad1.left_stick_x;
+            forward_axis = logifyInput(gamepad1.left_stick_y,2);
+            strafe_axis = logifyInput(gamepad1.left_stick_x,2);
             turn_axis = 0.65*gamepad1.right_stick_x;
             collector = (gamepad2.dpad_up?1:0)-(gamepad2.dpad_down?1:0);
             freight = gamepad2.right_bumper;

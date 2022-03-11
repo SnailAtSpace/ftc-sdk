@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-@Autonomous(preselectTeleOp = "W+M1", name = "AutoRED controlled by an FSM", group = "FSM")
+@Autonomous(preselectTeleOp = "W+M1", name = "Autonomous: RED", group = "FSM")
 public class AutoRedFSM extends CommonOpMode {
     enum AutoState {
         EN_ROUTE_TO_HUB,
@@ -51,8 +51,8 @@ public class AutoRedFSM extends CommonOpMode {
                 .build();
         TrajectorySequence returnFromHubSequence = drive.trajectorySequenceBuilder(goToHubSequence.end())
                 .setReversed(true)
-                .lineTo(new Vector2d(-12.5,-50))
-                .splineToLinearHeading(defaultPoseRed,Math.toRadians(270))
+                .back(1)
+                .splineToSplineHeading(defaultPoseRed,Math.toRadians(270))
                 .build();
         TrajectorySequence enterWarehouseSequence = drive.trajectorySequenceBuilder(defaultPoseRed)
                 .setReversed(true)
@@ -91,8 +91,8 @@ public class AutoRedFSM extends CommonOpMode {
                     }
                     break;
                 case PLACING_ELEMENT:
-                    if (timer.time()>1){
-                        if(riserMotor.getCurrentPosition()<150){
+                    if (timer.time()>0.75){
+                        if(riserMotor.getCurrentPosition()<400){
                             duckPos = BingusPipeline.RandomizationFactor.UNDEFINED;
                             currentState = AutoState.RETURNING_TO_DEFAULT_POS_FROM_HUB;
                             amountOfDeliveredElements++;
@@ -105,9 +105,7 @@ public class AutoRedFSM extends CommonOpMode {
                             riserMotor.setPower(1);
                         }
                     }
-                    else if(timer.time()>0.25){
-                        freightServo.setPosition(0);
-                    }
+                    else freightServo.setPosition(0);
                     break;
                 case RETURNING_TO_DEFAULT_POS_FROM_HUB:
                     if(!drive.isBusy()){
