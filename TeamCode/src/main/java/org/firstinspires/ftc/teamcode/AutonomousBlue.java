@@ -4,135 +4,193 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.ReadWriteFile;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.BingusPipeline;
-import org.firstinspires.ftc.teamcode.CommonOpMode;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-import java.util.jar.Attributes;
+import java.io.File;
 
-@Autonomous(name = "Auto BLU",preselectTeleOp = "1000-7?")
+@Autonomous(name = "Autonomous: BLUE", preselectTeleOp = "1000-7?", group = "Main")
 public class AutonomousBlue extends CommonOpMode {
+    private enum AutoState {
+        EN_ROUTE_TO_HUB,
+        PLACING_ELEMENT,
+        RETURNING_TO_DEFAULT_POS_FROM_HUB,
+        RAMMING_INTO_WALL_BEFORE_ENTERING,
+        RAMMING_INTO_WALL_BEFORE_LEAVING,
+        EN_ROUTE_TO_WAREHOUSE,
+        GETTING_ELEMENT,
+        RESETTING_POSITION_IN_WAREHOUSE,
+        RETURNING_TO_DEFAULT_POS_FROM_WAREHOUSE,
+        PARKING,
+        IDLE
+    }
+
+    AutoState currentState = AutoState.IDLE, prevState = AutoState.IDLE;
+    ElapsedTime timer = new ElapsedTime();
+    Pose2d lastPose;
     @Override
     public void runOpMode() throws InterruptedException {
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         Initialize(hardwareMap,true);
         riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        TrajectorySequence preloadSequence = drive.trajectorySequenceBuilder(startPoseBlue)
+        drive.setPoseEstimate(startPoseBlue);
+        TrajectorySequence goToHubSequence = drive.trajectorySequenceBuilder(startPoseBlue)
                 .setReversed(true)
-                .splineToConstantHeading(new Vector2d(-12.5,41.5+0.45*(duckPos == BingusPipeline.RandomizationFactor.LEFT ? 1 : 0)),Math.toRadians(180))
-                .UNSTABLE_addTemporalMarkerOffset(0,()->{
-                    riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                .splineToConstantHeading(new Vector2d(-12.5,40.5),Math.toRadians(270))
+                .UNSTABLE_addTemporalMarkerOffset(-1,()->{
+                    int tgtPos = 1035;
                     if(duckPos==BingusPipeline.RandomizationFactor.LEFT) {
-                        riserMotor.setTargetPosition(500);
+                        tgtPos = 50;
                     }
                     else if(duckPos == BingusPipeline.RandomizationFactor.CENTER){
-                        riserMotor.setTargetPosition(750);
+                        tgtPos = 500;
                     }
-                    else if(duckPos == BingusPipeline.RandomizationFactor.RIGHT) riserMotor.setTargetPosition(1100);
-                    riserMotor.setVelocity(400, AngleUnit.DEGREES);
+                    riserMotor.setTargetPosition(tgtPos);
                     riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    riserMotor.setVelocity(200, AngleUnit.DEGREES);
+                    riserMotor.setPower(1);
                 })
-                .UNSTABLE_addTemporalMarkerOffset(1.75,()->{
-                    freightServo.setPosition(0);
-                })
-                .UNSTABLE_addTemporalMarkerOffset(3.25,()->{
-                    freightServo.setPosition(1);
-                })
-                .UNSTABLE_addTemporalMarkerOffset(3.75,()->{
-                    riserMotor.setTargetPosition(10);
-                    riserMotor.setVelocity(200, AngleUnit.DEGREES);
-                    riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    riserMotor.setVelocity(200, AngleUnit.DEGREES);
-                })
-                .UNSTABLE_addTemporalMarkerOffset(4.5,()->{
-                    riserMotor.setTargetPosition(20);
-                    riserMotor.setVelocity(200, AngleUnit.DEGREES);
-                    riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    riserMotor.setVelocity(200, AngleUnit.DEGREES);
-                })
-                .waitSeconds(4.5)
-                .forward(0.5)
-                .splineToSplineHeading(new Pose2d(7.5,fieldHalf-hDiag, Math.toRadians(0)),Math.toRadians(0))
-                .splineToConstantHeading(defaultPoseBlue.vec(),Math.toRadians(90))
                 .build();
-        TrajectorySequence freightSequence = drive.trajectorySequenceBuilder(defaultPoseBlue)
-                .setReversed(true)
-                .lineTo(new Vector2d(fieldHalf-hLength-15,fieldHalf-hWidth))
-                .UNSTABLE_addTemporalMarkerOffset(-1,()->{
-                    collectorMotor.setPower(maxCollPower);
-                })
-                .UNSTABLE_addTemporalMarkerOffset(1.25,()->{
-                    collectorMotor.setPower(-maxCollPower);
-                })
-                .UNSTABLE_addTemporalMarkerOffset(2,()->{
-                    collectorMotor.setPower(0);
-                })
-                .lineTo(defaultPoseBlue.vec())
+        TrajectorySequence returnFromHubSequence = drive.trajectorySequenceBuilder(goToHubSequence.end())
+                .forward(1)
+                .splineToSplineHeading(defaultPoseBlue,Math.toRadians(90))
                 .build();
-        TrajectorySequence deliverSequence = drive.trajectorySequenceBuilder(defaultPoseBlue)
+        TrajectorySequence enterWarehouseSequence = drive.trajectorySequenceBuilder(defaultPoseBlue)
                 .setReversed(true)
-                .splineToConstantHeading(new Vector2d(7.5,fieldHalf-hDiag),Math.toRadians(180))
-                .splineToSplineHeading(new Pose2d(-12,41.5, Math.toRadians(90)),Math.toRadians(270))
-                .UNSTABLE_addTemporalMarkerOffset(0,()->{
-                    riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    riserMotor.setTargetPosition(1000);
-                    riserMotor.setVelocity(400, AngleUnit.DEGREES);
-                    riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    riserMotor.setVelocity(200, AngleUnit.DEGREES);
-                })
-                .UNSTABLE_addTemporalMarkerOffset(1.75,()->{
-                    freightServo.setPosition(0);
-                })
-                .UNSTABLE_addTemporalMarkerOffset(3.25,()->{
-                    freightServo.setPosition(1);
-                })
-                .UNSTABLE_addTemporalMarkerOffset(3.75,()->{
-                    riserMotor.setTargetPosition(0);
-                    riserMotor.setVelocity(200, AngleUnit.DEGREES);
-                    riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    riserMotor.setVelocity(200, AngleUnit.DEGREES);
-                })
-                .UNSTABLE_addTemporalMarkerOffset(4.5,()->{
-                    riserMotor.setTargetPosition(20);
-                    riserMotor.setVelocity(200, AngleUnit.DEGREES);
-                    riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    riserMotor.setVelocity(200, AngleUnit.DEGREES);
-                })
-                .waitSeconds(4.5)
-                .forward(0.5)
-                .splineToSplineHeading(new Pose2d(7.5,fieldHalf-hDiag, Math.toRadians(0)),Math.toRadians(0))
-                .splineToConstantHeading(defaultPoseBlue.vec(),Math.toRadians(90))
+                .lineTo(warehousePoseBlue.vec())
+                .splineToConstantHeading(warehousePoseBlue.vec().plus(new Vector2d(0,-5)),Math.toRadians(270))
+                .build();
+        TrajectorySequence exitWarehouseSequence = drive.trajectorySequenceBuilder(warehousePoseBlue)
+                .setReversed(true)
+                .lineTo(new Vector2d(fieldHalf-hLength-50,fieldHalf-hWidth))
+                .splineToLinearHeading(startPoseBlue,Math.toRadians(90))
                 .build();
         TrajectorySequence parkSequence = drive.trajectorySequenceBuilder(defaultPoseBlue)
-                .setReversed(true)
-                .lineTo(new Vector2d(fieldHalf-hLength-24,fieldHalf-hWidth))
-                .splineToConstantHeading(new Vector2d(fieldHalf-hLength-24,+fieldHalf-hDiag-0.5),270)
-                .lineTo(new Vector2d(fieldHalf-24-hLength,+fieldHalf-hWidth-25))
+                .lineTo(warehousePoseBlue.vec())
+                .splineToConstantHeading(new Vector2d(fieldHalf-hLength-20,fieldHalf-hWidth-20),Math.toRadians(270),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(40))
                 .build();
-        drive.setPoseEstimate(startPoseBlue);
-        riserMotor.setTargetPosition(0);
+
+
+        int amountOfDeliveredElements = 0;
+        final int targetDeliveries = 2;
         while(!opModeIsActive() && !isStopRequested()){
             duckPos = pipeline.ComposeTelemetry(telemetry);
         }
         waitForStart();
-        safeSleep(14000);
-        drive.followTrajectorySequence(preloadSequence);
-        ramIntoWall(true);
-//        drive.setPoseEstimate(defaultPoseBlue);
-//        drive.followTrajectorySequence(freightSequence);
-//        drive.setPoseEstimate(defaultPoseBlue);
-//        drive.followTrajectorySequence(deliverSequence);
-//        ramIntoWall(false);
-        drive.setPoseEstimate(defaultPoseBlue);
-        drive.followTrajectorySequence(parkSequence);
-        while (opModeIsActive()) {
-            idle();
+        if (isStopRequested()) return;
+        currentState = AutoState.EN_ROUTE_TO_HUB;
+        prevState = AutoState.EN_ROUTE_TO_HUB;
+        drive.followTrajectorySequenceAsync(goToHubSequence);
+        while(opModeIsActive() && !isStopRequested()){
+            switch (currentState){
+                case EN_ROUTE_TO_HUB:
+                    if(!drive.isBusy()){
+                        currentState = AutoState.PLACING_ELEMENT;
+                        timer.reset();
+                    }
+                    break;
+                case PLACING_ELEMENT:
+                    if (timer.time()>0.75){
+                        duckPos = BingusPipeline.RandomizationFactor.UNDEFINED;
+                        currentState = AutoState.RETURNING_TO_DEFAULT_POS_FROM_HUB;
+                        freightServo.setPosition(1);
+                        riserMotor.setTargetPosition(0);
+                        riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        riserMotor.setPower(1);
+                        amountOfDeliveredElements++;
+                        drive.followTrajectorySequenceAsync(returnFromHubSequence);
+                    }
+                    else freightServo.setPosition(0);
+                    break;
+                case RETURNING_TO_DEFAULT_POS_FROM_HUB:
+                    if(!drive.isBusy()){
+                        currentState = AutoState.RAMMING_INTO_WALL_BEFORE_ENTERING;
+                        drive.setWeightedDrivePower(new Pose2d(0, 0.33,0));
+                        timer.reset();
+                    }
+                    break;
+                case RAMMING_INTO_WALL_BEFORE_ENTERING:
+                    if(((StandardTrackingWheelLocalizer) drive.getLocalizer()).getWheelVelocities().get(2)>-0.3 && timer.time()>0.25){
+                        drive.setWeightedDrivePower(new Pose2d(0,0,0));
+                        drive.setPoseEstimate(defaultPoseBlue);
+                        if(amountOfDeliveredElements<targetDeliveries){ // get more elements
+                            currentState = AutoState.EN_ROUTE_TO_WAREHOUSE;
+                            drive.followTrajectorySequenceAsync(enterWarehouseSequence);
+                        }
+                        else{
+                            currentState = AutoState.PARKING;
+                            drive.followTrajectorySequenceAsync(parkSequence);
+                        }
+                    }
+                    break;
+                case EN_ROUTE_TO_WAREHOUSE:
+                    if(!drive.isBusy()){
+                        currentState = AutoState.GETTING_ELEMENT;
+                        timer.reset();
+                        drive.setWeightedDrivePower(new Pose2d(0.15,0,0));
+                        collectorMotor.setPower(1);
+                    }
+                    break;
+                case GETTING_ELEMENT:
+                    if(hasElement() || drive.getPoseEstimate().getX()>=fieldHalf-hLength){
+                        freightServo.setPosition(0.9);
+                        drive.setWeightedDrivePower(new Pose2d(0,0,0));
+                        collectorMotor.setPower(-1);
+                        currentState = AutoState.RESETTING_POSITION_IN_WAREHOUSE;
+                        drive.runConstantSplineToAsync(warehousePoseBlue.plus(new Pose2d(0,5,0)),Math.toRadians(90));
+                    }
+                    break;
+                case RESETTING_POSITION_IN_WAREHOUSE:
+                    if(!drive.isBusy()){
+                        drive.setPoseEstimate(warehousePoseBlue.plus(new Pose2d(0,5,0)));
+                        collectorMotor.setPower(0);
+                        currentState = AutoState.RAMMING_INTO_WALL_BEFORE_LEAVING;
+                        drive.setWeightedDrivePower(new Pose2d(0, 0.33,0));
+                        timer.reset();
+                    }
+                    break;
+                case RAMMING_INTO_WALL_BEFORE_LEAVING:
+                    if(((StandardTrackingWheelLocalizer) drive.getLocalizer()).getWheelVelocities().get(2)>-0.3 && timer.time()>0.25){
+                        drive.setWeightedDrivePower(new Pose2d(0,0,0));
+                        drive.setPoseEstimate(warehousePoseBlue);
+                        currentState = AutoState.RETURNING_TO_DEFAULT_POS_FROM_WAREHOUSE;
+                        drive.followTrajectorySequenceAsync(exitWarehouseSequence);
+                    }
+                    break;
+                case RETURNING_TO_DEFAULT_POS_FROM_WAREHOUSE:
+                    if(!drive.isBusy()){
+                        drive.setPoseEstimate(startPoseBlue);
+                        currentState = AutoState.EN_ROUTE_TO_HUB;
+                        drive.followTrajectorySequenceAsync(goToHubSequence);
+                    }
+                    break;
+                case PARKING:
+                    if(!drive.isBusy()){
+                        currentState = AutoState.IDLE;
+                    }
+                    break;
+                case IDLE:
+                    break;
+            }
+            drive.update();
+            lastPose = drive.getPoseEstimate();
+            telemetry.addData("State: ", currentState.name());
+            telemetry.addData("Position: ", "%.3f %.3f %.3f",drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading());
+            telemetry.addData("Error: ","%.3f %.3f %.3f",drive.getLastError().getX(),drive.getLastError().getY(),drive.getLastError().getHeading());
+            telemetry.addData("Amount of delivered freight: ", amountOfDeliveredElements);
+            telemetry.addData("Dead wheel velo: ","%.3f %.3f %.3f", ((StandardTrackingWheelLocalizer) drive.getLocalizer()).getWheelVelocities().toArray());
+            telemetry.addData("Riser: ", riserMotor.getCurrentPosition());
+            telemetry.update();
         }
+        String filename = "LastPosition";
+        File file = AppUtil.getInstance().getSettingsFile(filename);
+        ReadWriteFile.writeFile(file, lastPose.getX()+" "+lastPose.getY()+" "+lastPose.getHeading());
     }
 }
 

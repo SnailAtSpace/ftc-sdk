@@ -5,13 +5,17 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.ReadWriteFile;
 
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-@Autonomous(name = "Autonomous: RED Pos5",preselectTeleOp = "W+M1")
+import java.io.File;
+
+@Autonomous(name = "Autonomous: RED Pos5",preselectTeleOp = "W+M1", group = "Support")
 public class AutonomousRedSupport extends CommonOpMode {
-    enum AutoState {
+    private enum AutoState {
         EN_ROUTE_TO_HUB,
         PLACING_ELEMENT,
         EN_ROUTE_TO_CAROUSEL,
@@ -19,7 +23,7 @@ public class AutonomousRedSupport extends CommonOpMode {
         GETTING_IN_POS_TO_PICK_UP_DUCK,
         PICKING_UP_DUCK,
         EN_ROUTE_TO_HUB_WITH_DUCK,
-        RETURNING_TO_DEFAULT_POS_FROM_HUB,
+        RETURNING_TO_DEFAULT_POS,
         RAMMING_INTO_WALL_BEFORE_ENTERING,
         PARKING,
         IDLE
@@ -28,6 +32,7 @@ public class AutonomousRedSupport extends CommonOpMode {
     AutoState currentState = AutoState.IDLE;
     ElapsedTime timer = new ElapsedTime();
     Pose2d startPoseRedSupport = startPoseRed.plus(new Pose2d(-47.125,0,0));
+    Pose2d lastPose;
     @Override
     public void runOpMode() {
         Initialize(hardwareMap,true);
@@ -35,11 +40,11 @@ public class AutonomousRedSupport extends CommonOpMode {
         drive.setPoseEstimate(startPoseRedSupport);
         TrajectorySequence goToHubSequence = drive.trajectorySequenceBuilder(startPoseRedSupport)
                 .strafeLeft(1)
-                .splineToConstantHeading(new Vector2d(-12.5,-42),Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(-12.5,-41),Math.toRadians(90))
                 .UNSTABLE_addTemporalMarkerOffset(-1,()->{
                     int tgtPos = 1035;
                     if(duckPos==BingusPipeline.RandomizationFactor.LEFT) {
-                        tgtPos = 250;
+                        tgtPos = 50;
                     }
                     else if(duckPos == BingusPipeline.RandomizationFactor.CENTER){
                         tgtPos = 500;
@@ -54,8 +59,12 @@ public class AutonomousRedSupport extends CommonOpMode {
                 .splineToSplineHeading(new Pose2d(-fieldHalf+hWidth,-fieldHalf+hLength+4.5,Math.toRadians(90)),Math.toRadians(180))
                 .build();
         TrajectorySequence pickUpDuckSequence = drive.trajectorySequenceBuilder(goToCarouselSequence.end())
-                .splineToSplineHeading(new Pose2d(-47,-47,Math.toRadians(180)),Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(-31,-fieldHalf+hWidth),Math.toRadians(270))
+                .lineTo(new Vector2d(-fieldHalf+hDiag,-fieldHalf+hDiag+4.5))
+                .splineToSplineHeading(new Pose2d(-fieldHalf+hWidth+3,-fieldHalf+hLength+1.5,Math.toRadians(270 - 1e-6)),Math.toRadians(270))
+                .build();
+        TrajectorySequence returnWithNoDuckSequence = drive.trajectorySequenceBuilder(new Pose2d(-35,-fieldHalf+hLength+2.5,Math.toRadians(270)))
+                .setReversed(true)
+                .splineToSplineHeading(defaultPoseRed, Math.toRadians(270))
                 .build();
         TrajectorySequence returnFromHubSequence = drive.trajectorySequenceBuilder(goToHubSequence.end())
                 .forward(1)
@@ -64,7 +73,6 @@ public class AutonomousRedSupport extends CommonOpMode {
         TrajectorySequence parkSequence = drive.trajectorySequenceBuilder(defaultPoseRed)
                 .setReversed(true)
                 .lineTo(new Vector2d(fieldHalf-hLength-20,-fieldHalf+hWidth))
-                .splineToConstantHeading(new Vector2d(fieldHalf-hLength-20,-fieldHalf+hDiag+27.5),Math.toRadians(90))
                 .build();
 
         while(!opModeIsActive() && !isStopRequested()){
@@ -97,17 +105,15 @@ public class AutonomousRedSupport extends CommonOpMode {
                             drive.followTrajectorySequenceAsync(goToCarouselSequence);
                         }
                         else {
-                            currentState = AutoState.RETURNING_TO_DEFAULT_POS_FROM_HUB;
+                            currentState = AutoState.RETURNING_TO_DEFAULT_POS;
                             drive.followTrajectorySequenceAsync(returnFromHubSequence);
                         }
-
                     } else freightServo.setPosition(0);
                     break;
                 case EN_ROUTE_TO_CAROUSEL:
                     if(!drive.isBusy()){
                         currentState = AutoState.ROTATING_CAROUSEL;
-                        //TODO: ENABLE THIS!
-                        //drive.setWeightedDrivePower(new Pose2d(-0.1,0.05,0));
+                        drive.setWeightedDrivePower(new Pose2d(-0.075,0.04,0));
                         timer.reset();
                     }
                     break;
@@ -123,20 +129,25 @@ public class AutonomousRedSupport extends CommonOpMode {
                 case GETTING_IN_POS_TO_PICK_UP_DUCK:
                     if(!drive.isBusy()){
                         currentState = AutoState.PICKING_UP_DUCK;
-                        drive.setDrivePower(new Pose2d(0.05,0,0));
+                        drive.setDrivePower(new Pose2d(0,0.1,0));
                         timer.reset();
                         sineStartPos = drive.getPoseEstimate().getX();
+                        collectorMotor.setPower(1);
                     }
                     break;
                 case PICKING_UP_DUCK:
-                    if(hasElement() || drive.getPoseEstimate().getX()<-52){
+                    if(hasElement() || drive.getPoseEstimate().getX()>=-35){
                         drive.setDrivePower(new Pose2d());
-                        currentState = AutoState.EN_ROUTE_TO_HUB_WITH_DUCK;
-                        drive.runLSplineToAsync(new Pose2d(-12.5,-41.5,Math.toRadians(270)),Math.toRadians(90));
+                        collectorMotor.setPower(0);
+                        if(hasElement()){
+                            currentState = AutoState.EN_ROUTE_TO_HUB_WITH_DUCK;
+                            drive.runLSplineToAsync(new Pose2d(-12.5,-41.5,Math.toRadians(270)),Math.toRadians(90));
+                        }
+                        else {
+                            currentState = AutoState.RETURNING_TO_DEFAULT_POS;
+                            drive.followTrajectorySequenceAsync(returnWithNoDuckSequence);
+                        }
                         timer.reset();
-                    }
-                    else {
-                        drive.setDrivePower(new Pose2d(0.05,Math.sin((sineStartPos-drive.getPoseEstimate().getX()))*-0.6,0));
                     }
                     break;
                 case EN_ROUTE_TO_HUB_WITH_DUCK:
@@ -169,7 +180,7 @@ public class AutonomousRedSupport extends CommonOpMode {
                         riserMotor.setPower(1);
                     }
                     break;
-                case RETURNING_TO_DEFAULT_POS_FROM_HUB:
+                case RETURNING_TO_DEFAULT_POS:
                     if(!drive.isBusy()){
                         currentState = AutoState.RAMMING_INTO_WALL_BEFORE_ENTERING;
                         drive.setWeightedDrivePower(new Pose2d(0, -0.33,0));
@@ -193,6 +204,7 @@ public class AutonomousRedSupport extends CommonOpMode {
                     break;
             }
             drive.update();
+            lastPose = drive.getPoseEstimate();
             telemetry.addData("State: ", currentState.name());
             telemetry.addData("Position: ", "%.3f %.3f %.3f",drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading());
             telemetry.addData("Error: ","%.3f %.3f %.3f",drive.getLastError().getX(),drive.getLastError().getY(),drive.getLastError().getHeading());
@@ -200,6 +212,9 @@ public class AutonomousRedSupport extends CommonOpMode {
             telemetry.addData("Riser: ", riserMotor.getCurrentPosition());
             telemetry.update();
         }
+        String filename = "LastPosition";
+        File file = AppUtil.getInstance().getSettingsFile(filename);
+        ReadWriteFile.writeFile(file, lastPose.getX()+" "+lastPose.getY()+" "+lastPose.getHeading());
     }
 }
 

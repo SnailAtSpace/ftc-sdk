@@ -16,6 +16,7 @@ import java.util.Arrays;
 
 @TeleOp(name="W+M1")
 public class GigachadTeleOp extends CommonOpMode {
+    Pose2d lastPose;
     @SuppressLint("DefaultLocale")
     @Override
     public void runOpMode(){
@@ -37,8 +38,8 @@ public class GigachadTeleOp extends CommonOpMode {
         waitForStart();
         while (opModeIsActive()){
             //INPUT GATHERING
-            forward_axis = logifyInput(gamepad1.left_stick_y,2);
-            strafe_axis = logifyInput(gamepad1.left_stick_x,2);
+            forward_axis = gamepad1.left_stick_y;
+            strafe_axis = gamepad1.left_stick_x;
             turn_axis = 0.65*gamepad1.right_stick_x;
             collector = (gamepad2.dpad_up?1:0)-(gamepad2.dpad_down?1:0);
             freight = gamepad2.right_bumper;
@@ -58,7 +59,10 @@ public class GigachadTeleOp extends CommonOpMode {
                 if(riserPos>upperArmLimit){
                     riser_axis = Math.min(0,riser_axis);
                 }
-                if(riserPos>50)restrictor = 0.33;
+                if(riserPos>50){
+                    restrictor = 0.33;
+                    if(collector!=0 || collectorMotor.getPower()>0) collector = -1;
+                }
             }
 
             //COLLECTOR DOUBLE ELEMENT PREVENTION
@@ -107,8 +111,8 @@ public class GigachadTeleOp extends CommonOpMode {
             telemetry.addData("Dead wheels: ", String.format("%.3f %.3f %.3f", ((StandardTrackingWheelLocalizer)drive.getLocalizer()).getWheelVelocities().toArray()));
             telemetry.update();
             drive.update();
+            lastPose = drive.getPoseEstimate();
         }
-        Pose2d lastPose = drive.getPoseEstimate();
         String filename = "LastPosition";
         File file = AppUtil.getInstance().getSettingsFile(filename);
         ReadWriteFile.writeFile(file, lastPose.getX()+" "+lastPose.getY()+" "+lastPose.getHeading());

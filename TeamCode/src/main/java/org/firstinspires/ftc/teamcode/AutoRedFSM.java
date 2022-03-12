@@ -5,13 +5,19 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.ReadWriteFile;
 
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-@Autonomous(preselectTeleOp = "W+M1", name = "Autonomous: RED", group = "FSM")
+import java.io.File;
+
+@Autonomous(preselectTeleOp = "W+M1", name = "Autonomous: RED", group = "Main")
 public class AutoRedFSM extends CommonOpMode {
-    enum AutoState {
+    private enum AutoState {
         EN_ROUTE_TO_HUB,
         PLACING_ELEMENT,
         RETURNING_TO_DEFAULT_POS_FROM_HUB,
@@ -27,7 +33,7 @@ public class AutoRedFSM extends CommonOpMode {
 
     AutoState currentState = AutoState.IDLE, prevState = AutoState.IDLE;
     ElapsedTime timer = new ElapsedTime();
-
+    Pose2d lastPose;
     @Override
     public void runOpMode() throws InterruptedException {
         Initialize(hardwareMap,true);
@@ -39,7 +45,7 @@ public class AutoRedFSM extends CommonOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(-1,()->{
                     int tgtPos = 1035;
                     if(duckPos==BingusPipeline.RandomizationFactor.LEFT) {
-                        tgtPos = 250;
+                        tgtPos = 50;
                     }
                     else if(duckPos == BingusPipeline.RandomizationFactor.CENTER){
                         tgtPos = 500;
@@ -60,13 +66,14 @@ public class AutoRedFSM extends CommonOpMode {
                 .build();
         TrajectorySequence exitWarehouseSequence = drive.trajectorySequenceBuilder(warehousePoseRed)
                 .setReversed(true)
-                .lineTo(new Vector2d(fieldHalf-hLength-48,-fieldHalf+hWidth))
+                .lineTo(new Vector2d(fieldHalf-hLength-50,-fieldHalf+hWidth))
                 .splineToLinearHeading(startPoseRed,Math.toRadians(270))
                 .build();
         TrajectorySequence parkSequence = drive.trajectorySequenceBuilder(defaultPoseRed)
-                .setReversed(true)
-                .lineTo(new Vector2d(fieldHalf-hLength-20,-fieldHalf+hWidth))
-                .splineToConstantHeading(new Vector2d(fieldHalf-hLength-20,-fieldHalf+hDiag+27.5),Math.toRadians(90))
+                .lineTo(warehousePoseRed.vec())
+                .splineToConstantHeading(new Vector2d(fieldHalf-hLength-20,-fieldHalf+hWidth+20),Math.toRadians(90),
+                        SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(40))
                 .build();
 
 
@@ -90,18 +97,14 @@ public class AutoRedFSM extends CommonOpMode {
                     break;
                 case PLACING_ELEMENT:
                     if (timer.time()>0.75){
-                        if(riserMotor.getCurrentPosition()<400){
-                            duckPos = BingusPipeline.RandomizationFactor.UNDEFINED;
-                            currentState = AutoState.RETURNING_TO_DEFAULT_POS_FROM_HUB;
-                            amountOfDeliveredElements++;
-                            drive.followTrajectorySequenceAsync(returnFromHubSequence);
-                        }
-                        else{
-                            freightServo.setPosition(1);
-                            riserMotor.setTargetPosition(0);
-                            riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                            riserMotor.setPower(1);
-                        }
+                        duckPos = BingusPipeline.RandomizationFactor.UNDEFINED;
+                        currentState = AutoState.RETURNING_TO_DEFAULT_POS_FROM_HUB;
+                        freightServo.setPosition(1);
+                        riserMotor.setTargetPosition(0);
+                        riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        riserMotor.setPower(1);
+                        amountOfDeliveredElements++;
+                        drive.followTrajectorySequenceAsync(returnFromHubSequence);
                     }
                     else freightServo.setPosition(0);
                     break;
@@ -113,7 +116,7 @@ public class AutoRedFSM extends CommonOpMode {
                     }
                     break;
                 case RAMMING_INTO_WALL_BEFORE_ENTERING:
-                    if(((StandardTrackingWheelLocalizer) drive.getLocalizer()).getWheelVelocities().get(2)<0.3 && timer.time()>0.5){
+                    if(((StandardTrackingWheelLocalizer) drive.getLocalizer()).getWheelVelocities().get(2)<0.3 && timer.time()>0.25){
                         drive.setWeightedDrivePower(new Pose2d(0,0,0));
                         drive.setPoseEstimate(defaultPoseRed);
                         if(amountOfDeliveredElements<targetDeliveries){ // get more elements
@@ -130,7 +133,7 @@ public class AutoRedFSM extends CommonOpMode {
                     if(!drive.isBusy()){
                         currentState = AutoState.GETTING_ELEMENT;
                         timer.reset();
-                        drive.setWeightedDrivePower(new Pose2d(0.2,0,0));
+                        drive.setWeightedDrivePower(new Pose2d(0.15,0,0));
                         collectorMotor.setPower(1);
                     }
                     break;
@@ -153,7 +156,7 @@ public class AutoRedFSM extends CommonOpMode {
                     }
                     break;
                 case RAMMING_INTO_WALL_BEFORE_LEAVING:
-                    if(((StandardTrackingWheelLocalizer) drive.getLocalizer()).getWheelVelocities().get(2)<0.3 && timer.time()>0.5){
+                    if(((StandardTrackingWheelLocalizer) drive.getLocalizer()).getWheelVelocities().get(2)<0.3 && timer.time()>0.25){
                         drive.setWeightedDrivePower(new Pose2d(0,0,0));
                         drive.setPoseEstimate(warehousePoseRed);
                         currentState = AutoState.RETURNING_TO_DEFAULT_POS_FROM_WAREHOUSE;
@@ -176,6 +179,7 @@ public class AutoRedFSM extends CommonOpMode {
                     break;
             }
             drive.update();
+            lastPose = drive.getPoseEstimate();
             telemetry.addData("State: ", currentState.name());
             telemetry.addData("Position: ", "%.3f %.3f %.3f",drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading());
             telemetry.addData("Error: ","%.3f %.3f %.3f",drive.getLastError().getX(),drive.getLastError().getY(),drive.getLastError().getHeading());
@@ -184,5 +188,8 @@ public class AutoRedFSM extends CommonOpMode {
             telemetry.addData("Riser: ", riserMotor.getCurrentPosition());
             telemetry.update();
         }
+        String filename = "LastPosition";
+        File file = AppUtil.getInstance().getSettingsFile(filename);
+        ReadWriteFile.writeFile(file, lastPose.getX()+" "+lastPose.getY()+" "+lastPose.getHeading());
     }
 }

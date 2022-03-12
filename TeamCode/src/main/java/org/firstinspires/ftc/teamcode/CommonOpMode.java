@@ -35,7 +35,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     boolean freight;
     long upperArmLimit=1030;
     final double maxCollPower = 0.6;
-    final double width = 330.29/25.4, length = 380.78/25.4, diag = 503.8783666/25.4;
+    final double width = 330.29/25.4, length = 380.78/25.4, diag = Math.hypot(width,length);
     final double hWidth = width/2, hLength = length/2,hDiag=diag/2, fieldHalf = 70.5;
     public Pose2d startPoseRed = new Pose2d(10.5,-fieldHalf+hLength, Math.toRadians(270));
     public Pose2d startPoseBlue = new Pose2d(12.5,fieldHalf-hLength, Math.toRadians(90));
@@ -54,7 +54,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         riserMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         collectorMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         carouselMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        freightServo.scaleRange(0.15,0.72);
+        freightServo.scaleRange(0.12,0.72);
         if (isAuto) {
             riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
