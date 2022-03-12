@@ -20,6 +20,7 @@ public class GigachadTeleOp extends CommonOpMode {
     @Override
     public void runOpMode(){
         Initialize(hardwareMap,false);
+        drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         double[] drivePose;
@@ -36,8 +37,8 @@ public class GigachadTeleOp extends CommonOpMode {
         waitForStart();
         while (opModeIsActive()){
             //INPUT GATHERING
-            forward_axis = gamepad1.left_stick_y;
-            strafe_axis = gamepad1.left_stick_x;
+            forward_axis = logifyInput(gamepad1.left_stick_y,2);
+            strafe_axis = logifyInput(gamepad1.left_stick_x,2);
             turn_axis = 0.65*gamepad1.right_stick_x;
             collector = (gamepad2.dpad_up?1:0)-(gamepad2.dpad_down?1:0);
             freight = gamepad2.right_bumper;
@@ -57,7 +58,7 @@ public class GigachadTeleOp extends CommonOpMode {
                 if(riserPos>upperArmLimit){
                     riser_axis = Math.min(0,riser_axis);
                 }
-                restrictor = 0.33;
+                if(riserPos>50)restrictor = 0.33;
             }
 
             //COLLECTOR DOUBLE ELEMENT PREVENTION
@@ -81,13 +82,11 @@ public class GigachadTeleOp extends CommonOpMode {
                 freightServo.setPosition(1-freightServo.getPosition());
             }
             //drive power
-            drive.setWeightedDrivePower(
-                    new Pose2d(
-                            -forward_axis*restrictor,
-                            -strafe_axis*restrictor,
-                            -turn_axis*restrictor
-                    )
-            );
+            drive.setWeightedDrivePower(new Pose2d(
+                    -forward_axis*restrictor,
+                    -strafe_axis*restrictor,
+                    -turn_axis*restrictor
+            ));
             //miscellaneous power
             carouselMotor.setPower(carousel_axis);
             riserMotor.setPower(riser_axis*0.66);

@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-@Autonomous(preselectTeleOp = "W+M1", name = "AutoRED controlled by an FSM", group = "FSM")
+@Autonomous(preselectTeleOp = "W+M1", name = "Autonomous: RED", group = "FSM")
 public class AutoRedFSM extends CommonOpMode {
     enum AutoState {
         EN_ROUTE_TO_HUB,
@@ -50,9 +50,8 @@ public class AutoRedFSM extends CommonOpMode {
                 })
                 .build();
         TrajectorySequence returnFromHubSequence = drive.trajectorySequenceBuilder(goToHubSequence.end())
-                .setReversed(true)
-                .lineTo(new Vector2d(-12.5,-50))
-                .splineToLinearHeading(defaultPoseRed,Math.toRadians(270))
+                .forward(1)
+                .splineToSplineHeading(defaultPoseRed,Math.toRadians(270))
                 .build();
         TrajectorySequence enterWarehouseSequence = drive.trajectorySequenceBuilder(defaultPoseRed)
                 .setReversed(true)
@@ -62,14 +61,12 @@ public class AutoRedFSM extends CommonOpMode {
         TrajectorySequence exitWarehouseSequence = drive.trajectorySequenceBuilder(warehousePoseRed)
                 .setReversed(true)
                 .lineTo(new Vector2d(fieldHalf-hLength-48,-fieldHalf+hWidth))
-                .splineToLinearHeading(startPoseRed.plus(new Pose2d(0,5,0)),Math.toRadians(90))
-                .splineToConstantHeading(startPoseRed.vec(),Math.toRadians(270))
+                .splineToLinearHeading(startPoseRed,Math.toRadians(270))
                 .build();
         TrajectorySequence parkSequence = drive.trajectorySequenceBuilder(defaultPoseRed)
                 .setReversed(true)
                 .lineTo(new Vector2d(fieldHalf-hLength-20,-fieldHalf+hWidth))
-                .splineToConstantHeading(new Vector2d(fieldHalf-hLength-20,-fieldHalf+hDiag+0.5),90)
-                .lineTo(new Vector2d(fieldHalf-20-hLength,-fieldHalf+hWidth+27.5))
+                .splineToConstantHeading(new Vector2d(fieldHalf-hLength-20,-fieldHalf+hDiag+27.5),Math.toRadians(90))
                 .build();
 
 
@@ -92,8 +89,8 @@ public class AutoRedFSM extends CommonOpMode {
                     }
                     break;
                 case PLACING_ELEMENT:
-                    if (timer.time()>1){
-                        if(riserMotor.getCurrentPosition()<150){
+                    if (timer.time()>0.75){
+                        if(riserMotor.getCurrentPosition()<400){
                             duckPos = BingusPipeline.RandomizationFactor.UNDEFINED;
                             currentState = AutoState.RETURNING_TO_DEFAULT_POS_FROM_HUB;
                             amountOfDeliveredElements++;
@@ -106,9 +103,7 @@ public class AutoRedFSM extends CommonOpMode {
                             riserMotor.setPower(1);
                         }
                     }
-                    else if(timer.time()>0.25){
-                        freightServo.setPosition(0);
-                    }
+                    else freightServo.setPosition(0);
                     break;
                 case RETURNING_TO_DEFAULT_POS_FROM_HUB:
                     if(!drive.isBusy()){
@@ -135,7 +130,7 @@ public class AutoRedFSM extends CommonOpMode {
                     if(!drive.isBusy()){
                         currentState = AutoState.GETTING_ELEMENT;
                         timer.reset();
-                        drive.setWeightedDrivePower(new Pose2d(0.1,0,0));
+                        drive.setWeightedDrivePower(new Pose2d(0.2,0,0));
                         collectorMotor.setPower(1);
                     }
                     break;

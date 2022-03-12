@@ -53,8 +53,8 @@ import java.util.List;
  */
 @Config
 public class SampleMecanumDrive extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(8.5, 0, 4);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(8, 0, 0);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(5, 0, 1.25);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(5, 0, 0);
 
     public static double LATERAL_MULTIPLIER = 1;
 
@@ -77,9 +77,8 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     public SampleMecanumDrive(HardwareMap hardwareMap) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
-
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
-                new Pose2d(0.25, 0.25, Math.toRadians(2.0)), 0.5);
+                new Pose2d(0.25, 0.25, Math.toRadians(2.0)), 1);
 
         LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
 
@@ -169,6 +168,12 @@ public class SampleMecanumDrive extends MecanumDrive {
                 .splineToConstantHeading(targetPose.vec(),endTangent)
                 .build()
         );
+    }
+    public void runLSplineToAsync(Pose2d targetPose, double endTangent){
+        TrajectorySequence ts = trajectorySequenceBuilder(getPoseEstimate())
+                .splineToLinearHeading(targetPose,endTangent)
+                .build();
+        trajectorySequenceRunner.followTrajectorySequenceAsync(ts);
     }
     public void turn(double angle) {
         turnAsync(angle);
