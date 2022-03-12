@@ -20,6 +20,7 @@ public class GigachadTeleOp extends CommonOpMode {
     @Override
     public void runOpMode(){
         Initialize(hardwareMap,false);
+        drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         double[] drivePose;
@@ -81,13 +82,11 @@ public class GigachadTeleOp extends CommonOpMode {
                 freightServo.setPosition(1-freightServo.getPosition());
             }
             //drive power
-            drive.setWeightedDrivePower(
-                    new Pose2d(
-                            -forward_axis*restrictor,
-                            -strafe_axis*restrictor,
-                            -turn_axis*restrictor
-                    )
-            );
+            drive.setWeightedDrivePower(new Pose2d(
+                    -forward_axis*restrictor,
+                    -strafe_axis*restrictor,
+                    -turn_axis*restrictor
+            ));
             //miscellaneous power
             carouselMotor.setPower(carousel_axis);
             riserMotor.setPower(riser_axis*0.66);

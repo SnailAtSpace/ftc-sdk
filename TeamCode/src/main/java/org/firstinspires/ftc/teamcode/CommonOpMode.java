@@ -26,8 +26,8 @@ public abstract class CommonOpMode extends LinearOpMode {
     public BingusPipeline pipeline;
     public RevTouchSensor armButton;
     public RevColorSensorV3 freightSensor;
-    public BingusPipeline.RandomizationFactor duckPos = BingusPipeline.RandomizationFactor.LEFT;
-    final double restrictorCap = 0.8;
+    public BingusPipeline.RandomizationFactor duckPos = BingusPipeline.RandomizationFactor.UNDEFINED;
+    final double restrictorCap = 1;
     double forward_axis, strafe_axis, turn_axis, riser_axis, carousel_axis;
     double restrictor = restrictorCap;
     boolean previousFreight = false;
@@ -53,6 +53,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         freightSensor = hardwareMap.get(RevColorSensorV3.class, "freightDetectionSensor");
         riserMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         collectorMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        carouselMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         freightServo.scaleRange(0.15,0.72);
         if (isAuto) {
             riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -93,6 +94,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         return Math.abs(Math.pow(input, power)) * Math.signum(input);
     }
 
+    @Deprecated
     public void ramIntoWall(boolean isRed){
         Pose2d startPose = drive.getPoseEstimate();
         drive.setWeightedDrivePower(new Pose2d(0, (isRed?-1:1)*0.2,0));

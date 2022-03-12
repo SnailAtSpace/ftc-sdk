@@ -50,8 +50,7 @@ public class AutoRedFSM extends CommonOpMode {
                 })
                 .build();
         TrajectorySequence returnFromHubSequence = drive.trajectorySequenceBuilder(goToHubSequence.end())
-                .setReversed(true)
-                .back(1)
+                .forward(1)
                 .splineToSplineHeading(defaultPoseRed,Math.toRadians(270))
                 .build();
         TrajectorySequence enterWarehouseSequence = drive.trajectorySequenceBuilder(defaultPoseRed)
@@ -67,8 +66,7 @@ public class AutoRedFSM extends CommonOpMode {
         TrajectorySequence parkSequence = drive.trajectorySequenceBuilder(defaultPoseRed)
                 .setReversed(true)
                 .lineTo(new Vector2d(fieldHalf-hLength-20,-fieldHalf+hWidth))
-                .splineToConstantHeading(new Vector2d(fieldHalf-hLength-20,-fieldHalf+hDiag+0.5),90)
-                .lineTo(new Vector2d(fieldHalf-20-hLength,-fieldHalf+hWidth+27.5))
+                .splineToConstantHeading(new Vector2d(fieldHalf-hLength-20,-fieldHalf+hDiag+27.5),Math.toRadians(90))
                 .build();
 
 

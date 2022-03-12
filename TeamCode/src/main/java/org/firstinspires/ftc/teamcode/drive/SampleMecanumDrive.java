@@ -53,7 +53,7 @@ import java.util.List;
  */
 @Config
 public class SampleMecanumDrive extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(4, 0, 0);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(5, 0, 1.25);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(5, 0, 0);
 
     public static double LATERAL_MULTIPLIER = 1;
@@ -168,6 +168,12 @@ public class SampleMecanumDrive extends MecanumDrive {
                 .splineToConstantHeading(targetPose.vec(),endTangent)
                 .build()
         );
+    }
+    public void runLSplineToAsync(Pose2d targetPose, double endTangent){
+        TrajectorySequence ts = trajectorySequenceBuilder(getPoseEstimate())
+                .splineToLinearHeading(targetPose,endTangent)
+                .build();
+        trajectorySequenceRunner.followTrajectorySequenceAsync(ts);
     }
     public void turn(double angle) {
         turnAsync(angle);
