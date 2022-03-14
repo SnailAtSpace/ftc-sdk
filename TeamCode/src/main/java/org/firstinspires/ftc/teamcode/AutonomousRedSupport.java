@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 import java.io.File;
 
-@Autonomous(name = "Autonomous: RED Pos5",preselectTeleOp = "W+M1", group = "Support")
+@Autonomous(name = "Autonomous: RED Pos5",preselectTeleOp = "GigachadTeleOp", group = "Support")
 public class AutonomousRedSupport extends CommonOpMode {
     private enum AutoState {
         EN_ROUTE_TO_HUB,
@@ -129,7 +129,7 @@ public class AutonomousRedSupport extends CommonOpMode {
                 case GETTING_IN_POS_TO_PICK_UP_DUCK:
                     if(!drive.isBusy()){
                         currentState = AutoState.PICKING_UP_DUCK;
-                        drive.setDrivePower(new Pose2d(0,0.1,0));
+                        drive.setDrivePower(new Pose2d(0,0.15,0));
                         timer.reset();
                         sineStartPos = drive.getPoseEstimate().getX();
                         collectorMotor.setPower(1);

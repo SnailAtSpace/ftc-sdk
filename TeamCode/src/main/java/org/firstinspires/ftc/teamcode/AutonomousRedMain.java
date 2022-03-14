@@ -15,8 +15,8 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 import java.io.File;
 
-@Autonomous(name = "Autonomous: BLUE", preselectTeleOp = "1000-7?", group = "Main")
-public class AutonomousBlue extends CommonOpMode {
+@Autonomous(preselectTeleOp = "W+M1", name = "Autonomous: RED", group = "Main")
+public class AutonomousRedMain extends CommonOpMode {
     private enum AutoState {
         EN_ROUTE_TO_HUB,
         PLACING_ELEMENT,
@@ -38,10 +38,10 @@ public class AutonomousBlue extends CommonOpMode {
     public void runOpMode() throws InterruptedException {
         Initialize(hardwareMap,true);
         riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        drive.setPoseEstimate(startPoseBlue);
-        TrajectorySequence goToHubSequence = drive.trajectorySequenceBuilder(startPoseBlue)
+        drive.setPoseEstimate(startPoseRed);
+        TrajectorySequence goToHubSequence = drive.trajectorySequenceBuilder(startPoseRed)
                 .setReversed(true)
-                .splineToConstantHeading(new Vector2d(-12.5,40.5),Math.toRadians(270))
+                .splineToConstantHeading(new Vector2d(-12.5,-41.5),Math.toRadians(90))
                 .UNSTABLE_addTemporalMarkerOffset(-1,()->{
                     int tgtPos = 1035;
                     if(duckPos==BingusPipeline.RandomizationFactor.LEFT) {
@@ -57,21 +57,21 @@ public class AutonomousBlue extends CommonOpMode {
                 .build();
         TrajectorySequence returnFromHubSequence = drive.trajectorySequenceBuilder(goToHubSequence.end())
                 .forward(1)
-                .splineToSplineHeading(defaultPoseBlue,Math.toRadians(90))
+                .splineToSplineHeading(defaultPoseRed,Math.toRadians(270))
                 .build();
-        TrajectorySequence enterWarehouseSequence = drive.trajectorySequenceBuilder(defaultPoseBlue)
+        TrajectorySequence enterWarehouseSequence = drive.trajectorySequenceBuilder(defaultPoseRed)
                 .setReversed(true)
-                .lineTo(warehousePoseBlue.vec())
-                .splineToConstantHeading(warehousePoseBlue.vec().plus(new Vector2d(0,-5)),Math.toRadians(270))
+                .lineTo(warehousePoseRed.vec())
+                .splineToConstantHeading(warehousePoseRed.vec().plus(new Vector2d(0,5)),Math.toRadians(90))
                 .build();
-        TrajectorySequence exitWarehouseSequence = drive.trajectorySequenceBuilder(warehousePoseBlue)
+        TrajectorySequence exitWarehouseSequence = drive.trajectorySequenceBuilder(warehousePoseRed)
                 .setReversed(true)
-                .lineTo(new Vector2d(fieldHalf-hLength-50,fieldHalf-hWidth))
-                .splineToLinearHeading(startPoseBlue,Math.toRadians(90))
+                .lineTo(new Vector2d(fieldHalf-hLength-50,-fieldHalf+hWidth))
+                .splineToLinearHeading(startPoseRed,Math.toRadians(270))
                 .build();
-        TrajectorySequence parkSequence = drive.trajectorySequenceBuilder(defaultPoseBlue)
-                .lineTo(warehousePoseBlue.vec())
-                .splineToConstantHeading(new Vector2d(fieldHalf-hLength-20,fieldHalf-hWidth-20),Math.toRadians(270),
+        TrajectorySequence parkSequence = drive.trajectorySequenceBuilder(defaultPoseRed)
+                .lineTo(warehousePoseRed.vec())
+                .splineToConstantHeading(new Vector2d(fieldHalf-hLength-20,-fieldHalf+hWidth+20),Math.toRadians(90),
                         SampleMecanumDrive.getVelocityConstraint(40, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                         SampleMecanumDrive.getAccelerationConstraint(40))
                 .build();
@@ -111,14 +111,14 @@ public class AutonomousBlue extends CommonOpMode {
                 case RETURNING_TO_DEFAULT_POS_FROM_HUB:
                     if(!drive.isBusy()){
                         currentState = AutoState.RAMMING_INTO_WALL_BEFORE_ENTERING;
-                        drive.setWeightedDrivePower(new Pose2d(0, 0.33,0));
+                        drive.setWeightedDrivePower(new Pose2d(0, -0.33,0));
                         timer.reset();
                     }
                     break;
                 case RAMMING_INTO_WALL_BEFORE_ENTERING:
-                    if(((StandardTrackingWheelLocalizer) drive.getLocalizer()).getWheelVelocities().get(2)>-0.3 && timer.time()>0.25){
+                    if(((StandardTrackingWheelLocalizer) drive.getLocalizer()).getWheelVelocities().get(2)<0.3 && timer.time()>0.25){
                         drive.setWeightedDrivePower(new Pose2d(0,0,0));
-                        drive.setPoseEstimate(defaultPoseBlue);
+                        drive.setPoseEstimate(defaultPoseRed);
                         if(amountOfDeliveredElements<targetDeliveries){ // get more elements
                             currentState = AutoState.EN_ROUTE_TO_WAREHOUSE;
                             drive.followTrajectorySequenceAsync(enterWarehouseSequence);
@@ -143,29 +143,29 @@ public class AutonomousBlue extends CommonOpMode {
                         drive.setWeightedDrivePower(new Pose2d(0,0,0));
                         collectorMotor.setPower(-1);
                         currentState = AutoState.RESETTING_POSITION_IN_WAREHOUSE;
-                        drive.runConstantSplineToAsync(warehousePoseBlue.plus(new Pose2d(0,5,0)),Math.toRadians(90));
+                        drive.runConstantSplineToAsync(warehousePoseRed.plus(new Pose2d(0,5,0)),Math.toRadians(270));
                     }
                     break;
                 case RESETTING_POSITION_IN_WAREHOUSE:
                     if(!drive.isBusy()){
-                        drive.setPoseEstimate(warehousePoseBlue.plus(new Pose2d(0,5,0)));
+                        drive.setPoseEstimate(warehousePoseRed.plus(new Pose2d(0,5,0)));
                         collectorMotor.setPower(0);
                         currentState = AutoState.RAMMING_INTO_WALL_BEFORE_LEAVING;
-                        drive.setWeightedDrivePower(new Pose2d(0, 0.33,0));
+                        drive.setWeightedDrivePower(new Pose2d(0, -0.33,0));
                         timer.reset();
                     }
                     break;
                 case RAMMING_INTO_WALL_BEFORE_LEAVING:
-                    if(((StandardTrackingWheelLocalizer) drive.getLocalizer()).getWheelVelocities().get(2)>-0.3 && timer.time()>0.25){
+                    if(((StandardTrackingWheelLocalizer) drive.getLocalizer()).getWheelVelocities().get(2)<0.3 && timer.time()>0.25){
                         drive.setWeightedDrivePower(new Pose2d(0,0,0));
-                        drive.setPoseEstimate(warehousePoseBlue);
+                        drive.setPoseEstimate(warehousePoseRed);
                         currentState = AutoState.RETURNING_TO_DEFAULT_POS_FROM_WAREHOUSE;
                         drive.followTrajectorySequenceAsync(exitWarehouseSequence);
                     }
                     break;
                 case RETURNING_TO_DEFAULT_POS_FROM_WAREHOUSE:
                     if(!drive.isBusy()){
-                        drive.setPoseEstimate(startPoseBlue);
+                        drive.setPoseEstimate(startPoseRed);
                         currentState = AutoState.EN_ROUTE_TO_HUB;
                         drive.followTrajectorySequenceAsync(goToHubSequence);
                     }
@@ -193,4 +193,3 @@ public class AutonomousBlue extends CommonOpMode {
         ReadWriteFile.writeFile(file, lastPose.getX()+" "+lastPose.getY()+" "+lastPose.getHeading());
     }
 }
-

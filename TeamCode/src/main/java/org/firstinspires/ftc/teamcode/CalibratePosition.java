@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
@@ -8,11 +9,12 @@ import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 
 import java.io.File;
 @TeleOp(name = "Calirbate TeleOp position")
+@Disabled
 public class CalibratePosition extends CommonOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
         Initialize(hardwareMap,false);
-        final Pose2d calibratedPose = new Pose2d(-fieldHalf + hLength, -fieldHalf + hWidth, 0);
+        final Pose2d calibratedPose = new Pose2d(-fieldHalf + hLength, -fieldHalf + hWidth+23.5, 0);
         drive.setPoseEstimate(calibratedPose);
         drive.update();
         telemetry.addLine("Place the robot in the red storage unit corner, facing the warehouse.");

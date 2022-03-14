@@ -32,6 +32,7 @@ public class BingusPipeline extends OpenCvPipeline {
     Point centerA=new Point(xC,y),centerB = new Point(xC+offsetX,y+offsetY);
     Point rightA=new Point(xR,y),rightB = new Point(xR+offsetX,y+offsetY);
     private volatile BingusPipeline.RandomizationFactor position = RandomizationFactor.UNDEFINED;
+    private volatile Mat img;
 
     void inputToYCrCb(Mat input) {
         Imgproc.cvtColor(input, YCrCb, Imgproc.COLOR_RGB2YCrCb);

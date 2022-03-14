@@ -54,7 +54,7 @@ public class TrajectorySequenceRunner {
 
     List<TrajectoryMarker> remainingMarkers = new ArrayList<>();
 
-    private final FtcDashboard dashboard;
+    public final FtcDashboard dashboard;
     private final LinkedList<Pose2d> poseHistory = new LinkedList<>();
 
     public TrajectorySequenceRunner(TrajectoryFollower follower, PIDCoefficients headingPIDCoefficients) {
