@@ -138,7 +138,7 @@ public class AutonomousRedMain extends CommonOpMode {
                     }
                     break;
                 case GETTING_ELEMENT:
-                    if(hasElement() || drive.getPoseEstimate().getX()>=fieldHalf-hLength){
+                    if(hasElement() || drive.getPoseEstimate().getX()>=fieldHalf-hLength || timer.time()>3){
                         freightServo.setPosition(0.9);
                         drive.setWeightedDrivePower(new Pose2d(0,0,0));
                         collectorMotor.setPower(-1);

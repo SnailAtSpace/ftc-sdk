@@ -44,7 +44,7 @@ Except I'm not gonna piss on the shared hub, I'm gonna go HIGHER.
 
 I'm PISSING ON THE OPPOSING ALLIANCE HUB!!!
 
-How do you like that, OBAMA?
+How do you like that, DEAN CAMEN?
 
 I PISSED ON THE OPPOSING ALLIANCE HUB, YOU IDIOT!
 
