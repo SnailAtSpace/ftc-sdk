@@ -45,7 +45,7 @@ public class AutonomousBlueMain extends CommonOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(-1,()->{
                     int tgtPos = 1035;
                     if(duckPos==BingusPipeline.RandomizationFactor.LEFT) {
-                        tgtPos = 50;
+                        tgtPos = 100;
                     }
                     else if(duckPos == BingusPipeline.RandomizationFactor.CENTER){
                         tgtPos = 500;
@@ -133,7 +133,7 @@ public class AutonomousBlueMain extends CommonOpMode {
                     if(!drive.isBusy()){
                         currentState = AutoState.GETTING_ELEMENT;
                         timer.reset();
-                        drive.setWeightedDrivePower(new Pose2d(0.15,0,0));
+                        drive.setWeightedDrivePower(new Pose2d(0.1,0,0));
                         collectorMotor.setPower(1);
                     }
                     break;

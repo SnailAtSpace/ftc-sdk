@@ -41,11 +41,11 @@ public class AutonomousRedMain extends CommonOpMode {
         drive.setPoseEstimate(startPoseRed);
         TrajectorySequence goToHubSequence = drive.trajectorySequenceBuilder(startPoseRed)
                 .setReversed(true)
-                .splineToConstantHeading(new Vector2d(-12.5,-41.5),Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(-12.5,-40.5),Math.toRadians(90))
                 .UNSTABLE_addTemporalMarkerOffset(-1,()->{
                     int tgtPos = 1035;
                     if(duckPos==BingusPipeline.RandomizationFactor.LEFT) {
-                        tgtPos = 50;
+                        tgtPos = 100;
                     }
                     else if(duckPos == BingusPipeline.RandomizationFactor.CENTER){
                         tgtPos = 500;
@@ -133,7 +133,7 @@ public class AutonomousRedMain extends CommonOpMode {
                     if(!drive.isBusy()){
                         currentState = AutoState.GETTING_ELEMENT;
                         timer.reset();
-                        drive.setWeightedDrivePower(new Pose2d(0.15,0,0));
+                        drive.setWeightedDrivePower(new Pose2d(0.1,0,0));
                         collectorMotor.setPower(1);
                     }
                     break;

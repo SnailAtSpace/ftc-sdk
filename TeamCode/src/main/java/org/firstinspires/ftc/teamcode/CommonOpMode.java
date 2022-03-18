@@ -34,7 +34,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     int collector, previousCollector = 0;
     boolean freight;
     long upperArmLimit=1030;
-    final double maxCollPower = 0.6;
+    final double maxCollPower = 0.85;
     final double width = 330.29/25.4, length = 380.78/25.4, diag = Math.hypot(width,length);
     final double hWidth = width/2, hLength = length/2,hDiag=diag/2, fieldHalf = 70.5;
     public Pose2d startPoseRed = new Pose2d(10.5,-fieldHalf+hLength, Math.toRadians(270));

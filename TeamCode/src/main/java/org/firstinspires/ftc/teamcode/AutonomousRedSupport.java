@@ -40,11 +40,11 @@ public class AutonomousRedSupport extends CommonOpMode {
         drive.setPoseEstimate(startPoseRedSupport);
         TrajectorySequence goToHubSequence = drive.trajectorySequenceBuilder(startPoseRedSupport)
                 .strafeLeft(1)
-                .splineToConstantHeading(new Vector2d(-12.5,-41),Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(-12.5,-40.5),Math.toRadians(90))
                 .UNSTABLE_addTemporalMarkerOffset(-1,()->{
                     int tgtPos = 1035;
                     if(duckPos==BingusPipeline.RandomizationFactor.LEFT) {
-                        tgtPos = 50;
+                        tgtPos = 100;
                     }
                     else if(duckPos == BingusPipeline.RandomizationFactor.CENTER){
                         tgtPos = 500;
@@ -56,7 +56,7 @@ public class AutonomousRedSupport extends CommonOpMode {
                 .build();
         TrajectorySequence goToCarouselSequence = drive.trajectorySequenceBuilder(goToHubSequence.end())
                 .forward(1)
-                .splineToSplineHeading(new Pose2d(-fieldHalf+hWidth,-fieldHalf+hLength+4.5,Math.toRadians(90)),Math.toRadians(180))
+                .splineToSplineHeading(new Pose2d(-fieldHalf+hWidth,-fieldHalf+hLength+4.25,Math.toRadians(90)),Math.toRadians(180))
                 .build();
         TrajectorySequence pickUpDuckSequence = drive.trajectorySequenceBuilder(goToCarouselSequence.end())
                 .lineTo(new Vector2d(-fieldHalf+hDiag,-fieldHalf+hDiag+4.5))
@@ -124,7 +124,7 @@ public class AutonomousRedSupport extends CommonOpMode {
                         drive.followTrajectorySequenceAsync(pickUpDuckSequence);
                         carouselMotor.setPower(0);
                     }
-                    else carouselMotor.setPower(timer.time());
+                    else carouselMotor.setPower(timer.time()/3.0*2.0);
                     break;
                 case GETTING_IN_POS_TO_PICK_UP_DUCK:
                     if(!drive.isBusy()){

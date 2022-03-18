@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ReadWriteFile;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 
@@ -66,7 +65,7 @@ public class GigachadTeleOp extends CommonOpMode {
             }
 
             //COLLECTOR DOUBLE ELEMENT PREVENTION
-            if(freightSensor.getDistance(DistanceUnit.MM)<40){
+            if(hasElement()){
                 freightServo.scaleRange(0.15,0.62);
                 freightServo.setPosition(Math.round(freightServo.getPosition()));
                 if(collector!=0 || collectorMotor.getPower()>0) collector = -1;
