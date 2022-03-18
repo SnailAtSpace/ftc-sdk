@@ -34,13 +34,13 @@ public abstract class CommonOpMode extends LinearOpMode {
     int collector, previousCollector = 0;
     boolean freight;
     long upperArmLimit=1030;
-    final double maxCollPower = 0.85;
+    final double maxCollPower = 1;
     final double width = 330.29/25.4, length = 380.78/25.4, diag = Math.hypot(width,length);
     final double hWidth = width/2, hLength = length/2,hDiag=diag/2, fieldHalf = 70.5;
     public Pose2d startPoseRed = new Pose2d(10.5,-fieldHalf+hLength, Math.toRadians(270));
     public Pose2d startPoseBlue = new Pose2d(12.5,fieldHalf-hLength, Math.toRadians(90));
-    public Pose2d warehousePoseRed = new Pose2d(fieldHalf-hLength-27,-fieldHalf+hWidth,Math.toRadians(0));
-    public Pose2d warehousePoseBlue = new Pose2d(fieldHalf-hLength-27,fieldHalf-hWidth,Math.toRadians(0));
+    public Pose2d warehousePoseRed = new Pose2d(fieldHalf-hLength-23.5,-fieldHalf+hWidth,Math.toRadians(0));
+    public Pose2d warehousePoseBlue = new Pose2d(fieldHalf-hLength-23.5,fieldHalf-hWidth,Math.toRadians(0));
     public Pose2d defaultPoseRed = new Pose2d(7.5,-fieldHalf+hWidth,Math.toRadians(0));
     public Pose2d defaultPoseBlue = new Pose2d(7.5,fieldHalf-hWidth,Math.toRadians(0));
     public void Initialize(HardwareMap hardwareMap, boolean isAuto) {
@@ -55,6 +55,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         collectorMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         carouselMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         freightServo.scaleRange(0.12,0.72);
+        freightServo.setPosition(0.7);
         if (isAuto) {
             riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -77,6 +78,7 @@ public abstract class CommonOpMode extends LinearOpMode {
             telemetry.update();
         }
         else{
+            freightServo.setPosition(1);
         }
     }
 
