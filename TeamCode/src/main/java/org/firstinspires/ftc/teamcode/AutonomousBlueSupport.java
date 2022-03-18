@@ -98,7 +98,7 @@ public class AutonomousBlueSupport extends CommonOpMode {
                     }
                     break;
                 case PLACING_ELEMENT:
-                    if (timer.time() > 0.425) {
+                    if (timer.time() > 0.35) {
                         freightServo.setPosition(1);
                         riserMotor.setTargetPosition(-25);
                         riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -161,7 +161,7 @@ public class AutonomousBlueSupport extends CommonOpMode {
                         timer.reset();
                     }
                     if(timer.time()>=0.5) {
-                        int tgtPos = 800;
+                        int tgtPos = 1035;
                         riserMotor.setTargetPosition(tgtPos);
                         riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         riserMotor.setPower(1);
@@ -209,6 +209,9 @@ public class AutonomousBlueSupport extends CommonOpMode {
                     break;
             }
             drive.update();
+            if(riserMotor.getMode()== DcMotor.RunMode.RUN_WITHOUT_ENCODER){
+                riserMotor.setPower(armButton.isPressed()?0:-0.5);
+            }
             lastPose = drive.getPoseEstimate();
             telemetry.addData("State: ", currentState.name());
             telemetry.addData("Position: ", "%.3f %.3f %.3f",drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading());

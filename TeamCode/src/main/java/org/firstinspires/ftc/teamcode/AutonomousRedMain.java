@@ -88,9 +88,8 @@ public class AutonomousRedMain extends CommonOpMode {
                         duckPos = BingusPipeline.RandomizationFactor.UNDEFINED;
                         currentState = AutoState.RETURNING_TO_DEFAULT_POS_FROM_HUB;
                         freightServo.setPosition(1);
-                        riserMotor.setTargetPosition(-20);
-                        riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        riserMotor.setPower(1);
+                        riserMotor.setTargetPosition(0);
+                        riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         amountOfDeliveredElements++;
                         drive.followTrajectorySequenceAsync(returnFromHubSequence);
                     }
@@ -132,6 +131,7 @@ public class AutonomousRedMain extends CommonOpMode {
                         else{
                             currentState = AutoState.PARKING;
                             drive.runConstantSplineToAsync(warehousePoseRed.plus(new Pose2d(0,20,0)),Math.toRadians(90),true);
+                            riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         }
                     }
                     break;
@@ -169,6 +169,10 @@ public class AutonomousRedMain extends CommonOpMode {
                     break;
             }
             drive.update();
+
+            if(riserMotor.getMode()== DcMotor.RunMode.RUN_WITHOUT_ENCODER){
+                riserMotor.setPower(armButton.isPressed()?0:-0.5);
+            }
             telemetry.addData("State: ", currentState.name());
             telemetry.addData("Position: ", "%.3f %.3f %.3f",drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading());
             telemetry.addData("Error: ","%.3f %.3f %.3f",drive.getLastError().getX(),drive.getLastError().getY(),drive.getLastError().getHeading());

@@ -52,6 +52,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         armButton = hardwareMap.get(RevTouchSensor.class, "armButton");
         freightSensor = hardwareMap.get(RevColorSensorV3.class, "freightDetectionSensor");
         riserMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         collectorMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         carouselMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         freightServo.scaleRange(0.12,0.72);
