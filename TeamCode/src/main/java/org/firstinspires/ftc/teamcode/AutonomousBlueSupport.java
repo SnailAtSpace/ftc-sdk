@@ -5,13 +5,9 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.ReadWriteFile;
 
-import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-
-import java.io.File;
 
 @Autonomous(name = "Autonomous: BLUE Pos5",preselectTeleOp = "W+M1", group = "Support")
 public class AutonomousBlueSupport extends CommonOpMode {
@@ -34,7 +30,6 @@ public class AutonomousBlueSupport extends CommonOpMode {
     AutoState currentState = AutoState.IDLE;
     ElapsedTime timer = new ElapsedTime();
     Pose2d startPoseBlueSupport = startPoseBlue.plus(new Pose2d(-47.125,0,0));
-    Pose2d lastPose;
     @Override
     public void runOpMode() {
         Initialize(hardwareMap,true);
@@ -100,9 +95,8 @@ public class AutonomousBlueSupport extends CommonOpMode {
                 case PLACING_ELEMENT:
                     if (timer.time() > 0.35) {
                         freightServo.setPosition(1);
-                        riserMotor.setTargetPosition(-25);
-                        riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        riserMotor.setPower(1);
+                        riserMotor.setTargetPosition(0);
+                        riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         duckPos = BingusPipeline.RandomizationFactor.UNDEFINED;
                         if(sineStartPos==0){
                             currentState = AutoState.EN_ROUTE_TO_CAROUSEL;
@@ -146,7 +140,7 @@ public class AutonomousBlueSupport extends CommonOpMode {
                         collectorMotor.setPower(0);
                         if(hasElement()){
                             currentState = AutoState.EN_ROUTE_TO_HUB_WITH_DUCK;
-                            drive.runLSplineToAsync(new Pose2d(-12.5,40.5,Math.toRadians(90)),Math.toRadians(270));
+                            drive.runLSplineToAsync(new Pose2d(-12.5,40,Math.toRadians(90)),Math.toRadians(270));
                         }
                         else {
                             currentState = AutoState.RETURNING_TO_DEFAULT_POS;
@@ -195,6 +189,7 @@ public class AutonomousBlueSupport extends CommonOpMode {
                         freightServo.setPosition(0.7);
                         drive.setWeightedDrivePower(new Pose2d(0,0,0));
                         collectorMotor.setPower(-1);
+                        riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         currentState = AutoState.PARKING;
                         drive.runConstantSplineToAsync(warehousePoseBlue.plus(new Pose2d(-3,0,0)),Math.toRadians(180),false);
                     }
@@ -210,9 +205,8 @@ public class AutonomousBlueSupport extends CommonOpMode {
             }
             drive.update();
             if(riserMotor.getMode()== DcMotor.RunMode.RUN_WITHOUT_ENCODER){
-                riserMotor.setPower(armButton.isPressed()?0:-0.5);
+                riserMotor.setPower(armButton.isPressed()?0:-0.75);
             }
-            lastPose = drive.getPoseEstimate();
             telemetry.addData("State: ", currentState.name());
             telemetry.addData("Position: ", "%.3f %.3f %.3f",drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading());
             telemetry.addData("Error: ","%.3f %.3f %.3f",drive.getLastError().getX(),drive.getLastError().getY(),drive.getLastError().getHeading());
@@ -220,9 +214,6 @@ public class AutonomousBlueSupport extends CommonOpMode {
             telemetry.addData("Riser: ", riserMotor.getCurrentPosition());
             telemetry.update();
         }
-        String filename = "LastPosition";
-        File file = AppUtil.getInstance().getSettingsFile(filename);
-        ReadWriteFile.writeFile(file, lastPose.getX()+" "+lastPose.getY()+" "+lastPose.getHeading());
     }
 }
 

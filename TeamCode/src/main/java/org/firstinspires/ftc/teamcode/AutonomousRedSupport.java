@@ -5,13 +5,9 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.ReadWriteFile;
 
-import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
-
-import java.io.File;
 
 @Autonomous(name = "Autonomous: RED Pos5",preselectTeleOp = "GigachadTeleOp", group = "Support")
 public class AutonomousRedSupport extends CommonOpMode {
@@ -34,7 +30,6 @@ public class AutonomousRedSupport extends CommonOpMode {
     AutoState currentState = AutoState.IDLE;
     ElapsedTime timer = new ElapsedTime();
     Pose2d startPoseRedSupport = startPoseRed.plus(new Pose2d(-47.125,0,0));
-    Pose2d lastPose;
     @Override
     public void runOpMode() {
         Initialize(hardwareMap,true);
@@ -59,7 +54,7 @@ public class AutonomousRedSupport extends CommonOpMode {
                 .build();
         TrajectorySequence goToCarouselSequence = drive.trajectorySequenceBuilder(goToHubSequence.end())
                 .forward(1)
-                .splineToSplineHeading(new Pose2d(-fieldHalf+hWidth,-fieldHalf+hLength+4,Math.toRadians(90)),Math.toRadians(180))
+                .splineToSplineHeading(new Pose2d(-fieldHalf+hWidth,-fieldHalf+hLength+4.25,Math.toRadians(90)),Math.toRadians(180))
                 .build();
         TrajectorySequence pickUpDuckSequence = drive.trajectorySequenceBuilder(goToCarouselSequence.end())
                 .lineTo(new Vector2d(-fieldHalf+hDiag,-fieldHalf+hDiag+4.5))
@@ -145,7 +140,8 @@ public class AutonomousRedSupport extends CommonOpMode {
                         collectorMotor.setPower(0);
                         if(hasElement()){
                             currentState = AutoState.EN_ROUTE_TO_HUB_WITH_DUCK;
-                            drive.runLSplineToAsync(new Pose2d(-12.5,-40.5,Math.toRadians(270)),Math.toRadians(90));
+                            drive.runLSplineToAsync(new Pose2d(-12.5,-40,Math.toRadians(270)),Math.toRadians(90));
+                            timer.reset();
                         }
                         else {
                             currentState = AutoState.RETURNING_TO_DEFAULT_POS;
@@ -195,6 +191,7 @@ public class AutonomousRedSupport extends CommonOpMode {
                         freightServo.setPosition(0.7);
                         drive.setWeightedDrivePower(new Pose2d(0,0,0));
                         collectorMotor.setPower(-1);
+                        riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         currentState = AutoState.PARKING;
                         drive.runConstantSplineToAsync(warehousePoseRed.plus(new Pose2d(-3,0,0)),Math.toRadians(180),false);
                     }
@@ -210,9 +207,8 @@ public class AutonomousRedSupport extends CommonOpMode {
             }
             drive.update();
             if(riserMotor.getMode()== DcMotor.RunMode.RUN_WITHOUT_ENCODER){
-                riserMotor.setPower(armButton.isPressed()?0:-0.5);
+                riserMotor.setPower(armButton.isPressed()?0:-0.75);
             }
-            lastPose = drive.getPoseEstimate();
             telemetry.addData("State: ", currentState.name());
             telemetry.addData("Position: ", "%.3f %.3f %.3f",drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading());
             telemetry.addData("Error: ","%.3f %.3f %.3f",drive.getLastError().getX(),drive.getLastError().getY(),drive.getLastError().getHeading());
@@ -220,9 +216,6 @@ public class AutonomousRedSupport extends CommonOpMode {
             telemetry.addData("Riser: ", riserMotor.getCurrentPosition());
             telemetry.update();
         }
-        String filename = "LastPosition";
-        File file = AppUtil.getInstance().getSettingsFile(filename);
-        ReadWriteFile.writeFile(file, lastPose.getX()+" "+lastPose.getY()+" "+lastPose.getHeading());
     }
 }
 

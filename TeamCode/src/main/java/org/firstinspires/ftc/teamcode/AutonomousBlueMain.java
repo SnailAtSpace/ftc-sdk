@@ -60,7 +60,7 @@ public class AutonomousBlueMain extends CommonOpMode {
         TrajectorySequence exitWarehouseSequence = drive.trajectorySequenceBuilder(warehousePoseBlue)
                 .setReversed(true)
                 .lineTo(new Vector2d(fieldHalf-hLength-50,fieldHalf-hWidth))
-                .splineToLinearHeading(startPoseBlue,Math.toRadians(90))
+                .splineToLinearHeading(startPoseBlue.plus(new Pose2d(0,-4,0)),Math.toRadians(90))
                 .build();
 
         int amountOfDeliveredElements = 0;
@@ -154,7 +154,7 @@ public class AutonomousBlueMain extends CommonOpMode {
                     break;
                 case RETURNING_TO_DEFAULT_POS_FROM_WAREHOUSE:
                     if(!drive.isBusy()){
-                        drive.setPoseEstimate(startPoseBlue);
+                        drive.setPoseEstimate(startPoseBlue.plus(new Pose2d(0,-4,0)));
                         currentState = AutoState.EN_ROUTE_TO_HUB;
                         drive.followTrajectorySequenceAsync(goToHubSequence);
                     }
@@ -170,7 +170,7 @@ public class AutonomousBlueMain extends CommonOpMode {
             }
             drive.update();
             if(riserMotor.getMode()== DcMotor.RunMode.RUN_WITHOUT_ENCODER){
-                riserMotor.setPower(armButton.isPressed()?0:-0.5);
+                riserMotor.setPower(armButton.isPressed()?0:-0.75);
             }
             telemetry.addData("State: ", currentState.name());
             telemetry.addData("Position: ", "%.3f %.3f %.3f",drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading());
