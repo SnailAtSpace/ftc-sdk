@@ -18,7 +18,6 @@ public class AutonomousBlueSupport extends CommonOpMode {
         ROTATING_CAROUSEL,
         GETTING_IN_POS_TO_PICK_UP_DUCK,
         PICKING_UP_DUCK,
-        EN_ROUTE_TO_HUB_WITH_DUCK,
         RETURNING_TO_DEFAULT_POS,
         RAMMING_INTO_WALL_BEFORE_ENTERING,
         EN_ROUTE_TO_WAREHOUSE,
@@ -58,7 +57,7 @@ public class AutonomousBlueSupport extends CommonOpMode {
                 .build();
         TrajectorySequence pickUpDuckSequence = drive.trajectorySequenceBuilder(goToCarouselSequence.end())
                 .lineTo(new Vector2d(-fieldHalf+hDiag,fieldHalf-hDiag-4.5))
-                .splineToSplineHeading(new Pose2d(-fieldHalf+hWidth+3,fieldHalf-hLength-1.5,Math.toRadians(90)),Math.toRadians(90))
+                .splineToSplineHeading(new Pose2d(-fieldHalf+hWidth+3,fieldHalf-hLength-3,Math.toRadians(90)),Math.toRadians(90))
                 .build();
         TrajectorySequence returnWithNoDuckSequence = drive.trajectorySequenceBuilder(new Pose2d(-35,fieldHalf-hLength-1.5,Math.toRadians(90)))
                 .setReversed(true)
@@ -71,6 +70,9 @@ public class AutonomousBlueSupport extends CommonOpMode {
         TrajectorySequence enterWarehouseSequence = drive.trajectorySequenceBuilder(defaultPoseBlue)
                 .setReversed(true)
                 .lineTo(warehousePoseBlue.vec())
+                .build();
+        TrajectorySequence parkSequence = drive.trajectorySequenceBuilder(new Pose2d(fieldHalf-23.5,fieldHalf-hWidth,Math.toRadians(0)))
+                .lineTo(warehousePoseBlue.plus(new Pose2d(0,0,0)).vec())
                 .build();
 
         while(!opModeIsActive() && !isStopRequested()){
@@ -95,7 +97,6 @@ public class AutonomousBlueSupport extends CommonOpMode {
                 case PLACING_ELEMENT:
                     if (timer.time() > 0.35) {
                         freightServo.setPosition(1);
-                        riserMotor.setTargetPosition(0);
                         riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         duckPos = BingusPipeline.RandomizationFactor.UNDEFINED;
                         if(sineStartPos==0){
@@ -112,7 +113,6 @@ public class AutonomousBlueSupport extends CommonOpMode {
                     if(!drive.isBusy()){
                         currentState = AutoState.ROTATING_CAROUSEL;
                         drive.setWeightedDrivePower(new Pose2d(-0.04,0.075,0));
-                        riserMotor.setPower(0);
                         timer.reset();
                     }
                     break;
@@ -139,26 +139,15 @@ public class AutonomousBlueSupport extends CommonOpMode {
                         drive.setDrivePower(new Pose2d());
                         collectorMotor.setPower(0);
                         if(hasElement()){
-                            currentState = AutoState.EN_ROUTE_TO_HUB_WITH_DUCK;
-                            drive.runLSplineToAsync(new Pose2d(-12.5,40,Math.toRadians(90)),Math.toRadians(270));
+                            currentState = AutoState.EN_ROUTE_TO_HUB;
+                            drive.followTrajectorySequenceAsync(goToHubSequence);
+                            timer.reset();
                         }
                         else {
                             currentState = AutoState.RETURNING_TO_DEFAULT_POS;
                             drive.followTrajectorySequenceAsync(returnWithNoDuckSequence);
                         }
                         timer.reset();
-                    }
-                    break;
-                case EN_ROUTE_TO_HUB_WITH_DUCK:
-                    if(!drive.isBusy()){
-                        currentState = AutoState.PLACING_ELEMENT;
-                        timer.reset();
-                    }
-                    if(timer.time()>=0.5) {
-                        int tgtPos = 1035;
-                        riserMotor.setTargetPosition(tgtPos);
-                        riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        riserMotor.setPower(1);
                     }
                     break;
                 case RETURNING_TO_DEFAULT_POS:
@@ -191,7 +180,7 @@ public class AutonomousBlueSupport extends CommonOpMode {
                         collectorMotor.setPower(-1);
                         riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         currentState = AutoState.PARKING;
-                        drive.runConstantSplineToAsync(warehousePoseBlue.plus(new Pose2d(-3,0,0)),Math.toRadians(180),false);
+                        drive.followTrajectorySequenceAsync(parkSequence);
                     }
                     break;
                 case PARKING:
@@ -205,7 +194,7 @@ public class AutonomousBlueSupport extends CommonOpMode {
             }
             drive.update();
             if(riserMotor.getMode()== DcMotor.RunMode.RUN_WITHOUT_ENCODER){
-                riserMotor.setPower(armButton.isPressed()?0:-0.75);
+                riserMotor.setPower(armButton.isPressed()?0:Math.max(-0.45,-0.001*(riserMotor.getCurrentPosition())-0.1));
             }
             telemetry.addData("State: ", currentState.name());
             telemetry.addData("Position: ", "%.3f %.3f %.3f",drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading());

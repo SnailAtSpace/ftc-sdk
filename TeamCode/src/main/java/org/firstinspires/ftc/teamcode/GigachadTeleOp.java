@@ -16,6 +16,7 @@ import java.util.Arrays;
 @TeleOp(name="W+M1")
 public class GigachadTeleOp extends CommonOpMode {
     Pose2d lastPose;
+    boolean pizdec = false;
     @SuppressLint("DefaultLocale")
     @Override
     public void runOpMode(){
@@ -50,7 +51,7 @@ public class GigachadTeleOp extends CommonOpMode {
             if(armButton.isPressed()){
                 restrictor = restrictorCap;
                 riser_axis = Math.max(0,riser_axis);
-                freight = false; //we can't deploy the freight holder when our arm is retracted
+                //freight = false; //we CAN deploy the freight holder when our arm is retracted
                 riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
@@ -66,7 +67,7 @@ public class GigachadTeleOp extends CommonOpMode {
 
             //COLLECTOR DOUBLE ELEMENT PREVENTION
             if(hasElement()){
-                freightServo.scaleRange(0.15,0.62);
+                freightServo.scaleRange(0.15,pizdec?0.72:0.62);
                 freightServo.setPosition(Math.round(freightServo.getPosition()));
                 if(collector!=0 || collectorMotor.getPower()>0) collector = -1;
             }
@@ -74,6 +75,8 @@ public class GigachadTeleOp extends CommonOpMode {
                 freightServo.scaleRange(0.15,0.72);
                 freightServo.setPosition(Math.round(freightServo.getPosition()));
             }
+
+            pizdec = gamepad2.a;
 
             /* POWER APPLICATION: most likely already working as intended, do not touch! */
             //collector power

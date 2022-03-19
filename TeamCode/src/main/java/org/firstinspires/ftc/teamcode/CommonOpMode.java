@@ -41,8 +41,8 @@ public abstract class CommonOpMode extends LinearOpMode {
     public Pose2d startPoseBlue = new Pose2d(12.5,fieldHalf-hLength, Math.toRadians(90));
     public Pose2d warehousePoseRed = new Pose2d(fieldHalf-hLength-23.5,-fieldHalf+hWidth,Math.toRadians(0));
     public Pose2d warehousePoseBlue = new Pose2d(fieldHalf-hLength-23.5,fieldHalf-hWidth,Math.toRadians(0));
-    public Pose2d defaultPoseRed = new Pose2d(7.5,-fieldHalf+hWidth,Math.toRadians(0));
-    public Pose2d defaultPoseBlue = new Pose2d(7.5,fieldHalf-hWidth,Math.toRadians(0));
+    public Pose2d defaultPoseRed = new Pose2d(9.5,-fieldHalf+hWidth,Math.toRadians(0));
+    public Pose2d defaultPoseBlue = new Pose2d(9.5,fieldHalf-hWidth,Math.toRadians(0));
     public void Initialize(HardwareMap hardwareMap, boolean isAuto) {
         drive = new SampleMecanumDrive(hardwareMap);
         collectorMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "collectorMotor");
@@ -58,6 +58,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         freightServo.scaleRange(0.12,0.72);
         freightServo.setPosition(0.7);
         if (isAuto) {
+            riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
             webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);

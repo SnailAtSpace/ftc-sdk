@@ -62,6 +62,11 @@ public class AutonomousBlueMain extends CommonOpMode {
                 .lineTo(new Vector2d(fieldHalf-hLength-50,fieldHalf-hWidth))
                 .splineToLinearHeading(startPoseBlue.plus(new Pose2d(0,-4,0)),Math.toRadians(90))
                 .build();
+        TrajectorySequence parkSequence = drive.trajectorySequenceBuilder(new Pose2d(fieldHalf-23.5,fieldHalf-hWidth,Math.toRadians(0)))
+                .setReversed(true)
+                .splineToConstantHeading(warehousePoseBlue.plus(new Pose2d(0,-20,0)).vec(),Math.toRadians(270))
+                .splineToSplineHeading(new Pose2d(fieldHalf-hLength-2,fieldHalf-hWidth-20,Math.toRadians(90)),Math.toRadians(0))
+                .build();
 
         int amountOfDeliveredElements = 0;
         final int targetDeliveries = 2;
@@ -87,7 +92,6 @@ public class AutonomousBlueMain extends CommonOpMode {
                         duckPos = BingusPipeline.RandomizationFactor.UNDEFINED;
                         currentState = AutoState.RETURNING_TO_DEFAULT_POS_FROM_HUB;
                         freightServo.setPosition(1);
-                        riserMotor.setTargetPosition(0);
                         riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         amountOfDeliveredElements++;
                         drive.followTrajectorySequenceAsync(returnFromHubSequence);
@@ -98,7 +102,6 @@ public class AutonomousBlueMain extends CommonOpMode {
                     if(!drive.isBusy()){
                         currentState = AutoState.RAMMING_INTO_WALL_BEFORE_ENTERING;
                         drive.setWeightedDrivePower(new Pose2d(0, 0.25,0));
-                        riserMotor.setPower(0);
                         timer.reset();
                     }
                     break;
@@ -130,7 +133,7 @@ public class AutonomousBlueMain extends CommonOpMode {
                         }
                         else{
                             currentState = AutoState.PARKING;
-                            drive.runConstantSplineToAsync(warehousePoseBlue.plus(new Pose2d(0,-20)),Math.toRadians(270),true);
+                            drive.followTrajectorySequenceAsync(parkSequence);
                             riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         }
                     }
@@ -169,8 +172,8 @@ public class AutonomousBlueMain extends CommonOpMode {
                     break;
             }
             drive.update();
-            if(riserMotor.getMode()== DcMotor.RunMode.RUN_WITHOUT_ENCODER){
-                riserMotor.setPower(armButton.isPressed()?0:-0.75);
+            if(riserMotor.getMode()==DcMotor.RunMode.RUN_WITHOUT_ENCODER){
+                riserMotor.setPower(armButton.isPressed()?0:Math.max(-0.45,-0.001*(riserMotor.getCurrentPosition())-0.1));
             }
             telemetry.addData("State: ", currentState.name());
             telemetry.addData("Position: ", "%.3f %.3f %.3f",drive.getPoseEstimate().getX(),drive.getPoseEstimate().getY(),drive.getPoseEstimate().getHeading());
