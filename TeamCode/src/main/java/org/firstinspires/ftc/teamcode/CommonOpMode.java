@@ -39,8 +39,8 @@ public abstract class CommonOpMode extends LinearOpMode {
     final double hWidth = width/2, hLength = length/2,hDiag=diag/2, fieldHalf = 70.5;
     public Pose2d startPoseRed = new Pose2d(10.5,-fieldHalf+hLength, Math.toRadians(270));
     public Pose2d startPoseBlue = new Pose2d(12.5,fieldHalf-hLength, Math.toRadians(90));
-    public Pose2d warehousePoseRed = new Pose2d(fieldHalf-hLength-23.5,-fieldHalf+hWidth,Math.toRadians(0));
-    public Pose2d warehousePoseBlue = new Pose2d(fieldHalf-hLength-23.5,fieldHalf-hWidth,Math.toRadians(0));
+    public Pose2d warehousePoseRed = new Pose2d(fieldHalf-hLength-20,-fieldHalf+hWidth,Math.toRadians(0));
+    public Pose2d warehousePoseBlue = new Pose2d(fieldHalf-hLength-20,fieldHalf-hWidth,Math.toRadians(0));
     public Pose2d defaultPoseRed = new Pose2d(9.5,-fieldHalf+hWidth,Math.toRadians(0));
     public Pose2d defaultPoseBlue = new Pose2d(9.5,fieldHalf-hWidth,Math.toRadians(0));
     public void Initialize(HardwareMap hardwareMap, boolean isAuto) {

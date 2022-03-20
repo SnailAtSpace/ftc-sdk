@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
@@ -34,7 +36,9 @@ public class AutonomousRedMain extends CommonOpMode {
         drive.setPoseEstimate(startPoseRed);
         TrajectorySequence goToHubSequence = drive.trajectorySequenceBuilder(startPoseRed)
                 .setReversed(true)
-                .splineToConstantHeading(new Vector2d(-12.5,-41),Math.toRadians(90))
+                .setConstraints(SampleMecanumDrive.getVelocityConstraint(50, DriveConstants.MAX_ANG_VEL,DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(65))
+                .splineToConstantHeading(new Vector2d(-12.5,-41.5),Math.toRadians(90))
                 .UNSTABLE_addTemporalMarkerOffset(-1,()->{
                     int tgtPos = 1035;
                     if(duckPos==BingusPipeline.RandomizationFactor.LEFT) {
@@ -48,6 +52,7 @@ public class AutonomousRedMain extends CommonOpMode {
                     riserMotor.setPower(1);
                 })
                 .UNSTABLE_addTemporalMarkerOffset(-0.05,()->freightServo.setPosition(0))
+
                 .build();
         TrajectorySequence returnFromHubSequence = drive.trajectorySequenceBuilder(goToHubSequence.end())
                 .forward(1)
@@ -59,12 +64,13 @@ public class AutonomousRedMain extends CommonOpMode {
                 .build();
         TrajectorySequence exitWarehouseSequence = drive.trajectorySequenceBuilder(warehousePoseRed)
                 .setReversed(true)
-                .lineTo(new Vector2d(fieldHalf-hLength-50,-fieldHalf+hWidth))
+                .lineTo(new Vector2d(fieldHalf-hLength-45,-fieldHalf+hWidth))
+                .splineToConstantHeading(new Vector2d(fieldHalf-hLength-50,-fieldHalf+hDiag),Math.toRadians(0))
                 .splineToLinearHeading(startPoseRed.plus(new Pose2d(0,4,0)),Math.toRadians(270))
                 .build();
         TrajectorySequence parkSequence = drive.trajectorySequenceBuilder(new Pose2d(fieldHalf-23.5,-fieldHalf+hWidth,Math.toRadians(0)))
                 .setReversed(true)
-                .splineToConstantHeading(warehousePoseRed.plus(new Pose2d(0,20,0)).vec(),Math.toRadians(90))
+                .splineToConstantHeading(warehousePoseRed.plus(new Pose2d(2,0,0)).vec(),Math.toRadians(90))
                 .build();
 
 
@@ -101,7 +107,7 @@ public class AutonomousRedMain extends CommonOpMode {
                 case RETURNING_TO_DEFAULT_POS_FROM_HUB:
                     if(!drive.isBusy()){
                         currentState = AutoState.RAMMING_INTO_WALL_BEFORE_ENTERING;
-                        drive.setWeightedDrivePower(new Pose2d(0, -0.25,0));
+                        drive.setWeightedDrivePower(new Pose2d(0, -0.2,0));
                         timer.reset();
                     }
                     break;
@@ -123,9 +129,11 @@ public class AutonomousRedMain extends CommonOpMode {
                     break;
                 case GETTING_ELEMENT:
                     if(hasElement() || drive.getPoseEstimate().getX()>=fieldHalf-hLength){
-                        freightServo.setPosition(0.7);
-                        drive.setWeightedDrivePower(new Pose2d(0,0,0));
+                        if(hasElement()){
+                            freightServo.setPosition(0.7);
+                        }
                         collectorMotor.setPower(-1);
+                        drive.setWeightedDrivePower(new Pose2d(0,0,0));
                         if(amountOfDeliveredElements<targetDeliveries){
                             currentState = AutoState.RESETTING_POSITION_IN_WAREHOUSE;
                             drive.runConstantSplineToAsync(warehousePoseRed,Math.toRadians(270),true);
@@ -142,7 +150,7 @@ public class AutonomousRedMain extends CommonOpMode {
                         drive.setPoseEstimate(warehousePoseRed);
                         collectorMotor.setPower(0);
                         currentState = AutoState.RAMMING_INTO_WALL_BEFORE_LEAVING;
-                        drive.setWeightedDrivePower(new Pose2d(0, -0.25,0));
+                        drive.setWeightedDrivePower(new Pose2d(0, -0.2,0));
                         timer.reset();
                     }
                     break;
@@ -156,7 +164,7 @@ public class AutonomousRedMain extends CommonOpMode {
                     break;
                 case RETURNING_TO_DEFAULT_POS_FROM_WAREHOUSE:
                     if(!drive.isBusy()){
-                        drive.setPoseEstimate(startPoseRed.plus(new Pose2d(0,4,0)));
+                        drive.setPoseEstimate(startPoseRed.plus(new Pose2d(0,5,0)));
                         currentState = AutoState.EN_ROUTE_TO_HUB;
                         drive.followTrajectorySequenceAsync(goToHubSequence);
                     }

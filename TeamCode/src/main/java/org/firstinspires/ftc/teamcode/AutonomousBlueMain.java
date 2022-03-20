@@ -64,8 +64,7 @@ public class AutonomousBlueMain extends CommonOpMode {
                 .build();
         TrajectorySequence parkSequence = drive.trajectorySequenceBuilder(new Pose2d(fieldHalf-23.5,fieldHalf-hWidth,Math.toRadians(0)))
                 .setReversed(true)
-                .splineToConstantHeading(warehousePoseBlue.plus(new Pose2d(0,-20,0)).vec(),Math.toRadians(270))
-                .splineToSplineHeading(new Pose2d(fieldHalf-hLength-2,fieldHalf-hWidth-20,Math.toRadians(90)),Math.toRadians(0))
+                .splineToConstantHeading(warehousePoseBlue.plus(new Pose2d(-3,-20,0)).vec(),Math.toRadians(270))
                 .build();
 
         int amountOfDeliveredElements = 0;
