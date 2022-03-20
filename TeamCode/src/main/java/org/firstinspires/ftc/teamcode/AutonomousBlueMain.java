@@ -34,7 +34,7 @@ public class AutonomousBlueMain extends CommonOpMode {
         drive.setPoseEstimate(startPoseBlue);
         TrajectorySequence goToHubSequence = drive.trajectorySequenceBuilder(startPoseBlue)
                 .setReversed(true)
-                .splineToConstantHeading(new Vector2d(-12.5,41),Math.toRadians(270))
+                .splineToConstantHeading(new Vector2d(-12.5,40.5),Math.toRadians(270))
                 .UNSTABLE_addTemporalMarkerOffset(-1,()->{
                     int tgtPos = 1035;
                     if(duckPos==BingusPipeline.RandomizationFactor.LEFT) {
