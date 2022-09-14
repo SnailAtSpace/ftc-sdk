@@ -11,6 +11,7 @@ import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
+@Deprecated
 public class BingusPipeline extends OpenCvPipeline {
     public enum RandomizationFactor {
         LEFT,
