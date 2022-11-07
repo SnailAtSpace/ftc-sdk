@@ -1,3 +1,2 @@
-include ':MeepMeepModule'
 include ':FtcRobotController'
 include ':TeamCode'
