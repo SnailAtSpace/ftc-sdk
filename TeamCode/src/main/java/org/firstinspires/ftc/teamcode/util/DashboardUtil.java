@@ -11,10 +11,10 @@ import java.util.List;
  * Set of helper functions for drawing Road Runner paths and trajectories on dashboard canvases.
  */
 public class DashboardUtil {
-    private static final double DEFAULT_RESOLUTION = 2.0; // distance units; presumed inches
+    private static final double DEFAULT_RESOLUTION = 50.8; // distance units; presumed inches
     private static final double ROBOT_RADIUS = 9; // in
-    private static final double width = 330.29/25.4, length = 380.78/25.4, diag = 503.8783666/25.4;
-    private static final double hWidth = width/2, hLength = length/2,hDiag=diag/2, fieldHalf = 70.5;
+    private static final double width = 380, length = 330, diag = Math.hypot(width, length);
+    private static final double hWidth = width/2, hLength = length/2,hDiag=diag/2, fieldHalf = 1790.7;
     private static final double angleDev = Math.asin(hWidth/hDiag);
 
 
@@ -23,8 +23,8 @@ public class DashboardUtil {
         double[] yPoints = new double[poseHistory.size()];
         for (int i = 0; i < poseHistory.size(); i++) {
             Pose2d pose = poseHistory.get(i);
-            xPoints[i] = pose.getX();
-            yPoints[i] = pose.getY();
+            xPoints[i] = pose.getX()/25.4;
+            yPoints[i] = pose.getY()/25.4;
         }
         canvas.strokePolyline(xPoints, yPoints);
     }
@@ -37,8 +37,8 @@ public class DashboardUtil {
         for (int i = 0; i < samples; i++) {
             double displacement = i * dx;
             Pose2d pose = path.get(displacement);
-            xPoints[i] = pose.getX();
-            yPoints[i] = pose.getY();
+            xPoints[i] = pose.getX()/25.4;
+            yPoints[i] = pose.getY()/25.4;
         }
         canvas.strokePolyline(xPoints, yPoints);
     }
@@ -48,20 +48,20 @@ public class DashboardUtil {
     }
 
     public static void drawRobot(Canvas canvas, Pose2d pose) {
-        canvas.strokeCircle(pose.getX(), pose.getY(), hDiag);
-        Vector2d v = pose.headingVec().times(hDiag);
+        canvas.strokeCircle(pose.getX()/25.4, pose.getY()/25.4, hDiag/25.4);
+        Vector2d v = pose.headingVec().times(hDiag/25.4);
         canvas.strokePolygon(
-                new double[]{pose.getX()+v.rotated(angleDev).getX(),
-                                pose.getX()+v.rotated(-angleDev).getX(),
-                                pose.getX()-v.rotated(angleDev).getX(),
-                                pose.getX()-v.rotated(-angleDev).getX()},
-                new double[]{pose.getY()+v.rotated(angleDev).getY(),
-                                pose.getY()+v.rotated(-angleDev).getY(),
-                                pose.getY()-v.rotated(angleDev).getY(),
-                                pose.getY()-v.rotated(-angleDev).getY()});
+                new double[]{pose.getX()/25.4+v.rotated(angleDev).getX(),
+                                pose.getX()/25.4+v.rotated(-angleDev).getX(),
+                                pose.getX()/25.4-v.rotated(angleDev).getX(),
+                                pose.getX()/25.4-v.rotated(-angleDev).getX()},
+                new double[]{pose.getY()/25.4+v.rotated(angleDev).getY(),
+                                pose.getY()/25.4+v.rotated(-angleDev).getY(),
+                                pose.getY()/25.4-v.rotated(angleDev).getY(),
+                                pose.getY()/25.4-v.rotated(-angleDev).getY()});
         v = pose.headingVec().times(hLength);
         double x1 = pose.getX(), y1 = pose.getY();
         double x2 = pose.getX() + v.getX(), y2 = pose.getY() + v.getY();
-        canvas.strokeLine(x1, y1, x2, y2);
+        canvas.strokeLine(x1/25.4, y1/25.4, x2/25.4, y2/25.4);
     }
 }
