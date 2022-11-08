@@ -15,7 +15,7 @@ public class GigachadTeleOp extends CommonOpMode {
     public void runOpMode(){
         Initialize(hardwareMap,false);
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        riserServo.setPosition(1);
+        riserServo.setPosition(0);
         drive.update();
         waitForStart();
         while (opModeIsActive()){
@@ -55,7 +55,7 @@ public class GigachadTeleOp extends CommonOpMode {
 
             //freight holder position
             if(!pRiserArm && riserArm){
-                riserServo.setPosition(1-riserServo.getPosition());
+                riserServo.setPosition(0.2-riserServo.getPosition());
             }
             pRiserArm = riserArm;
 
