@@ -20,27 +20,25 @@ public class GigachadTeleOp extends CommonOpMode {
         waitForStart();
         while (opModeIsActive()){
 
-            // LL VALUE ASSIGNMENT
-
-            //INPUT GATHERING
+            // INPUT GATHERING
             forward_axis = gamepad1.left_stick_y;
             strafe_axis = gamepad1.left_stick_x;
             turn_axis = 0.65*gamepad1.right_stick_x;
             riserArm = gamepad2.right_bumper;
             riser_axis = gamepad2.right_stick_y;
-            riserPos = riserMotor.getCurrentPosition();
+            riserPos = -riserMotor.getCurrentPosition();
 
-            //RISER SAFETY
-//            if(riserPos<10){
-//                restrictor = restrictorCap;
-//                riser_axis = Math.max(0,riser_axis);
-//            }
-//            else if(riserPos>upperArmLimit){
-//                riser_axis = Math.min(0,riser_axis);
-//            }
-//            else{
-//                restrictor = 0.33;
-//            }
+            // RISER SAFETY
+            if(riserPos<10){
+                restrictor = restrictorCap;
+                riser_axis = Math.max(0,riser_axis);
+            }
+            else if(riserPos>upperArmLimit){
+                riser_axis = Math.min(0,riser_axis);
+            }
+            else{
+                restrictor = 0.33;
+            }
 
 
             /* POWER APPLICATION: most likely already working as intended, do not touch! */
@@ -59,7 +57,7 @@ public class GigachadTeleOp extends CommonOpMode {
             }
             pRiserArm = riserArm;
 
-            //TELEMETRY
+            // TELEMETRY
             telemetry.addData("Drive ticks: ", String.format("%1$d %2$d %3$d %4$d", drive.getWheelTicks().toArray()));
             telemetry.addData("RR Position: ", drive.getPoseEstimate().toString());
             if(restrictor == restrictorCap){
