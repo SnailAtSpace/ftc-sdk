@@ -44,7 +44,7 @@ import java.util.Objects;
 @Disabled
 @Autonomous(group = "drive")
 public class ManualFeedforwardTuner extends LinearOpMode {
-    public static double DISTANCE = 72; // in
+    public static double DISTANCE = 1800; // mm
 
     private FtcDashboard dashboard = FtcDashboard.getInstance();
 
