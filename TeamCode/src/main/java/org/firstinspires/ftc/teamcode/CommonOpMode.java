@@ -43,12 +43,10 @@ public abstract class CommonOpMode extends LinearOpMode {
         drive = new SampleMecanumDrive(hardwareMap);
         riserMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotor");
         riserServo = hardwareMap.get(Servo.class, "riserServo");
-
+        riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         riserMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
         if (isAuto) {
-            riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
             webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
             pipeline = new BingusPipeline();
