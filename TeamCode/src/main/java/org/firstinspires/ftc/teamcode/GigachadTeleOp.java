@@ -21,9 +21,9 @@ public class GigachadTeleOp extends CommonOpMode {
         while (opModeIsActive()){
 
             // INPUT GATHERING
-            forward_axis = gamepad1.left_stick_y;
-            strafe_axis = gamepad1.left_stick_x;
-            turn_axis = 0.65*gamepad1.right_stick_x;
+            forward_axis = logifyInput(gamepad1.left_stick_y,2.718);
+            strafe_axis = logifyInput(gamepad1.left_stick_x,2.718);
+            turn_axis = 0.65*logifyInput(gamepad1.right_stick_x,2.718);
             riserArm = gamepad2.right_bumper;
             riser_axis = gamepad2.right_stick_y;
             riserPos = -riserMotor.getCurrentPosition();

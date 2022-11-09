@@ -76,7 +76,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         while (localTime.time() < millis && opModeIsActive() && !isStopRequested()){}
     }
 
-    public static double logifyInput(double input, int power) {
-        return Math.abs(Math.pow(input, power)) * Math.signum(input);
+    public static double logifyInput(double input, double power) {
+        return Math.pow(Math.abs(input), power) * Math.signum(input);
     }
 }
