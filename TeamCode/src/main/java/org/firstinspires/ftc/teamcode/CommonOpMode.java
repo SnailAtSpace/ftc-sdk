@@ -46,22 +46,23 @@ public abstract class CommonOpMode extends LinearOpMode {
         riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         riserMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        riserServo.scaleRange(0,0.2);
         if (isAuto) {
-            int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-            webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-            pipeline = new BingusPipeline();
-            webcam.setPipeline(pipeline);
-            webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-                @Override
-                public void onOpened() {
-                    webcam.startStreaming(640, 360, OpenCvCameraRotation.UPRIGHT);
-                }
-
-                @Override
-                public void onError(int errorCode) {
-                    telemetry.addLine("error at "+ errorCode);
-                }
-            });
+//            int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+//            webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+//            pipeline = new BingusPipeline();
+//            webcam.setPipeline(pipeline);
+//            webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
+//                @Override
+//                public void onOpened() {
+//                    webcam.startStreaming(640, 360, OpenCvCameraRotation.UPRIGHT);
+//                }
+//
+//                @Override
+//                public void onError(int errorCode) {
+//                    telemetry.addLine("error at "+ errorCode);
+//                }
+//            });
             telemetry.addLine("Waiting for start.");
             telemetry.addLine("Please calibrate starting position.");
             telemetry.update();

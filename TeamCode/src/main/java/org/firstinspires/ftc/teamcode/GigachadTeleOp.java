@@ -53,7 +53,7 @@ public class GigachadTeleOp extends CommonOpMode {
 
             //freight holder position
             if(!pRiserArm && riserArm){
-                riserServo.setPosition(0.2-riserServo.getPosition());
+                riserServo.setPosition(1-riserServo.getPosition());
             }
             pRiserArm = riserArm;
 
