@@ -20,7 +20,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     final double restrictorCap = 1;
     final double width = 380, length = 330, diag = Math.hypot(width,length);
     final double hWidth = width/2, hLength = length/2,hDiag=diag/2, fieldHalf = 1790.7;
-    long upperArmLimit=2370;
+    long upperArmLimit=2840;
 
     // webcam and rand-related information
     public OpenCvCamera webcam;
@@ -43,7 +43,6 @@ public abstract class CommonOpMode extends LinearOpMode {
         drive = new SampleMecanumDrive(hardwareMap);
         riserMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotor");
         riserServo = hardwareMap.get(Servo.class, "riserServo");
-        riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         riserMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         riserServo.scaleRange(0,0.2);

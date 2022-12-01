@@ -16,6 +16,7 @@ public class GigachadTeleOp extends CommonOpMode {
         Initialize(hardwareMap,false);
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         riserServo.setPosition(0);
+        riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         drive.update();
         waitForStart();
         while (opModeIsActive()){
@@ -31,10 +32,10 @@ public class GigachadTeleOp extends CommonOpMode {
             // RISER SAFETY
             if(riserPos<10){
                 restrictor = restrictorCap;
-                riser_axis = Math.max(0,riser_axis);
+                riser_axis = Math.min(0,riser_axis);
             }
             else if(riserPos>upperArmLimit){
-                riser_axis = Math.min(0,riser_axis);
+                riser_axis = Math.max(0,riser_axis);
             }
             else{
                 restrictor = 0.33;
