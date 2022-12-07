@@ -9,11 +9,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 
 @TeleOp(name="W+M1")
-public class GigachadTeleOp extends CommonOpMode {
+public class GigachadTeleOp extends TeleOpMode {
     @SuppressLint("DefaultLocale")
     @Override
     public void runOpMode(){
-        Initialize(hardwareMap,false);
+        Initialize(hardwareMap);
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         riserServo.setPosition(0);
         riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

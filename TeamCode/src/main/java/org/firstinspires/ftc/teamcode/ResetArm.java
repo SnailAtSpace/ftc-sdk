@@ -8,7 +8,7 @@ public class ResetArm extends CommonOpMode{
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Initialize(hardwareMap,false);
+        Initialize(hardwareMap);
         waitForStart();
         riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }

@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 @Autonomous(preselectTeleOp = "W+M1", name = "AutoBoilerplate", group = "Main")
-public class AutonomousBoilerplate extends CommonOpMode{
+public class AutonomousBoilerplate extends AutoOpMode{
     final double pi = Math.PI;
     private final Pose2d startPose = new Pose2d(-600,fieldHalf-hWidth,0);
     private final Pose2d junctionPose = new Pose2d(new Vector2d(-310,900)
@@ -31,7 +31,7 @@ public class AutonomousBoilerplate extends CommonOpMode{
     ElapsedTime timer = new ElapsedTime();
     @Override
     public void runOpMode() throws InterruptedException {
-        Initialize(hardwareMap,true);
+        Initialize(hardwareMap);
         drive.setPoseEstimate(startPose);
         TrajectorySequence firstJunctionSequence = constructPathToFirstJunction();
         TrajectorySequence getConeSequence = constructPathToNewCone();
