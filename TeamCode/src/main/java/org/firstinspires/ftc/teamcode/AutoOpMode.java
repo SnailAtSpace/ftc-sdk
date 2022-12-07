@@ -2,11 +2,12 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public abstract class AutoOpMode extends CommonOpMode {
-    @Override
-    public void Initialize(HardwareMap hardwareMap) {
-        super.Initialize(hardwareMap);
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
+public abstract class AutoOpMode extends CommonOpMode {
+    public void Initialize(HardwareMap hardwareMap, boolean mirrored) {
+        drive = new SampleMecanumDrive(hardwareMap, mirrored);
+        super.Initialize(hardwareMap);
 //        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 //        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 //        pipeline = new BingusPipeline();

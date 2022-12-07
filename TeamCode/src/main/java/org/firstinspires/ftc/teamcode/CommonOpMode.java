@@ -37,7 +37,6 @@ public abstract class CommonOpMode extends LinearOpMode {
     double restrictor = restrictorCap;
 
     public void Initialize(HardwareMap hardwareMap) {
-        drive = new SampleMecanumDrive(hardwareMap);
         riserMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotor");
         riserServo = hardwareMap.get(Servo.class, "riserServo");
         riserMotor.setDirection(DcMotorSimple.Direction.FORWARD);

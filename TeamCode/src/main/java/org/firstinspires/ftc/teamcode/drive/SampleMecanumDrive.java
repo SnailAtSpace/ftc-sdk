@@ -77,8 +77,11 @@ public class SampleMecanumDrive extends MecanumDrive {
     public BNO055IMU imu;
     private VoltageSensor batteryVoltageSensor;
 
-    public SampleMecanumDrive(HardwareMap hardwareMap) {
+    private boolean mirrored;
+
+    public SampleMecanumDrive(HardwareMap hardwareMap, boolean mirrored) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
+        this.mirrored = mirrored;
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
                 new Pose2d(3, 3, Math.toRadians(2)), 0.75);
 
@@ -137,6 +140,10 @@ public class SampleMecanumDrive extends MecanumDrive {
         dashboard = trajectorySequenceRunner.dashboard;
     }
 
+    public SampleMecanumDrive(HardwareMap hardwareMap){
+        this(hardwareMap, false);
+    }
+
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
         return new TrajectoryBuilder(startPose, VEL_CONSTRAINT, ACCEL_CONSTRAINT);
     }
@@ -153,7 +160,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         return new TrajectorySequenceBuilder(
                 startPose,
                 VEL_CONSTRAINT, ACCEL_CONSTRAINT,
-                MAX_ANG_VEL, MAX_ANG_ACCEL
+                MAX_ANG_VEL, MAX_ANG_ACCEL, mirrored
         );
     }
 
@@ -165,7 +172,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         );
     }
 
-    public void runConstantSplineToAsync(Pose2d targetPose, double endTangent, boolean isReversed){
+    public void runConstantSplineToAsync(Pose2d targetPose, double endTangent, boolean isReversed, boolean mirrored){
         trajectorySequenceRunner.followTrajectorySequenceAsync(
                 trajectorySequenceBuilder(getPoseEstimate())
                         .setReversed(isReversed)
@@ -173,7 +180,7 @@ public class SampleMecanumDrive extends MecanumDrive {
                         .build()
         );
     }
-    public void runLSplineToAsync(Pose2d targetPose, double endTangent){
+    public void runLSplineToAsync(Pose2d targetPose, double endTangent, boolean mirrored){
         TrajectorySequence ts = trajectorySequenceBuilder(getPoseEstimate())
                 .splineToLinearHeading(targetPose,endTangent)
                 .build();
