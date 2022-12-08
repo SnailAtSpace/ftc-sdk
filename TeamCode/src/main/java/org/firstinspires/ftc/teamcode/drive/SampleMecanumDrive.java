@@ -22,6 +22,7 @@ import com.acmerobotics.roadrunner.drive.MecanumDrive;
 import com.acmerobotics.roadrunner.followers.HolonomicPIDVAFollower;
 import com.acmerobotics.roadrunner.followers.TrajectoryFollower;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
@@ -83,7 +84,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
         this.mirrored = mirrored;
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
-                new Pose2d(3, 3, Math.toRadians(2)), 0.75);
+                new Pose2d(4, 4, Math.toRadians(3)), 0.85);
 
         LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
 
@@ -172,11 +173,11 @@ public class SampleMecanumDrive extends MecanumDrive {
         );
     }
 
-    public void runConstantSplineToAsync(Pose2d targetPose, double endTangent, boolean isReversed, boolean mirrored){
+    public void runConstantSplineToAsync(Vector2d targetPose, double endTangent, boolean isReversed, boolean mirrored){
         trajectorySequenceRunner.followTrajectorySequenceAsync(
                 trajectorySequenceBuilder(getPoseEstimate())
                         .setReversed(isReversed)
-                        .splineToConstantHeading(targetPose.vec(),endTangent)
+                        .splineToConstantHeading(targetPose,endTangent)
                         .build()
         );
     }

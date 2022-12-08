@@ -13,14 +13,22 @@ public abstract class AutoOpMode extends CommonOpMode {
     protected final double pi = Math.PI;
 
     protected final Pose2d startPose = new Pose2d(-600,fieldHalf-hWidth,0);
+    protected TrajectorySequence firstJunctionSequence;
+    protected TrajectorySequence getConeSequence;
+    protected TrajectorySequence nudgePathSequence;
+    protected TrajectorySequence coneLineSequence;
 
     protected final Pose2d junctionPose = new Pose2d(new Vector2d(-310,900)
             .plus(new Vector2d(Math.hypot(300,300)-hLength-50,0).rotated(Math.toRadians(-45)))
             .plus(new Vector2d(-55,0).rotated(Math.toRadians(45))),Math.toRadians(-40));
 
     public void Initialize(HardwareMap hardwareMap, boolean mirrored) {
-        drive = new SampleMecanumDrive(hardwareMap, mirrored);
-        super.Initialize(hardwareMap);
+        super.Initialize(hardwareMap, mirrored);
+        drive.setPoseEstimate(startPose);
+        firstJunctionSequence = pathToFirstJunction();
+        coneLineSequence = pathToConeLine();
+        getConeSequence = pathToCones();
+        nudgePathSequence = nudgePath();
 //        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 //        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 //        pipeline = new BingusPipeline();
@@ -41,11 +49,11 @@ public abstract class AutoOpMode extends CommonOpMode {
         telemetry.update();
     }
 
-    public TrajectorySequence constructPathToFirstJunction(){
+    public TrajectorySequence pathToFirstJunction(){
         return drive.trajectorySequenceBuilder(startPose)
                 .setVelConstraint(SampleMecanumDrive.getVelocityConstraint(1400, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH))
                 .UNSTABLE_addTemporalMarkerOffset(0, ()->{
-                    riserMotor.setTargetPosition(-2600);
+                    riserMotor.setTargetPosition(armExtensionToEncoderTicks(900));
                     riserMotor.setPower(1);
                     riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 })
@@ -54,7 +62,7 @@ public abstract class AutoOpMode extends CommonOpMode {
                 .build();
     }
 
-    public TrajectorySequence constructPathToNewCone(){
+    public TrajectorySequence pathToConeLine(){
         return drive.trajectorySequenceBuilder(junctionPose)
                 .back(50)
                 .UNSTABLE_addTemporalMarkerOffset(0,()->{
@@ -64,7 +72,29 @@ public abstract class AutoOpMode extends CommonOpMode {
                 })
                 .splineToSplineHeading(new Pose2d(-300,600,3*pi/2.0f),3*pi/2.0f)
                 .splineToSplineHeading(new Pose2d(-600,300,pi),pi)
-                .splineToConstantHeading(new Vector2d(-1200,300),pi)
+                .splineToConstantHeading(new Vector2d(-1500,295),pi)
                 .build();
+    }
+
+    public TrajectorySequence nudgePath(){
+        return drive.trajectorySequenceBuilder(new Pose2d(-1500,280))
+                .lineToLinearHeading(new Pose2d(-1500,300,pi))
+                .build();
+    }
+
+    public TrajectorySequence pathToCones(){
+        return drive.trajectorySequenceBuilder(new Pose2d(-1500,300,pi))
+                .lineToConstantHeading(new Vector2d(-1700,300))
+                .UNSTABLE_addTemporalMarkerOffset(-0.5, ()->{
+                    riserMotor.setTargetPosition(armExtensionToEncoderTicks(100));
+                    riserMotor.setPower(1);
+                    riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                })
+                .UNSTABLE_addTemporalMarkerOffset(0,()->riserServo.setPosition(1))
+                .build();
+    }
+
+    public int armExtensionToEncoderTicks(double h){
+        return (int) -(h/975*2839);
     }
 }
