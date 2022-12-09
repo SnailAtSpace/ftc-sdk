@@ -35,7 +35,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     public Servo riserServo;
 
     // sensors
-    public DistanceSensor distanceSensor;
+    public Rev2mDistanceSensor distanceSensor;
     public RevColorSensorV3 lineSensor;
 
     // i/o
@@ -49,7 +49,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         drive = new SampleMecanumDrive(hardwareMap, mirrored);
         riserMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotor");
         riserServo = hardwareMap.get(Servo.class, "riserServo");
-        distanceSensor = hardwareMap.get(DistanceSensor.class, "DistanceSensor");
+        distanceSensor = hardwareMap.get(Rev2mDistanceSensor.class, "DistanceSensor");
         lineSensor = hardwareMap.get(RevColorSensorV3.class, "LineSensor");
         riserMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
