@@ -7,23 +7,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 @Autonomous(preselectTeleOp = "W+M1", name = "AutoBoilerplate", group = "Main")
 public class AutonomousBoilerplate extends AutoOpMode{
-    private enum State {
-        NAVIGATING_TO_FIRST_JUNCTION,
-        PLACING_CONE,
-        NAVIGATING_TO_CONE_STACK,
-        SEEKING_CONE_LINE,
-        ALIGNING_WITH_CONE_LINE,
-        COLLECTING_CONE,
-        NAVIGATING_TO_SECOND_JUNCTION,
-        IDLE
-    }
-
-    State currentState = State.IDLE;
-    ElapsedTime timer = new ElapsedTime();
     @Override
     public void runOpMode() throws InterruptedException {
         Initialize(hardwareMap,false);
@@ -34,6 +20,7 @@ public class AutonomousBoilerplate extends AutoOpMode{
         }
         if(isStopRequested())return;
         currentState = State.NAVIGATING_TO_FIRST_JUNCTION;
+        drive.setPoseEstimate(startPose);
         drive.followTrajectorySequenceAsync(firstJunctionSequence);
         while(opModeIsActive() && !isStopRequested()){
             switch (currentState){
@@ -51,30 +38,44 @@ public class AutonomousBoilerplate extends AutoOpMode{
                     break;
                 case NAVIGATING_TO_CONE_STACK:
                     if(!drive.isBusy()) {
-                        drive.setDrivePower(new Pose2d(0,0.3,0));
+                        drive.setDrivePower(new Pose2d(0,-0.15,0));
                         currentState = State.SEEKING_CONE_LINE;
                     }
                     break;
                 case SEEKING_CONE_LINE:
-                    if(lineSensor.blue()-lineSensor.green()>10000){
+                    if(lineSensor.blue()-lineSensor.green()>0){
                         drive.followTrajectorySequenceAsync(nudgePathSequence);
                         currentState = State.ALIGNING_WITH_CONE_LINE;
                     }
                     break;
                 case ALIGNING_WITH_CONE_LINE:
                     if(!drive.isBusy()){
-                        drive.setPoseEstimate(new Pose2d(-1800+distanceSensor.getDistance(DistanceUnit.MM)+156));
+                        drive.setPoseEstimate(new Pose2d(-1800+distanceSensor.getDistance(DistanceUnit.MM)+156,300,pi));
                         drive.followTrajectorySequenceAsync(getConeSequence);
                         currentState = State.COLLECTING_CONE;
                     }
                     break;
                 case COLLECTING_CONE:
                     if(!drive.isBusy()){
-                        currentState = State.IDLE;
+                        riserMotor.setTargetPosition(armExtensionToEncoderTicks(920));
+                        riserMotor.setPower(1);
+                        riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        timer.reset();
+                        currentState = State.PREPARING_FOR_DEPARTURE;
+                    }
+                    break;
+                case PREPARING_FOR_DEPARTURE:
+                    if(timer.seconds()>0.4){
+                        drive.followTrajectorySequenceAsync(secondJunctionSequence);
+                        currentState = State.NAVIGATING_TO_SECOND_JUNCTION;
                     }
                     break;
                 case NAVIGATING_TO_SECOND_JUNCTION:
-                    //lol
+                    if(!drive.isBusy()){
+                        currentState = State.IDLE;
+                        riserServo.setPosition(0);
+                        timer.reset();
+                    }
                     break;
                 case IDLE:
                     // lol do nothing

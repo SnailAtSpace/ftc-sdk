@@ -59,15 +59,13 @@ public class GigachadTeleOp extends TeleOpMode {
             pRiserArm = riserArm;
 
             // TELEMETRY
-            telemetry.addData("Drive ticks: ", String.format("%1$d %2$d %3$d %4$d", drive.getWheelTicks().toArray()));
-            telemetry.addData("RR Position: ", drive.getPoseEstimate().toString());
             if(restrictor == restrictorCap){
-                telemetry.addData("Speed: ", "HIGH - ARM DISENGAGED, FULL SPEED");
+                telemetry.addData("Speed: ", "HIGH");
             } else {
-                telemetry.addData("Speed: ", "LOW - ARM ENGAGED, AVOID RAPID MOVEMENTS");
+                telemetry.addData("Speed: ", "LOW");
             }
-            telemetry.addData("Riser position: ", riserPos);
-            telemetry.addData("Dead wheels: ", String.format("%.3f %.3f %.3f", ((StandardTrackingWheelLocalizer)drive.getLocalizer()).getWheelVelocities().toArray()));
+            telemetry.addData("Riser position: ", (int)(riserPos/2879*975));
+            telemetry.addData("Color: ", lineSensor.blue()-lineSensor.green());
             telemetry.update();
             drive.update();
         }
