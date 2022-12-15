@@ -95,7 +95,7 @@ public class TrajectorySequenceBuilder {
         displacementMarkers = new ArrayList<>();
         spatialMarkers = new ArrayList<>();
 
-        lastPose = new Pose2d(startPose.getX(),startPose.getY()*mirror,startPose.getHeading());
+        lastPose = new Pose2d(startPose.getX(),startPose.getY()*mirror,startPose.getHeading()*mirror);
 
         tangentOffset = 0.0;
 

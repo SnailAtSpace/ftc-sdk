@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
 
-@TeleOp(name="W+M1")
+@TeleOp(name="Toyota Mark II Simulation")
 public class GigachadTeleOp extends TeleOpMode {
     @SuppressLint("DefaultLocale")
     @Override

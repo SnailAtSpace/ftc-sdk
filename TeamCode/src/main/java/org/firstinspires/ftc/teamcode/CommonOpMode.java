@@ -19,9 +19,9 @@ import org.openftc.easyopencv.OpenCvCamera;
 public abstract class CommonOpMode extends LinearOpMode {
 
     // constants
-    final double restrictorCap = 1;
-    final double width = 380, length = 330, diag = Math.hypot(width,length);
-    final double hWidth = width/2, hLength = length/2,hDiag=diag/2, fieldHalf = 1790.7;
+    final public double restrictorCap = 1;
+    final public double width = 380, length = 330, diag = Math.hypot(width,length);
+    final public double hWidth = width/2, hLength = length/2,hDiag=diag/2, fieldHalf = 1790.7;
     long upperArmLimit=2840;
 
     // webcam and rand-related information
@@ -68,5 +68,9 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public int armExtensionToEncoderTicks(double h){
         return (int) -(h/975*2839);
+    }
+
+    public double encoderTicksToArmExtension(long t){
+        return -t/2879.0*975.0;
     }
 }
