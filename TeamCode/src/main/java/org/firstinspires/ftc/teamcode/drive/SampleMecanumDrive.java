@@ -55,7 +55,7 @@ import java.util.List;
  */
 @Config
 public class SampleMecanumDrive extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(3, 0, 0.75);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(2.75, 0, 0.75);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(3, 0, 0);
 
     public static double LATERAL_MULTIPLIER = 1;
@@ -84,7 +84,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
         this.mirrored = mirrored;
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
-                new Pose2d(6, 6, Math.toRadians(4)), 0.45);
+                new Pose2d(1, 1, Math.toRadians(1)), 3); //6 6 4 0.5
 
         LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
 

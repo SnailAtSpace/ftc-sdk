@@ -14,21 +14,21 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 public abstract class AutonomousBoilerplate extends AutoOpMode{
     protected final Pose2d startPose = new Pose2d(-600,fieldHalf-hWidth,0);
-    protected TrajectorySequence firstJunctionSequence;
-    protected TrajectorySequence getConeSequence;
-    protected TrajectorySequence nudgePathSequence;
-    protected TrajectorySequence coneLineSequence;
-    protected TrajectorySequence secondJunctionSequence;
+    protected TrajectorySequence firstJunctionSequence,getConeSequence,nudgePathSequence,coneLineSequence,secondJunctionSequence,nextConeSequence,parkingSequence;
 
     public void runOpMode(boolean mirrored) throws InterruptedException {
+        int conesCollected = 0, coneStackHeight = 170;
         Initialize(hardwareMap,mirrored);
         firstJunctionSequence = pathToFirstJunction();
         coneLineSequence = pathToConeLine();
         getConeSequence = pathToCones();
         nudgePathSequence = nudgePath();
         secondJunctionSequence = pathToSecondJunction();
+        nextConeSequence = pathToConesFromSecondJunction();
+        parkingSequence = pathToParking();
         riserServo.setPosition(1);
         riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        telemetry.addLine("Initialization complete; robot ready for match start.");
         while(opModeInInit()){
             //duckPos = pipeline.ComposeTelemetry(telemetry);
         }
@@ -49,11 +49,16 @@ public abstract class AutonomousBoilerplate extends AutoOpMode{
                 case PLACING_CONE:
                     currentState = State.NAVIGATING_TO_CONE_STACK;
                     drive.followTrajectorySequenceAsync(coneLineSequence);
+                    timer.reset();
                     break;
                 case NAVIGATING_TO_CONE_STACK:
                     if(!drive.isBusy()) {
                         drive.setDrivePower(new Pose2d(0,-0.15,0));
                         currentState = State.SEEKING_CONE_LINE;
+                    }
+                    else if(timer.seconds()>=0.2){
+                        riserMotor.setTargetPosition(armExtensionToEncoderTicks(coneStackHeight));
+                        riserMotor.setPower(0.65);
                     }
                     break;
                 case SEEKING_CONE_LINE:
@@ -65,16 +70,16 @@ public abstract class AutonomousBoilerplate extends AutoOpMode{
                     break;
                 case ALIGNING_WITH_CONE_LINE:
                     if(!drive.isBusy()){
-                        drive.setPoseEstimate(new Pose2d(-1800+distanceSensor.getDistance(DistanceUnit.MM)+156,300,pi));
+                        drive.setPoseEstimate(new Pose2d(-1800+distanceSensor.getDistance(DistanceUnit.MM)+150,300,pi));
                         drive.followTrajectorySequenceAsync(getConeSequence);
                         currentState = State.COLLECTING_CONE;
                     }
                     break;
                 case COLLECTING_CONE:
                     if(!drive.isBusy()){
+                        coneStackHeight-=34;
                         riserMotor.setTargetPosition(armExtensionToEncoderTicks(400));
                         riserMotor.setPower(1);
-                        riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         timer.reset();
                         currentState = State.PREPARING_FOR_DEPARTURE;
                     }
@@ -87,11 +92,24 @@ public abstract class AutonomousBoilerplate extends AutoOpMode{
                     break;
                 case NAVIGATING_TO_SECOND_JUNCTION:
                     if(!drive.isBusy()){
-                        currentState = State.IDLE;
                         riserServo.setPosition(0);
+                        drive.setPoseEstimate(secondJunctionPose);
+                        conesCollected++;
+                        if(conesCollected==maxCones){
+                            currentState = State.IDLE;
+                            //drive.followTrajectorySequenceAsync(parkingSequence);
+                        }
+                        else{
+                            currentState = State.NAVIGATING_TO_CONE_STACK;
+                            drive.followTrajectorySequenceAsync(nextConeSequence);
+                        }
                         timer.reset();
                     }
                     break;
+                case PARKING:
+                    if(!drive.isBusy()){
+                        currentState = State.IDLE;
+                    }
                 case IDLE:
                     // lol do nothing
                     break;
@@ -112,7 +130,7 @@ public abstract class AutonomousBoilerplate extends AutoOpMode{
         return drive.trajectorySequenceBuilder(startPose)
                 .setVelConstraint(SampleMecanumDrive.getVelocityConstraint(1400, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH))
                 .UNSTABLE_addTemporalMarkerOffset(0, ()->{
-                    riserMotor.setTargetPosition(armExtensionToEncoderTicks(890));
+                    riserMotor.setTargetPosition(armExtensionToEncoderTicks(920));
                     riserMotor.setPower(1);
                     riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 })
@@ -123,39 +141,55 @@ public abstract class AutonomousBoilerplate extends AutoOpMode{
 
     public TrajectorySequence pathToConeLine(){
         return drive.trajectorySequenceBuilder(junctionPose)
-                .back(50)
-                .UNSTABLE_addTemporalMarkerOffset(0,()->{
-                    riserMotor.setTargetPosition(armExtensionToEncoderTicks(177));
-                    riserMotor.setPower(0.55);
-                    riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                })
-                .splineToSplineHeading(new Pose2d(-300,600,3*pi/2.0f),3*pi/2.0f)
-                .splineToSplineHeading(new Pose2d(-600,320,pi),pi)
-                .splineToConstantHeading(new Vector2d(-1400,295),pi)
+                .back(70)
+                .splineToSplineHeading(new Pose2d(-320,600,3*pi/2.0f),3*pi/2.0f)
+                .splineToSplineHeading(new Pose2d(-600,310,pi),pi)
+                .splineToConstantHeading(new Vector2d(-1400,275),1.1*pi)
+                .build();
+    }
+
+    public TrajectorySequence pathToConesFromSecondJunction(){
+        return drive.trajectorySequenceBuilder(secondJunctionPose)
+                .lineTo(secondJunctionPose.plus(new Pose2d(-5,5,0)).vec())
+                .splineToSplineHeading(new Pose2d(-1400,275,pi),1.1*pi)
                 .build();
     }
 
     public TrajectorySequence nudgePath(){
-        return drive.trajectorySequenceBuilder(new Pose2d(-1400,280, pi))
+        return drive.trajectorySequenceBuilder(new Pose2d(-1400,275, pi))
                 .lineToLinearHeading(new Pose2d(-1400,300,pi))
                 .build();
     }
 
     public TrajectorySequence pathToCones(){
         return drive.trajectorySequenceBuilder(new Pose2d(-1400,300,pi))
-                .setVelConstraint(SampleMecanumDrive.getVelocityConstraint(600, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH))
-                .lineToConstantHeading(new Vector2d(-1700+160,300))
-                .UNSTABLE_addTemporalMarkerOffset(-0.2,()->riserServo.setPosition(1))
+                .setVelConstraint(SampleMecanumDrive.getVelocityConstraint(700, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH))
+                .lineToConstantHeading(new Vector2d(-1700+165,300))
+                .UNSTABLE_addTemporalMarkerOffset(-0.1,()->riserServo.setPosition(1))
                 .build();
     }
 
     public TrajectorySequence pathToSecondJunction(){
-        return drive.trajectorySequenceBuilder(new Pose2d(-1700+155,300,pi))
-                .back(100)
-                .splineToSplineHeading(new Pose2d(-577,220,1.51*pi), 0)
-                .UNSTABLE_addTemporalMarkerOffset(-0.75,()->{
-                    riserMotor.setTargetPosition(armExtensionToEncoderTicks(920));
+        return drive.trajectorySequenceBuilder(conePose)
+                .lineTo(new Vector2d(-1200,350))
+                .splineToSplineHeading(secondJunctionPose.plus(new Pose2d(0,0,Math.toRadians(-2))), -0.1*pi)
+                .UNSTABLE_addTemporalMarkerOffset(-1.1,()->{
+                    riserMotor.setTargetPosition(armExtensionToEncoderTicks(940));
+                    riserMotor.setPower(1);
                 })
+                .build();
+    }
+
+    public TrajectorySequence pathToParking(){
+        return drive.trajectorySequenceBuilder(secondJunctionPose)
+                .back(10)
+                .UNSTABLE_addTemporalMarkerOffset(0,()->{
+                    riserMotor.setTargetPosition(0);
+                    riserMotor.setPower(0.65);
+                })
+                .splineToConstantHeading(new Vector2d(-950,600),0.5*pi)
+                .splineToConstantHeading(new Vector2d(-900,1200), 0.5*pi)
+                .splineToConstantHeading(new Vector2d(-1500,1500), pi)
                 .build();
     }
 }

@@ -34,8 +34,8 @@ public class DriveConstants {
     public static final boolean RUN_USING_ENCODER = true;
     public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(27,
                                                                         0,
-            6,
-            13.56);
+            7,
+            12.83);
 
     /*
      * These are physical constants that can be determined from your robot (including the track
@@ -67,8 +67,8 @@ public class DriveConstants {
      * small and gradually increase them later after everything is working. All distance units are
      * inches.
      */
-    public static double MAX_VEL = 1500; // mm/s 1800
-    public static double MAX_ACCEL = 1700; // mm/s^2 2000
+    public static double MAX_VEL = 1700; // mm/s 1800
+    public static double MAX_ACCEL = 1800; // mm/s^2 2000
     public static double MAX_ANG_VEL = 6;
     public static double MAX_ANG_ACCEL = 3;
 
