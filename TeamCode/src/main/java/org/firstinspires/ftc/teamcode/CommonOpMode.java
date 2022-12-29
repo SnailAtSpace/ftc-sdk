@@ -54,7 +54,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         riserMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lineSensor.initialize();
-        riserServo.scaleRange(0,0.32);
+        riserServo.scaleRange(0,0.31);
     }
 
     public void Initialize(HardwareMap hardwareMap){

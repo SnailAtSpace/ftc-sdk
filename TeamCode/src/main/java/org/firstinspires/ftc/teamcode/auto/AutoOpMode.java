@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 public abstract class AutoOpMode extends CommonOpMode {
     protected final double pi = Math.PI;
-    final int maxCones = 3;
+    final int maxCones = 5;
 
     public enum State {
         NAVIGATING_TO_FIRST_JUNCTION,
@@ -31,11 +31,11 @@ public abstract class AutoOpMode extends CommonOpMode {
     State currentState = State.IDLE;
     ElapsedTime timer = new ElapsedTime();
 
-    protected final Pose2d junctionPose = new Pose2d(new Vector2d(-310,900)
-            .plus(new Vector2d(Math.hypot(300,300)-hLength-30,0).rotated(Math.toRadians(-45)))
-            .plus(new Vector2d(-50,0).rotated(Math.toRadians(45))),Math.toRadians(-40));
+    protected final Pose2d junctionPose = new Pose2d(new Vector2d(-325,895)
+            .plus(new Vector2d(Math.hypot(300,300)-hLength-28,0).rotated(Math.toRadians(-45)))
+            ,Math.toRadians(-45));
     protected final Pose2d conePose = new Pose2d(-1700+155,300,pi);
-    protected final Pose2d secondJunctionPose = new Pose2d(-590,195,1.5*pi);
+    protected final Pose2d secondJunctionPose = new Pose2d(-610,208,1.5*pi);
 
     public void Initialize(HardwareMap hardwareMap, boolean mirrored) {
         super.Initialize(hardwareMap, mirrored);
