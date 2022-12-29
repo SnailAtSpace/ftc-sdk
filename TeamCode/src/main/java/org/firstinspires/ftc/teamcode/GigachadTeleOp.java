@@ -31,16 +31,15 @@ public class GigachadTeleOp extends TeleOpMode {
 
             // RISER SAFETY
             if(riserPos<10){
-                restrictor = restrictorCap;
                 riser_axis = Math.min(0,riser_axis);
             }
-            else if(riserPos>upperArmLimit){
+            if (riserPos<armExtensionToEncoderTicks(-400)){
+                restrictor = restrictorCap;
+            }
+            else restrictor = 0.33;
+            if(riserPos>upperArmLimit){
                 riser_axis = Math.max(0,riser_axis);
             }
-            else{
-                restrictor = 0.33;
-            }
-
 
             /* POWER APPLICATION: most likely already working as intended, do not touch! */
 

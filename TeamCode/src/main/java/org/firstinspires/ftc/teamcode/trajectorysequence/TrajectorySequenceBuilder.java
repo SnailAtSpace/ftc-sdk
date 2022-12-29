@@ -29,7 +29,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class TrajectorySequenceBuilder {
-    double resolution = 1;
+    double resolution = 10;
 
     private final TrajectoryVelocityConstraint baseVelConstraint;
     private final TrajectoryAccelerationConstraint baseAccelConstraint;
