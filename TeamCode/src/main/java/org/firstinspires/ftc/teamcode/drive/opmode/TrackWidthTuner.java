@@ -13,6 +13,8 @@ import org.firstinspires.ftc.robotcore.internal.system.Misc;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
+import java.util.Arrays;
+
 /*
  * This routine determines the effective track width. The procedure works by executing a point turn
  * with a given angle and measuring the difference between that angle and the actual angle (as
@@ -48,7 +50,8 @@ public class TrackWidthTuner extends LinearOpMode {
         telemetry.clearAll();
         telemetry.addLine("Running...");
         telemetry.update();
-
+        double[] data = new double[NUM_TRIALS];
+        double sum = 0;
         MovingStatistics trackWidthStats = new MovingStatistics(NUM_TRIALS);
         for (int i = 0; i < NUM_TRIALS; i++) {
             drive.setPoseEstimate(new Pose2d());
@@ -63,20 +66,21 @@ public class TrackWidthTuner extends LinearOpMode {
                 double heading = drive.getPoseEstimate().getHeading();
                 headingAccumulator += Angle.norm(heading - lastHeading);
                 lastHeading = heading;
-
+                telemetry.addData("hA: ", DriveConstants.TRACK_WIDTH * (ANGLE / Math.toDegrees(headingAccumulator)));
                 drive.update();
+                telemetry.update();
             }
 
-            double trackWidth = DriveConstants.TRACK_WIDTH * Math.toRadians(ANGLE) / headingAccumulator;
+            double trackWidth = DriveConstants.TRACK_WIDTH * (ANGLE / Math.toDegrees(headingAccumulator));
             trackWidthStats.add(trackWidth);
-
+            sum+=trackWidth;
             sleep(DELAY);
         }
 
         telemetry.clearAll();
         telemetry.addLine("Tuning complete");
         telemetry.addLine(Misc.formatInvariant("Effective track width = %.2f (SE = %.3f)",
-                trackWidthStats.getMean(),
+                sum/((double) NUM_TRIALS),
                 trackWidthStats.getStandardDeviation() / Math.sqrt(NUM_TRIALS)));
         telemetry.update();
 

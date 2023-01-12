@@ -55,8 +55,8 @@ import java.util.List;
  */
 @Config
 public class SampleMecanumDrive extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0, 0, 0);
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(2, 0, 1);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(2, 0, 0);
 
     public static double LATERAL_MULTIPLIER = 1;
 
@@ -143,6 +143,10 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     public SampleMecanumDrive(HardwareMap hardwareMap){
         this(hardwareMap, false);
+    }
+
+    public void setCorrectedPoseEstimate(Pose2d value){
+        super.setPoseEstimate(new Pose2d(value.getX(),value.getY()*(mirrored?-1:1),value.getHeading()*(mirrored?-1:1)));
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {

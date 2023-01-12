@@ -6,8 +6,6 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.drive.StandardTrackingWheelLocalizer;
-
 @TeleOp(name="Toyota Mark II Simulation")
 public class GigachadTeleOp extends TeleOpMode {
     @SuppressLint("DefaultLocale")
@@ -24,14 +22,16 @@ public class GigachadTeleOp extends TeleOpMode {
             // INPUT GATHERING
             forward_axis = logifyInput(gamepad1.left_stick_y,2.718);
             strafe_axis = logifyInput(gamepad1.left_stick_x,2.718);
-            turn_axis = 0.65*logifyInput(gamepad1.right_stick_x,2.718);
+            turn_axis = 0.75*logifyInput(gamepad1.right_stick_x,2.718);
             riserArm = gamepad2.right_bumper;
-            riser_axis = gamepad2.right_stick_y;
+            riser_axis = (gamepad2.right_stick_y>0?0.8:1)*gamepad2.right_stick_y;
             riserPos = -riserMotor.getCurrentPosition();
 
             // RISER SAFETY
-            if(riserPos<10){
+            if(armLimiter.isPressed()){
                 riser_axis = Math.min(0,riser_axis);
+                riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
             if (riserPos<armExtensionToEncoderTicks(-400)){
                 restrictor = restrictorCap;
@@ -58,13 +58,10 @@ public class GigachadTeleOp extends TeleOpMode {
             pRiserArm = riserArm;
 
             // TELEMETRY
-            if(restrictor == restrictorCap){
-                telemetry.addData("Speed: ", "HIGH");
-            } else {
-                telemetry.addData("Speed: ", "LOW");
-            }
-            telemetry.addData("Riser position: ", (int)(riserPos/2879*975));
+            telemetry.addData("Speed: ", restrictor==restrictorCap?"HIGH":"LOW");
+            telemetry.addData("Riser position: ", (int)(riserPos/2880*975));
             telemetry.addData("Color: ", lineSensor.blue()-lineSensor.green());
+            telemetry.addData("Button: ",armLimiter.isPressed());
             telemetry.update();
             drive.update();
         }

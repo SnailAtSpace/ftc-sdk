@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 
-import android.util.Log;
-
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -13,7 +11,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 public abstract class AutonomousBoilerplate extends AutoOpMode{
-    protected final Pose2d startPose = new Pose2d(-575,fieldHalf-hWidth,Math.toRadians(0.6));
+    protected Pose2d startPose = new Pose2d(-575,fieldHalf-hWidth,Math.toRadians(0.6));
     protected TrajectorySequence firstJunctionSequence,getConeSequence,nudgePathSequence,coneLineSequence,secondJunctionSequence,nextConeSequence,parkingSequence;
 
     public void runOpMode(boolean mirrored) throws InterruptedException {
@@ -34,7 +32,7 @@ public abstract class AutonomousBoilerplate extends AutoOpMode{
         }
         if(isStopRequested())return;
         currentState = State.NAVIGATING_TO_FIRST_JUNCTION;
-        drive.setPoseEstimate(startPose);
+        drive.setCorrectedPoseEstimate(startPose);
         drive.followTrajectorySequenceAsync(firstJunctionSequence);
         while(opModeIsActive() && !isStopRequested()){
             switch (currentState){
@@ -60,14 +58,7 @@ public abstract class AutonomousBoilerplate extends AutoOpMode{
                 case SEEKING_CONE_LINE:
                     if(lineSensor.blue()-lineSensor.green()>0){
                         drive.setDrivePower(new Pose2d());
-                        drive.setPoseEstimate(new Pose2d(-1800+distanceSensor.getDistance(DistanceUnit.MM)+150,285, pi));
-                        drive.followTrajectorySequenceAsync(getConeSequence);
-                        currentState = State.COLLECTING_CONE;
-                    }
-                    break;
-                case ALIGNING_WITH_CONE_LINE:
-                    if(!drive.isBusy()){
-                        drive.setPoseEstimate(new Pose2d(-1800+distanceSensor.getDistance(DistanceUnit.MM)+150,300,pi));
+                        drive.setCorrectedPoseEstimate(new Pose2d(-1800+distanceSensor.getDistance(DistanceUnit.MM)+150,285, pi));
                         drive.followTrajectorySequenceAsync(getConeSequence);
                         currentState = State.COLLECTING_CONE;
                     }

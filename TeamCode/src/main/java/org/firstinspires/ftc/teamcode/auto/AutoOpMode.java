@@ -2,14 +2,10 @@ package org.firstinspires.ftc.teamcode.auto;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.CommonOpMode;
-import org.firstinspires.ftc.teamcode.drive.DriveConstants;
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 public abstract class AutoOpMode extends CommonOpMode {
     protected final double pi = Math.PI;
@@ -20,7 +16,6 @@ public abstract class AutoOpMode extends CommonOpMode {
         PLACING_CONE,
         NAVIGATING_TO_CONE_STACK,
         SEEKING_CONE_LINE,
-        ALIGNING_WITH_CONE_LINE,
         COLLECTING_CONE,
         PREPARING_FOR_DEPARTURE,
         NAVIGATING_TO_SECOND_JUNCTION,
