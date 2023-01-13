@@ -11,12 +11,14 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 public abstract class AutonomousBoilerplate extends AutoOpMode{
-    protected Pose2d startPose = new Pose2d(-575,fieldHalf-hWidth,Math.toRadians(0.6));
+    protected Pose2d startPose = new Pose2d(-590,fieldHalf-hWidth,Math.toRadians(0.6));
     protected TrajectorySequence firstJunctionSequence,getConeSequence,nudgePathSequence,coneLineSequence,secondJunctionSequence,nextConeSequence,parkingSequence;
 
     public void runOpMode(boolean mirrored) throws InterruptedException {
         int conesCollected = 0, coneStackHeight = 165;
         Initialize(hardwareMap,mirrored);
+        drive.setCorrectedPoseEstimate(startPose);
+        drive.update();
         firstJunctionSequence = pathToFirstJunction();
         coneLineSequence = pathToConeLine();
         getConeSequence = pathToCones();

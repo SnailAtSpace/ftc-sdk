@@ -23,7 +23,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     // constants
     final public double restrictorCap = 1;
     final public double width = 380, length = 330, diag = Math.hypot(width,length);
-    final public double hWidth = width/2, hLength = length/2,hDiag=diag/2, fieldHalf = 1790.7;
+    final public double hWidth = width/2, hLength = length/2,hDiag=diag/2, fieldHalf = 1800;
     long upperArmLimit=2840;
 
     // webcam and rand-related information
