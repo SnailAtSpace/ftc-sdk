@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 public abstract class AutonomousBoilerplate extends AutoOpMode{
-    protected Pose2d startPose = new Pose2d(-590,fieldHalf-hWidth,Math.toRadians(0.6));
+    protected Pose2d startPose = new Pose2d(-600-hLength,fieldHalf-hWidth,Math.toRadians(0));
     protected TrajectorySequence firstJunctionSequence,getConeSequence,nudgePathSequence,coneLineSequence,secondJunctionSequence,nextConeSequence,parkingSequence;
 
     public void runOpMode(boolean mirrored) throws InterruptedException {
@@ -115,15 +115,15 @@ public abstract class AutonomousBoilerplate extends AutoOpMode{
 
     public TrajectorySequence pathToFirstJunction(){
         return drive.trajectorySequenceBuilder(startPose)
-                .setVelConstraint(SampleMecanumDrive.getVelocityConstraint(1400, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH))
-                .UNSTABLE_addTemporalMarkerOffset(0, ()->{
+                .setVelConstraint(SampleMecanumDrive.getVelocityConstraint(Math.min(1400,DriveConstants.MAX_VEL), DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH))
+                .lineTo(startPose.plus(new Pose2d(5,-5,0)).vec())
+                .splineToConstantHeading(new Vector2d(-400,fieldHalf-500),3*pi/2.0f)
+                .splineToSplineHeading(junctionPose,Math.toRadians(-45))
+                .UNSTABLE_addTemporalMarkerOffset(-1, ()->{
                     riserMotor.setTargetPosition(armExtensionToEncoderTicks(920));
                     riserMotor.setPower(1);
                     riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 })
-                .lineTo(startPose.plus(new Pose2d(5,-5,0)).vec())
-                .splineToConstantHeading(new Vector2d(-400,fieldHalf-500),3*pi/2.0f)
-                .splineToSplineHeading(junctionPose,Math.toRadians(-45))
                 .build();
     }
 
@@ -151,7 +151,7 @@ public abstract class AutonomousBoilerplate extends AutoOpMode{
 
     public TrajectorySequence pathToCones(){
         return drive.trajectorySequenceBuilder(new Pose2d(-1400,285,pi))
-                .setVelConstraint(SampleMecanumDrive.getVelocityConstraint(700, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH))
+                .setVelConstraint(SampleMecanumDrive.getVelocityConstraint(Math.min(700,DriveConstants.MAX_VEL), DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH))
                 .splineToConstantHeading(new Vector2d(-1700+165,300), pi)
                 .UNSTABLE_addTemporalMarkerOffset(-0.1,()->riserServo.setPosition(1))
                 .build();

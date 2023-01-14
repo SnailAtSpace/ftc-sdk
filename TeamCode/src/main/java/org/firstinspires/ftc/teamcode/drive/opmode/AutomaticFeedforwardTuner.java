@@ -33,11 +33,10 @@ import java.util.List;
  *      regression.
  */
 @Config
-@Disabled
 @Autonomous(group = "drive")
 public class AutomaticFeedforwardTuner extends LinearOpMode {
     public static double MAX_POWER = 0.7;
-    public static double DISTANCE = 100; // in
+    public static double DISTANCE = 1800; // in
 
     @Override
     public void runOpMode() throws InterruptedException {
