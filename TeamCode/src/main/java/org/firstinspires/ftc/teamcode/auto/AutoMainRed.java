@@ -7,6 +7,6 @@ public class AutoMainRed extends AutonomousBoilerplate{
 
     @Override
     public void runOpMode() throws InterruptedException {
-        super.runOpMode(true);
+        super.runOpMode(true, false);
     }
 }

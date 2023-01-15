@@ -14,9 +14,9 @@ public abstract class AutonomousBoilerplate extends AutoOpMode{
     protected Pose2d startPose = new Pose2d(-600-hLength,fieldHalf-hWidth,Math.toRadians(-1));
     protected TrajectorySequence firstJunctionSequence,getConeSequence,nudgePathSequence,coneLineSequence,secondJunctionSequence,nextConeSequence,parkingSequence;
 
-    public void runOpMode(boolean mirrored) throws InterruptedException {
+    public void runOpMode(boolean mirroredX, boolean mirroredY) throws InterruptedException {
         int conesCollected = 0, coneStackHeight = 165;
-        Initialize(hardwareMap,mirrored);
+        Initialize(hardwareMap,mirroredX, mirroredY);
         drive.setCorrectedPoseEstimate(startPose);
         drive.update();
         firstJunctionSequence = pathToFirstJunction();

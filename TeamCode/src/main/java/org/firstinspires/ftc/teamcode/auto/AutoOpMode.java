@@ -32,8 +32,8 @@ public abstract class AutoOpMode extends CommonOpMode {
     protected final Pose2d conePose = new Pose2d(-1700+155,300,pi);
     protected final Pose2d secondJunctionPose = new Pose2d(-610,208,1.5*pi);
 
-    public void Initialize(HardwareMap hardwareMap, boolean mirrored) {
-        super.Initialize(hardwareMap, mirrored);
+    public void Initialize(HardwareMap hardwareMap, boolean mirroredX, boolean mirroredY) {
+        super.Initialize(hardwareMap, mirroredX, mirroredY);
 //        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 //        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
 //        pipeline = new BingusPipeline();

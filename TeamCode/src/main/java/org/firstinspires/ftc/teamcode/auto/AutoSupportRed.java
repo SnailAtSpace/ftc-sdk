@@ -2,11 +2,11 @@ package org.firstinspires.ftc.teamcode.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(preselectTeleOp = "Toyota Mark II Simulation", name = "MAIN BLUE")
-public class AutoMainBlue extends AutonomousBoilerplate{
+@Autonomous(preselectTeleOp = "Toyota Mark II Simulation", name = "SUPPORT RED")
+public class AutoSupportRed extends AutonomousBoilerplate{
 
     @Override
     public void runOpMode() throws InterruptedException {
-        super.runOpMode(false, false);
+        super.runOpMode(true, true);
     }
 }
