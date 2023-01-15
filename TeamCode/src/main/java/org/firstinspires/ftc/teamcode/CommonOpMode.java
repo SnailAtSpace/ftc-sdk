@@ -49,8 +49,8 @@ public abstract class CommonOpMode extends LinearOpMode {
     double riserPos;
     double restrictor = restrictorCap;
 
-    public void Initialize(HardwareMap hardwareMap, boolean mirrored) {
-        drive = new SampleMecanumDrive(hardwareMap, mirrored);
+    public void Initialize(HardwareMap hardwareMap, boolean mirroredX, boolean mirroredY) {
+        drive = new SampleMecanumDrive(hardwareMap, mirroredX, mirroredY);
         riserMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotor");
         riserServo = hardwareMap.get(Servo.class, "riserServo");
         distanceSensor = hardwareMap.get(Rev2mDistanceSensor.class, "DistanceSensor");
@@ -63,7 +63,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public void Initialize(HardwareMap hardwareMap){
-        this.Initialize(hardwareMap, false);
+        this.Initialize(hardwareMap, false, false);
     }
 
     public void safeSleep(int millis) {

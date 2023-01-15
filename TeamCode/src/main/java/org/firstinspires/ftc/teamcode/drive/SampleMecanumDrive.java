@@ -79,11 +79,12 @@ public class SampleMecanumDrive extends MecanumDrive {
     private VoltageSensor batteryVoltageSensor;
     private double vmod;
 
-    private boolean mirrored;
+    private boolean mirroredX, mirroredY;
 
-    public SampleMecanumDrive(HardwareMap hardwareMap, boolean mirrored) {
+    public SampleMecanumDrive(HardwareMap hardwareMap, boolean mirroredX, boolean mirroredY) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
-        this.mirrored = mirrored;
+        this.mirroredX = mirroredX;
+        this.mirroredY = mirroredY;
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
         vmod = RUN_USING_ENCODER?1:12/batteryVoltageSensor.getVoltage();
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
@@ -144,11 +145,11 @@ public class SampleMecanumDrive extends MecanumDrive {
     }
 
     public SampleMecanumDrive(HardwareMap hardwareMap){
-        this(hardwareMap, false);
+        this(hardwareMap, false, false);
     }
 
     public void setCorrectedPoseEstimate(Pose2d value){
-        super.setPoseEstimate(new Pose2d(value.getX(),value.getY()*(mirrored?-1:1),value.getHeading()*(mirrored?-1:1)));
+        super.setPoseEstimate(new Pose2d(value.getX()*(mirroredY?-1:1),value.getY()*(mirroredX?-1:1), mirroredY?180:0+value.getHeading()*((mirroredX^mirroredY)?-1:1)));
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
@@ -167,7 +168,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         return new TrajectorySequenceBuilder(
                 startPose,
                 VEL_CONSTRAINT, ACCEL_CONSTRAINT,
-                MAX_ANG_VEL, MAX_ANG_ACCEL, mirrored
+                MAX_ANG_VEL, MAX_ANG_ACCEL, mirroredX, mirroredY
         );
     }
 
