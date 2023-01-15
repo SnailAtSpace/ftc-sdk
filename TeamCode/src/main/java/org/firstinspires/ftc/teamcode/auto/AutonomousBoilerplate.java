@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 public abstract class AutonomousBoilerplate extends AutoOpMode{
-    protected Pose2d startPose = new Pose2d(-600-hLength,fieldHalf-hWidth,Math.toRadians(0));
+    protected Pose2d startPose = new Pose2d(-600-hLength,fieldHalf-hWidth,Math.toRadians(-1));
     protected TrajectorySequence firstJunctionSequence,getConeSequence,nudgePathSequence,coneLineSequence,secondJunctionSequence,nextConeSequence,parkingSequence;
 
     public void runOpMode(boolean mirrored) throws InterruptedException {
@@ -132,7 +132,7 @@ public abstract class AutonomousBoilerplate extends AutoOpMode{
                 .back(70)
                 .splineToSplineHeading(new Pose2d(-320,600,3*pi/2.0f),3*pi/2.0f)
                 .splineToSplineHeading(new Pose2d(-600,310,pi),pi)
-                .splineToConstantHeading(new Vector2d(-1400,275),1.1*pi)
+                .splineToConstantHeading(new Vector2d(-1400,275),1*pi)
                 .build();
     }
 

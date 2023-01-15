@@ -32,9 +32,9 @@ public class DriveConstants {
      * from DriveVelocityPIDTuner.
      */
     public static final boolean RUN_USING_ENCODER = false;
-    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(45,
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0,
                                                                         0,
-            9,
+            0,
             12.68);
 
     /*
@@ -68,9 +68,9 @@ public class DriveConstants {
      * empirically tuned.
      */
 
-    public static double kV = 0.000625; //1/rpmToVelocity(MAX_RPM);
-    public static double kA = 0.000215; //0;
-    public static double kStatic = -0.2; //0;
+    public static double kV = 0.000519; //1/rpmToVelocity(MAX_RPM);
+    public static double kA = 0.000124; //0;
+    public static double kStatic = 0; //0;
 
 
     public static double encoderTicksToMillis(double ticks) {

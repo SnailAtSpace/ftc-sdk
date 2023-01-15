@@ -77,18 +77,20 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     public BNO055IMU imu;
     private VoltageSensor batteryVoltageSensor;
+    private double vmod;
 
     private boolean mirrored;
 
     public SampleMecanumDrive(HardwareMap hardwareMap, boolean mirrored) {
         super(kV, kA, kStatic, TRACK_WIDTH, TRACK_WIDTH, LATERAL_MULTIPLIER);
         this.mirrored = mirrored;
+        batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
+        vmod = RUN_USING_ENCODER?1:12/batteryVoltageSensor.getVoltage();
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
                 new Pose2d(1, 1, Math.toRadians(1)), 5); //6 6 1 0.5
 
         LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
 
-        batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
@@ -308,10 +310,11 @@ public class SampleMecanumDrive extends MecanumDrive {
 
     @Override
     public void setMotorPowers(double v, double v1, double v2, double v3) {
-        leftFront.setPower(v);
-        rightFront.setPower(v3);
-        rightRear.setPower(v2);
-        leftRear.setPower(v1);
+        //vmod = 12/batteryVoltageSensor.getVoltage();
+        leftFront.setPower(v*vmod);
+        leftRear.setPower(v1*vmod);
+        rightRear.setPower(v2*vmod);
+        rightFront.setPower(v3*vmod);
     }
 
     @Deprecated
