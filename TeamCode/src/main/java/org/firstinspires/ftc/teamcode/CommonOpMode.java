@@ -25,7 +25,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     // webcam and rand-related information
     public OpenCvCamera webcam;
     public BingusPipeline pipeline;
-    public BingusPipeline.RandomizationFactor duckPos = BingusPipeline.RandomizationFactor.UNDEFINED;
+    public int rand = 0;
 
     // actuators
     public SampleMecanumDrive drive;

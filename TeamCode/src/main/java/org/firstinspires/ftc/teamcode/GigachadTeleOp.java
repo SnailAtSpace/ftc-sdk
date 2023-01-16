@@ -29,9 +29,11 @@ public class GigachadTeleOp extends TeleOpMode {
 
             // RISER SAFETY
             if(armLimiter.isPressed()){
-                riser_axis = Math.min(0,riser_axis);
                 riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }
+            if(riserPos<=1){
+                riser_axis = Math.min(0,riser_axis);
             }
             if (riserPos<armExtensionToEncoderTicks(-400)){
                 restrictor = restrictorCap;

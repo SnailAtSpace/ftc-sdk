@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-@Autonomous(preselectTeleOp = "Toyota Mark II Simulation", name = "MAIN BLUE")
+@Autonomous(preselectTeleOp = "Toyota Mark II Simulation", name = "SUPPORT BLUE")
 public class AutoSupportBlue extends AutonomousBoilerplate{
 
     @Override
