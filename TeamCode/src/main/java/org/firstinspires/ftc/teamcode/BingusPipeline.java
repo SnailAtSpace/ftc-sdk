@@ -16,11 +16,20 @@ public class BingusPipeline extends OpenCvPipeline {
     Mat frame = new Mat();
     double minColour;
     double avgR,avgG,avgB;
-    final int xL=330, y=17;
+    int xL=330, y=17;
     final int offsetX=30,offsetY=60;
-    Point ptA =new Point(xL,y), ptB = new Point(xL+offsetX,y+offsetY);
+    Point ptA, ptB;
     private volatile int zone = 0;
     private volatile Mat img;
+
+    public BingusPipeline(boolean diagonal){
+        if(diagonal){
+            xL=225;
+            y=75;
+        }
+        ptA = new Point(xL,y);
+        ptB = new Point(xL+offsetX,y+offsetY);
+    }
 
     public void init(Mat firstFrame){
         scanArea = firstFrame.submat(new Rect(ptA, ptB));

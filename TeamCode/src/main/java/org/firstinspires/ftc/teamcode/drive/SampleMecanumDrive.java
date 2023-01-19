@@ -88,7 +88,7 @@ public class SampleMecanumDrive extends MecanumDrive {
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
         vmod = RUN_USING_ENCODER?1:12/batteryVoltageSensor.getVoltage();
         follower = new HolonomicPIDVAFollower(TRANSLATIONAL_PID, TRANSLATIONAL_PID, HEADING_PID,
-                new Pose2d(1, 1, Math.toRadians(1)), 5); //6 6 1 0.5
+                new Pose2d(3, 3, Math.toRadians(1)), 1); //6 6 1 0.5
 
         LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
 
@@ -149,7 +149,7 @@ public class SampleMecanumDrive extends MecanumDrive {
     }
 
     public void setCorrectedPoseEstimate(Pose2d value){
-        super.setPoseEstimate(new Pose2d(value.getX()*(mirroredY?-1:1),value.getY()*(mirroredX?-1:1), mirroredY?180:0+value.getHeading()*((mirroredX^mirroredY)?-1:1)));
+        super.setPoseEstimate(new Pose2d(value.getX()*(mirroredY?-1:1),value.getY()*(mirroredX?-1:1), mirroredY?Math.PI:0+value.getHeading()*((mirroredX^mirroredY)?-1:1)));
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {

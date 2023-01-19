@@ -14,7 +14,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 public abstract class AutoOpMode extends CommonOpMode {
     protected final double pi = Math.PI;
-    final int maxCones = 5;
+    final int maxCones = 1;
 
     public enum State {
         NAVIGATING_TO_FIRST_JUNCTION,
@@ -30,18 +30,22 @@ public abstract class AutoOpMode extends CommonOpMode {
 
     State currentState = State.IDLE;
     ElapsedTime timer = new ElapsedTime();
+    int zone = 0;
 
-    protected final Pose2d junctionPose = new Pose2d(new Vector2d(-265,920)
-            .plus(new Vector2d(Math.hypot(300,300)-hLength-20,0).rotated(Math.toRadians(-45)))
-            ,Math.toRadians(-45));
-    protected final Pose2d conePose = new Pose2d(-1700+155,300,pi);
-    protected final Pose2d secondJunctionPose = new Pose2d(-595,228,1.5*pi);
+    protected final Pose2d junctionPose = new Pose2d(new Vector2d(-95,760),Math.toRadians(-45));
+    protected final Pose2d conePose = new Pose2d(-1700+125,300,pi);
+    protected final Pose2d secondJunctionPose = new Pose2d(-600,238,1.5*pi);
+    public final Pose2d coneLinePose = new Pose2d(-1400,280,pi);
+    public final Pose2d closeParkPose = new Pose2d(300,280,1.5*pi),
+                        centerParkPose = new Pose2d(900,280,1.5*pi),
+                        edgeParkPose = new Pose2d(1500,280,1.5*pi);
+    protected Pose2d startPose = new Pose2d(-856,fieldHalf-hWidth,Math.toRadians(-1));
 
     public void Initialize(HardwareMap hardwareMap, boolean mirroredX, boolean mirroredY) {
         super.Initialize(hardwareMap, mirroredX, mirroredY);
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        pipeline = new BingusPipeline();
+        pipeline = new BingusPipeline(mirroredX^mirroredY);
         webcam.setPipeline(pipeline);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override

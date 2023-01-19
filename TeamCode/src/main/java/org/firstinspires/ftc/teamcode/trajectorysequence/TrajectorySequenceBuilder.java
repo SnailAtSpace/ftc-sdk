@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class TrajectorySequenceBuilder {
+    double pi = Math.PI;
     double resolution = 0.35;
 
     private final TrajectoryVelocityConstraint baseVelConstraint;
@@ -98,7 +99,7 @@ public class TrajectorySequenceBuilder {
         displacementMarkers = new ArrayList<>();
         spatialMarkers = new ArrayList<>();
 
-        lastPose = new Pose2d(startPose.getX()*this.mirroredY,startPose.getY()*this.mirroredX,mirroredY?180:0+startPose.getHeading()*this.hMult);
+        lastPose = new Pose2d(startPose.getX()*this.mirroredY,startPose.getY()*this.mirroredX,mirroredY?pi:0+startPose.getHeading()*this.hMult);
 
         tangentOffset = 0.0;
 
@@ -240,7 +241,7 @@ public class TrajectorySequenceBuilder {
     }
 
     public TrajectorySequenceBuilder splineTo(Vector2d endPosition, double endHeading) {
-        return addPath(() -> currentTrajectoryBuilder.splineTo(mv(endPosition), hMult*endHeading+(1-mirroredY)*90, currentVelConstraint, currentAccelConstraint));
+        return addPath(() -> currentTrajectoryBuilder.splineTo(mv(endPosition), hMult*endHeading+(1-mirroredY)*pi/2, currentVelConstraint, currentAccelConstraint));
     }
 
     public TrajectorySequenceBuilder splineTo(
@@ -249,11 +250,11 @@ public class TrajectorySequenceBuilder {
             TrajectoryVelocityConstraint velConstraint,
             TrajectoryAccelerationConstraint accelConstraint
     ) {
-        return addPath(() -> currentTrajectoryBuilder.splineTo(mv(endPosition), hMult*endHeading+(1-mirroredY)*90, velConstraint, accelConstraint));
+        return addPath(() -> currentTrajectoryBuilder.splineTo(mv(endPosition), hMult*endHeading+(1-mirroredY)*pi/2, velConstraint, accelConstraint));
     }
 
     public TrajectorySequenceBuilder splineToConstantHeading(Vector2d endPosition, double endHeading) {
-        return addPath(() -> currentTrajectoryBuilder.splineToConstantHeading(mv(endPosition), hMult*endHeading+(1-mirroredY)*90, currentVelConstraint, currentAccelConstraint));
+        return addPath(() -> currentTrajectoryBuilder.splineToConstantHeading(mv(endPosition), hMult*endHeading+(1-mirroredY)*pi/2, currentVelConstraint, currentAccelConstraint));
     }
 
     public TrajectorySequenceBuilder splineToConstantHeading(
@@ -262,11 +263,11 @@ public class TrajectorySequenceBuilder {
             TrajectoryVelocityConstraint velConstraint,
             TrajectoryAccelerationConstraint accelConstraint
     ) {
-        return addPath(() -> currentTrajectoryBuilder.splineToConstantHeading(mv(endPosition), hMult*endHeading+(1-mirroredY)*90, velConstraint, accelConstraint));
+        return addPath(() -> currentTrajectoryBuilder.splineToConstantHeading(mv(endPosition), hMult*endHeading+(1-mirroredY)*pi/2, velConstraint, accelConstraint));
     }
 
     public TrajectorySequenceBuilder splineToLinearHeading(Pose2d endPose, double endHeading) {
-        return addPath(() -> currentTrajectoryBuilder.splineToLinearHeading(mp(endPose), hMult*endHeading+(1-mirroredY)*90, currentVelConstraint, currentAccelConstraint));
+        return addPath(() -> currentTrajectoryBuilder.splineToLinearHeading(mp(endPose), hMult*endHeading+(1-mirroredY)*pi/2, currentVelConstraint, currentAccelConstraint));
     }
 
     public TrajectorySequenceBuilder splineToLinearHeading(
@@ -275,11 +276,11 @@ public class TrajectorySequenceBuilder {
             TrajectoryVelocityConstraint velConstraint,
             TrajectoryAccelerationConstraint accelConstraint
     ) {
-        return addPath(() -> currentTrajectoryBuilder.splineToLinearHeading(mp(endPose), hMult*endHeading+(1-mirroredY)*90, velConstraint, accelConstraint));
+        return addPath(() -> currentTrajectoryBuilder.splineToLinearHeading(mp(endPose), hMult*endHeading+(1-mirroredY)*pi/2, velConstraint, accelConstraint));
     }
 
     public TrajectorySequenceBuilder splineToSplineHeading(Pose2d endPose, double endHeading) {
-        return addPath(() -> currentTrajectoryBuilder.splineToSplineHeading(mp(endPose), hMult*endHeading+(1-mirroredY)*90, currentVelConstraint, currentAccelConstraint));
+        return addPath(() -> currentTrajectoryBuilder.splineToSplineHeading(mp(endPose), hMult*endHeading+(1-mirroredY)*pi/2, currentVelConstraint, currentAccelConstraint));
     }
 
     public TrajectorySequenceBuilder splineToSplineHeading(
@@ -288,7 +289,7 @@ public class TrajectorySequenceBuilder {
             TrajectoryVelocityConstraint velConstraint,
             TrajectoryAccelerationConstraint accelConstraint
     ) {
-        return addPath(() -> currentTrajectoryBuilder.splineToSplineHeading(mp(endPose), hMult*endHeading+(1-mirroredY)*90, velConstraint, accelConstraint));
+        return addPath(() -> currentTrajectoryBuilder.splineToSplineHeading(mp(endPose), hMult*endHeading+(1-mirroredY)*pi/2, velConstraint, accelConstraint));
     }
 
     private TrajectorySequenceBuilder addPath(AddPathCallback callback) {
@@ -724,6 +725,6 @@ public class TrajectorySequenceBuilder {
         return new Vector2d(mirroredY*v.getX(), mirroredX*v.getY());
     }
     private Pose2d mp(Pose2d p){
-        return new Pose2d(mv(p.vec()), (1-mirroredY)*90+hMult*p.getHeading());
+        return new Pose2d(mv(p.vec()), (1-mirroredY)*pi/2+hMult*p.getHeading());
     }
 }

@@ -11,6 +11,7 @@ public class GigachadTeleOp extends TeleOpMode {
     @SuppressLint("DefaultLocale")
     @Override
     public void runOpMode(){
+        boolean direct = false;
         Initialize(hardwareMap);
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         riserServo.setPosition(0);
@@ -18,7 +19,12 @@ public class GigachadTeleOp extends TeleOpMode {
         drive.update();
         waitForStart();
         while (opModeIsActive()){
-
+            if(gamepad2.y && !direct){
+                direct = true;
+            }
+            if(gamepad2.x && direct){
+                direct = false;
+            }
             // INPUT GATHERING
             forward_axis = logifyInput(gamepad1.left_stick_y,2.718);
             strafe_axis = logifyInput(gamepad1.left_stick_x,2.718);
@@ -28,20 +34,24 @@ public class GigachadTeleOp extends TeleOpMode {
             riserPos = -riserMotor.getCurrentPosition();
 
             // RISER SAFETY
-            if(armLimiter.isPressed()){
-                riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            if(!direct){
+                if(armLimiter.isPressed()){
+                    riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                }
+                if(riserPos<=1){
+                    riser_axis = Math.min(0,riser_axis);
+                }
+                if (riserPos<armExtensionToEncoderTicks(-400)){
+                    restrictor = restrictorCap;
+                }
+                else restrictor = 0.33;
+                if(riserPos>upperArmLimit){
+                    riser_axis = Math.max(0,riser_axis);
+                }
             }
-            if(riserPos<=1){
-                riser_axis = Math.min(0,riser_axis);
-            }
-            if (riserPos<armExtensionToEncoderTicks(-400)){
-                restrictor = restrictorCap;
-            }
-            else restrictor = 0.33;
-            if(riserPos>upperArmLimit){
-                riser_axis = Math.max(0,riser_axis);
-            }
+            else restrictor = restrictorCap;
+
 
             /* POWER APPLICATION: most likely already working as intended, do not touch! */
 
@@ -62,8 +72,9 @@ public class GigachadTeleOp extends TeleOpMode {
             // TELEMETRY
             telemetry.addData("Speed: ", restrictor==restrictorCap?"HIGH":"LOW");
             telemetry.addData("Riser position: ", (int)(riserPos/2880*975));
-            telemetry.addData("Color: ", lineSensor.blue()-lineSensor.green());
+            telemetry.addData("Color: ","%d %d",lineSensor.blue()-lineSensor.green(), lineSensor.red()-lineSensor.green());
             telemetry.addData("Button: ",armLimiter.isPressed());
+            telemetry.addData("Direct enabled: ", direct?"YEEEEEEEEEEEEEEEES":"no");
             telemetry.update();
             drive.update();
         }
