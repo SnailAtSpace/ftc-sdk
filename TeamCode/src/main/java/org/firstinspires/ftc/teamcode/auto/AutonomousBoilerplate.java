@@ -14,7 +14,7 @@ public abstract class AutonomousBoilerplate extends AutoOpMode{
 
     public void runOpMode(boolean mirroredX, boolean mirroredY) throws InterruptedException {
         boolean p = mirroredX^mirroredY;
-        int conesCollected = 0, coneStackHeight = 165;
+        int conesCollected = 0, coneStackHeight = 160;
         Initialize(hardwareMap,mirroredX, mirroredY);
         drive.setCorrectedPoseEstimate(startPose);
         drive.update();
@@ -60,7 +60,7 @@ public abstract class AutonomousBoilerplate extends AutoOpMode{
                 case SEEKING_CONE_LINE:
                     if((mirroredX?lineSensor.red():lineSensor.blue())-lineSensor.green()>0){
                         drive.setDrivePower(new Pose2d());
-                        drive.setCorrectedPoseEstimate(new Pose2d(-1800+distanceSensor.getDistance(DistanceUnit.MM)+150,285, pi));
+                        drive.setCorrectedPoseEstimate(new Pose2d(-1800+370,280, pi));
                         drive.followTrajectorySequenceAsync(getConeSequence);
                         currentState = State.COLLECTING_CONE;
                     }
@@ -108,6 +108,7 @@ public abstract class AutonomousBoilerplate extends AutoOpMode{
             }
             drive.update();
             telemetry.addData("Error: ","%.3f %.3f %.3f",drive.getLastError().getX(),drive.getLastError().getY(),drive.getLastError().getHeading()*180/pi);
+            telemetry.addData("Distance: ", distanceSensor.getDistance(DistanceUnit.MM));
             telemetry.update();
         }
     }

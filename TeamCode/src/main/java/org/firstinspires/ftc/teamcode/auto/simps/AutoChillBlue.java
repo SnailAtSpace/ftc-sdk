@@ -22,7 +22,7 @@ public class AutoChillBlue extends AutoChill {
         return drive.trajectorySequenceBuilder(startPose)
                 .setVelConstraint(SampleMecanumDrive.getVelocityConstraint(Math.min(1400, DriveConstants.MAX_VEL), DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH))
                 .lineTo(startPose.plus(new Pose2d(5,-5,0)).vec())
-                .splineToConstantHeading(new Vector2d(-400,fieldHalf-500),3*pi/2.0f)
+                .splineToConstantHeading(new Vector2d(-420,fieldHalf-500),3*pi/2.0f)
                 .splineToSplineHeading(junctionPose.plus(new Pose2d(5,-5,0)),Math.toRadians(-45))
                 .UNSTABLE_addTemporalMarkerOffset(-1.8, ()->{
                     riserMotor.setTargetPosition(armExtensionToEncoderTicks(920));
@@ -51,7 +51,7 @@ public class AutoChillBlue extends AutoChill {
                 })
                 .lineToConstantHeading(new Vector2d(-300, 900))
                 .splineToSplineHeading(new Pose2d(-320,350,pi),1.25*pi)
-                .splineToConstantHeading(new Vector2d(-850,290),pi)
+                .splineToConstantHeading(new Vector2d(-820,290),pi)
                 .build();
     }
 

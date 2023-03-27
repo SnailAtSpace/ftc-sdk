@@ -33,12 +33,12 @@ public abstract class AutoOpMode extends CommonOpMode {
     int zone = 0;
 
     protected final Pose2d junctionPose = new Pose2d(new Vector2d(-95,760),Math.toRadians(-45));
-    protected final Pose2d conePose = new Pose2d(-1700+125,300,pi);
+    protected final Pose2d conePose = new Pose2d(-1800+hLength+60,300,pi);
     protected final Pose2d secondJunctionPose = new Pose2d(-600,238,1.5*pi);
     public final Pose2d coneLinePose = new Pose2d(-1400,280,pi);
-    public final Pose2d closeParkPose = new Pose2d(300,280,1.5*pi),
-                        centerParkPose = new Pose2d(900,280,1.5*pi),
-                        edgeParkPose = new Pose2d(1500,280,1.5*pi);
+    public final Pose2d closeParkPose = new Pose2d(-300,280,1.5*pi),
+                        centerParkPose = new Pose2d(-900,280,1.5*pi),
+                        edgeParkPose = new Pose2d(-1500,280,1.5*pi);
     protected Pose2d startPose = new Pose2d(-856,fieldHalf-hWidth,Math.toRadians(-1));
 
     public void Initialize(HardwareMap hardwareMap, boolean mirroredX, boolean mirroredY) {

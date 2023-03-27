@@ -74,7 +74,7 @@ public class GigachadTeleOp extends TeleOpMode {
             telemetry.addData("Riser position: ", (int)(riserPos/2880*975));
             telemetry.addData("Color: ","%d %d",lineSensor.blue()-lineSensor.green(), lineSensor.red()-lineSensor.green());
             telemetry.addData("Button: ",armLimiter.isPressed());
-            telemetry.addData("Direct enabled: ", direct?"YEEEEEEEEEEEEEEEES":"no");
+            telemetry.addData("Direct enabled: ", direct?"YES (x to disable)":"no (y to enable)");
             telemetry.update();
             drive.update();
         }

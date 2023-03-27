@@ -18,7 +18,7 @@ public abstract class AutoRedDiag extends AutonomousBoilerplate{
         return drive.trajectorySequenceBuilder(startPose)
                 .setVelConstraint(SampleMecanumDrive.getVelocityConstraint(Math.min(1400, DriveConstants.MAX_VEL), DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH))
                 .lineTo(startPose.plus(new Pose2d(5,-5,0)).vec())
-                .splineToConstantHeading(new Vector2d(-400,fieldHalf-500),3*pi/2.0f)
+                .splineToConstantHeading(new Vector2d(-420,fieldHalf-500),3*pi/2.0f)
                 .splineToSplineHeading(junctionPose.plus(new Pose2d(-55,-20,0)),Math.toRadians(-45))
                 .UNSTABLE_addTemporalMarkerOffset(-1.8, ()->{
                     riserMotor.setTargetPosition(armExtensionToEncoderTicks(920));
@@ -34,7 +34,7 @@ public abstract class AutoRedDiag extends AutonomousBoilerplate{
                 .lineToSplineHeading(new Pose2d(-300, 900, Math.toRadians(-75)))
                 .splineToSplineHeading(new Pose2d(-320,600,3*pi/2.0f),3*pi/2.0f)
                 .splineToSplineHeading(new Pose2d(-600,310,0.99*pi),pi)
-                .splineToConstantHeading(coneLinePose.plus(new Pose2d(0,0,0)).vec(),1.25*pi)
+                .splineToConstantHeading(coneLinePose.plus(new Pose2d(-60,0,0)).vec(),1.15*pi)
                 .build();
     }
 
@@ -49,7 +49,7 @@ public abstract class AutoRedDiag extends AutonomousBoilerplate{
     public TrajectorySequence pathToCones(){
         return drive.trajectorySequenceBuilder(new Pose2d(-1400,285,pi))
                 .setVelConstraint(SampleMecanumDrive.getVelocityConstraint(Math.min(700,DriveConstants.MAX_VEL), DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH))
-                .splineToConstantHeading(conePose.plus(new Pose2d(0,0,0)).vec(), pi)
+                .splineToConstantHeading(conePose.plus(new Pose2d(35,0,0)).vec(), pi)
                 .UNSTABLE_addTemporalMarkerOffset(-0.1,()->riserServo.setPosition(1))
                 .build();
     }
@@ -57,7 +57,7 @@ public abstract class AutoRedDiag extends AutonomousBoilerplate{
     public TrajectorySequence pathToSecondJunction(){
         return drive.trajectorySequenceBuilder(conePose)
                 .lineTo(new Vector2d(-1200,350))
-                .splineToSplineHeading(secondJunctionPose.plus(new Pose2d(0,0,0)), -0.1*pi)
+                .splineToSplineHeading(secondJunctionPose.plus(new Pose2d(40,-40,0)), -0.1*pi)
                 .UNSTABLE_addTemporalMarkerOffset(-1.175,()->{
                     riserMotor.setTargetPosition(armExtensionToEncoderTicks(940));
                     riserMotor.setPower(1);
@@ -72,7 +72,7 @@ public abstract class AutoRedDiag extends AutonomousBoilerplate{
                     riserMotor.setTargetPosition(0);
                     riserMotor.setPower(0.65);
                 })
-                .splineToSplineHeading(closeParkPose.plus(new Pose2d(0,0,0)),0)
+                .splineToSplineHeading(closeParkPose.plus(new Pose2d(-20,0,0)),0)
                 .build();
     }
 
@@ -83,7 +83,7 @@ public abstract class AutoRedDiag extends AutonomousBoilerplate{
                     riserMotor.setTargetPosition(0);
                     riserMotor.setPower(0.65);
                 })
-                .splineToSplineHeading(centerParkPose.plus(new Pose2d(0,0,0)),0.5*pi)
+                .splineToSplineHeading(centerParkPose.plus(new Pose2d(0,10,0)),0.5*pi)
                 .build();
     }
 
@@ -94,7 +94,7 @@ public abstract class AutoRedDiag extends AutonomousBoilerplate{
                     riserMotor.setTargetPosition(0);
                     riserMotor.setPower(0.65);
                 })
-                .splineToSplineHeading(edgeParkPose.plus(new Pose2d(0,0,0)),1*pi)
+                .splineToSplineHeading(edgeParkPose.plus(new Pose2d(100,140,0)),1*pi)
                 .build();
     }
 }
