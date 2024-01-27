@@ -1,14 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 public abstract class TeleOpMode extends CommonOpMode {
     @Override
     public void Initialize(HardwareMap hardwareMap) {
-        drive = new SampleMecanumDrive(hardwareMap);
+        drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
         super.Initialize(hardwareMap);
         riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
