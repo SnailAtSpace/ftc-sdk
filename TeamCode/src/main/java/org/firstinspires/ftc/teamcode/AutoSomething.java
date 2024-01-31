@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 @Autonomous(name = "Test me!")
 public class AutoSomething extends CommonOpMode{
     // TODO: определение, парковка
+    // рандомизация -> опа ставим жёлтый на спот -> опа ставим фиолетовый на рандомизацию -> паркуемся
     @Override
     public void runOpMode() throws InterruptedException {
         Initialize(hardwareMap);

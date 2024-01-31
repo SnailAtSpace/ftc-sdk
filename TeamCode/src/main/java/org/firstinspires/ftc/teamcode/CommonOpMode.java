@@ -26,6 +26,7 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     // actuators
     public MecanumDrive drive;
+    public PlacementAssembly arm;
 
     // webcam and rand-related information
     public OpenCvCamera webcam;
@@ -50,23 +51,14 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public void Initialize(HardwareMap hardwareMap) {
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
-        riserMotor = new DuplexMotor((DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotorA"),
-                (DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotorB"));
-        collectorMotor = new DuplexMotor((DcMotorEx) hardwareMap.get(DcMotor.class, "collectorMotorA"),
-                (DcMotorEx) hardwareMap.get(DcMotor.class, "collectorMotorB"));
-        riserServoA = hardwareMap.get(Servo.class, "riserServoA");
-        riserServoB = hardwareMap.get(Servo.class, "riserServoB");
+        arm = new PlacementAssembly(hardwareMap);
         distanceSensor = hardwareMap.get(Rev2mDistanceSensor.class, "DistanceSensor");
         //lineSensor = hardwareMap.get(RevColorSensorV3.class, "LineSensor");
-        riserMotor.setDirection(DcMotorSimple.Direction.FORWARD);
-        riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        armLimiter = hardwareMap.get(RevTouchSensor.class, "armLimiter");
+
         //lineSensor.initialize();
 
         //TODO: отрегулировать сервомоторы
-        riserServoA.scaleRange(0.06, 0.40);
-        riserServoB.scaleRange(0.06, 0.40);
-        pusherServo.scaleRange(0, 1);
+
     }
 
     public void safeSleep(int millis) {
@@ -98,5 +90,23 @@ public abstract class CommonOpMode extends LinearOpMode {
                 telemetry.addLine("error at "+ errorCode);
             }
         });
+    }
+
+    public class PlacementAssembly{
+        public PlacementAssembly(HardwareMap hardwareMap){
+            riserMotor = new DuplexMotor((DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotorA"),
+                    (DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotorB"));
+            collectorMotor = new DuplexMotor((DcMotorEx) hardwareMap.get(DcMotor.class, "collectorMotorA"),
+                    (DcMotorEx) hardwareMap.get(DcMotor.class, "collectorMotorB"));
+            riserServoA = hardwareMap.get(Servo.class, "riserServoA");
+            riserServoB = hardwareMap.get(Servo.class, "riserServoB");
+            pusherServo = hardwareMap.get(Servo.class, "pusherServo");
+            riserMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            armLimiter = hardwareMap.get(RevTouchSensor.class, "armLimiter");
+            riserServoA.scaleRange(0.06, 0.40);
+            riserServoB.scaleRange(0.06, 0.40);
+            pusherServo.scaleRange(0, 1);
+        }
     }
 }
