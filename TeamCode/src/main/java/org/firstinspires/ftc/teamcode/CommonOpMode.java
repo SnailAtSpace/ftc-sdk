@@ -32,7 +32,8 @@ public abstract class CommonOpMode extends LinearOpMode {
     public OpenCvCamera webcam;
     public BingusPipeline pipeline;
     public int rand = 0;
-    public DuplexMotor riserMotor, collectorMotor;
+    public DuplexMotor riserMotor;
+    public DuplexMotor collectorMotor;
     public Servo riserServoA, riserServoB, pusherServo;
     // TODO: изменить максимальную высоту подъёма в соответствии
     long upperArmLimit = 2840;
@@ -43,7 +44,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     public RevTouchSensor armLimiter;
 
     // i/o
-    double forward_axis, strafe_axis, turn_axis, riser_axis; // analog inputs
+    double forward_axis, strafe_axis, turn_axis, riser_axis, collector_motors; // analog inputs
     boolean riserArm, pusher; // digital inputs
     boolean pRiserArm, ppusher; // last-loop digital inputs
     double riserPos;
@@ -93,7 +94,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     }
 
     public class PlacementAssembly{
-        public PlacementAssembly(HardwareMap hardwareMap){
+        public PlacementAssembly(HardwareMap hardwareMap) {
             riserMotor = new DuplexMotor((DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotorA"),
                     (DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotorB"));
             collectorMotor = new DuplexMotor((DcMotorEx) hardwareMap.get(DcMotor.class, "collectorMotorA"),
@@ -103,6 +104,8 @@ public abstract class CommonOpMode extends LinearOpMode {
             pusherServo = hardwareMap.get(Servo.class, "pusherServo");
             riserMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            collectorMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            collectorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             armLimiter = hardwareMap.get(RevTouchSensor.class, "armLimiter");
             riserServoA.scaleRange(0.06, 0.57);
             riserServoB.scaleRange(0.06, 0.57);

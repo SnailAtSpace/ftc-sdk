@@ -18,6 +18,7 @@ public class GigachadTeleOp extends TeleOpMode {
         riserServoB.setPosition(-1);
         pusherServo.setPosition(0);
         riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //collectorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //drive.update();
         waitForStart();
         while (opModeIsActive()) {
@@ -35,6 +36,8 @@ public class GigachadTeleOp extends TeleOpMode {
             pusher = gamepad2.right_bumper;
             riser_axis = (gamepad2.right_stick_y > 0 ? 1 : 1) * gamepad2.right_stick_y;
             riserPos = -riserMotor.getCurrentPosition();
+            collector_motors = logifyInput(gamepad2.left_stick_y, 1.5);
+            ;
 
             // RISER SAFETY
             if (!direct) {
@@ -43,7 +46,7 @@ public class GigachadTeleOp extends TeleOpMode {
                     riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 }
                 if (riserPos <= 1) {
-                    riser_axis = Math.min(0,riser_axis);
+                    riser_axis = Math.min(0, riser_axis);
                 }
                 if (riserPos<armExtensionToEncoderTicks(-400)){
                     restrictor = restrictorCap;
@@ -63,6 +66,7 @@ public class GigachadTeleOp extends TeleOpMode {
                     -turn_axis * restrictor
             ));
             riserMotor.setPower(riser_axis);
+            collectorMotor.setPower(collector_motors);
 
             //freight holder position
             if (!pRiserArm && riserArm) {
