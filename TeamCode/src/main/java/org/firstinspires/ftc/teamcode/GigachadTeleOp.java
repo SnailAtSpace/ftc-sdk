@@ -33,7 +33,7 @@ public class GigachadTeleOp extends TeleOpMode {
             turn_axis = 0.75 * logifyInput(gamepad1.right_stick_x, 2.718);
             riserArm = gamepad2.right_trigger > 0.1;
             pusher = gamepad2.right_bumper;
-            riser_axis = (gamepad2.right_stick_y > 0 ? 0.8 : 1) * gamepad2.right_stick_y;
+            riser_axis = (gamepad2.right_stick_y > 0 ? 1 : 1) * gamepad2.right_stick_y;
             riserPos = -riserMotor.getCurrentPosition();
 
             // RISER SAFETY
