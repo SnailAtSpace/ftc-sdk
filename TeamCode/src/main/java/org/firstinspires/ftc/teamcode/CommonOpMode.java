@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
+import androidx.annotation.NonNull;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
@@ -107,6 +111,43 @@ public abstract class CommonOpMode extends LinearOpMode {
             riserServoA.scaleRange(0.06, 0.40);
             riserServoB.scaleRange(0.06, 0.40);
             pusherServo.scaleRange(0, 1);
+        }
+
+        public class ChangePos implements Action {
+            int position;
+            boolean init = false;
+            public ChangePos(int pos){
+                this.position = pos;
+            }
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                if(!init){
+                    init = true;
+                    riserMotor.setPower(1);
+                    riserMotor.setTargetPosition(position);
+                    riserMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                }
+
+                if(riserMotor.isBusy()){
+                    return true;
+                }
+                else{
+                    riserMotor.setPower(0);
+                    return false;
+                }
+            }
+        }
+        public class ChangeArmState implements Action {
+            boolean toOpen;
+
+            public ChangeArmState(boolean a){
+                this.toOpen = a;
+            }
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket){
+                
+            }
         }
     }
 }
