@@ -73,6 +73,7 @@ public class GigachadTeleOp extends TeleOpMode {
             pRiserArm = riserArm;
 
             // TELEMETRY
+            /*
             telemetry.addData("Speed: ", restrictor==restrictorCap?"HIGH":"LOW");
             telemetry.addData("Riser position: ", (int)(riserPos/2880*975));
             telemetry.addData("Color: ","%d %d",lineSensor.blue()-lineSensor.green(), lineSensor.red()-lineSensor.green());
@@ -80,6 +81,8 @@ public class GigachadTeleOp extends TeleOpMode {
             telemetry.addData("Direct enabled: ", direct?"YES (x to disable)":"no (y to enable)");
             telemetry.update();
             //drive.update();
+
+             */
         }
     }
 }
