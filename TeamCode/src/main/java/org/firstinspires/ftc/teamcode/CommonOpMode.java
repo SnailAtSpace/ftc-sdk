@@ -104,8 +104,8 @@ public abstract class CommonOpMode extends LinearOpMode {
             riserMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             armLimiter = hardwareMap.get(RevTouchSensor.class, "armLimiter");
-            riserServoA.scaleRange(0.06, 0.40);
-            riserServoB.scaleRange(0.06, 0.40);
+            riserServoA.scaleRange(0.06, 0.57);
+            riserServoB.scaleRange(0.06, 0.57);
             pusherServo.scaleRange(0, 1);
         }
     }

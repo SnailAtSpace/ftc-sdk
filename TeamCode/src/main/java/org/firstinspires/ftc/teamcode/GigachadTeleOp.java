@@ -14,8 +14,8 @@ public class GigachadTeleOp extends TeleOpMode {
     public void runOpMode() {
         boolean direct = false;
         Initialize(hardwareMap);
-        riserServoA.setPosition(0);
-        riserServoB.setPosition(0);
+        riserServoA.setPosition(1);
+        riserServoB.setPosition(-1);
         pusherServo.setPosition(0);
         riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //drive.update();
@@ -69,7 +69,7 @@ public class GigachadTeleOp extends TeleOpMode {
                 riserServoA.setPosition(1 - riserServoA.getPosition());
                 riserServoB.setPosition(1 - riserServoB.getPosition());
             }
-            pusherServo.setPosition(pusher ? 1 : 0);
+            pusherServo.setPosition(pusher ? 0.05 : 0);
             pRiserArm = riserArm;
 
             // TELEMETRY
