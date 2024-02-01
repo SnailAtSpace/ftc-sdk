@@ -14,10 +14,11 @@ public class GigachadTeleOp extends TeleOpMode {
     public void runOpMode() {
         boolean direct = false;
         Initialize(hardwareMap);
-        riserServoA.setPosition(0);
-        riserServoB.setPosition(0);
+        riserServoA.setPosition(1);
+        riserServoB.setPosition(-1);
         pusherServo.setPosition(0);
         riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //collectorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //drive.update();
         waitForStart();
         while (opModeIsActive()) {
@@ -33,8 +34,10 @@ public class GigachadTeleOp extends TeleOpMode {
             turn_axis = 0.75 * logifyInput(gamepad1.right_stick_x, 2.718);
             riserArm = gamepad2.right_trigger > 0.1;
             pusher = gamepad2.right_bumper;
-            riser_axis = (gamepad2.right_stick_y > 0 ? 0.8 : 1) * gamepad2.right_stick_y;
+            riser_axis = (gamepad2.right_stick_y > 0 ? 1 : 1) * gamepad2.right_stick_y;
             riserPos = -riserMotor.getCurrentPosition();
+            collector_motors = logifyInput(gamepad2.left_stick_y, 1.5);
+            ;
 
             // RISER SAFETY
             if (!direct) {
@@ -43,7 +46,7 @@ public class GigachadTeleOp extends TeleOpMode {
                     riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 }
                 if (riserPos <= 1) {
-                    riser_axis = Math.min(0,riser_axis);
+                    riser_axis = Math.min(0, riser_axis);
                 }
                 if (riserPos<armExtensionToEncoderTicks(-400)){
                     restrictor = restrictorCap;
@@ -63,16 +66,18 @@ public class GigachadTeleOp extends TeleOpMode {
                     -turn_axis * restrictor
             ));
             riserMotor.setPower(riser_axis);
+            collectorMotor.setPower(collector_motors);
 
             //freight holder position
             if (!pRiserArm && riserArm) {
                 riserServoA.setPosition(1 - riserServoA.getPosition());
                 riserServoB.setPosition(1 - riserServoB.getPosition());
             }
-            pusherServo.setPosition(pusher ? 1 : 0);
+            pusherServo.setPosition(pusher ? 0.05 : 0);
             pRiserArm = riserArm;
 
             // TELEMETRY
+            /*
             telemetry.addData("Speed: ", restrictor==restrictorCap?"HIGH":"LOW");
             telemetry.addData("Riser position: ", (int)(riserPos/2880*975));
             telemetry.addData("Color: ","%d %d",lineSensor.blue()-lineSensor.green(), lineSensor.red()-lineSensor.green());
@@ -80,6 +85,8 @@ public class GigachadTeleOp extends TeleOpMode {
             telemetry.addData("Direct enabled: ", direct?"YES (x to disable)":"no (y to enable)");
             telemetry.update();
             //drive.update();
+
+             */
         }
     }
 }
