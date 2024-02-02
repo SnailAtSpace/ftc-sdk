@@ -25,8 +25,8 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     // constants
     final public double restrictorCap = 1;
-    final public double width = 380, length = 330, diag = Math.hypot(width, length);
-    final public double hWidth = width / 2, hLength = length / 2, hDiag = diag / 2, fieldHalf = 1800;
+    final public double width = 16.063, length = 17.126, diag = Math.hypot(width, length);
+    final public double hWidth = width / 2, hLength = length / 2, hDiag = diag / 2, fieldHalf = 36;
 
     // actuators
     public MecanumDrive drive;
@@ -48,9 +48,10 @@ public abstract class CommonOpMode extends LinearOpMode {
     public RevTouchSensor armLimiter;
 
     // i/o
-    double forward_axis, strafe_axis, turn_axis, riser_axis, collector_motors; // analog inputs
+    double forward_axis, strafe_axis, turn_axis, riser_axis, collector_axis; // analog inputs
     boolean riserArm, pusher; // digital inputs
     boolean pRiserArm, ppusher; // last-loop digital inputs
+    int collector, pCollector;
     double riserPos;
     double restrictor = restrictorCap;
 
@@ -106,14 +107,17 @@ public abstract class CommonOpMode extends LinearOpMode {
             riserServoA = hardwareMap.get(Servo.class, "riserServoA");
             riserServoB = hardwareMap.get(Servo.class, "riserServoB");
             pusherServo = hardwareMap.get(Servo.class, "pusherServo");
+            armLimiter = hardwareMap.get(RevTouchSensor.class, "armLimiter");
+
             riserMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             collectorMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             collectorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            armLimiter = hardwareMap.get(RevTouchSensor.class, "armLimiter");
+
             riserServoA.scaleRange(0.06, 0.57);
             riserServoB.scaleRange(0.06, 0.57);
-            pusherServo.scaleRange(0, 1);
+            pusherServo.scaleRange(0, 0.05);
+            riserServoA.setDirection(Servo.Direction.REVERSE); //BREAKING CHANGE, FIX IF NEEDED ================================================
         }
 
         public class ChangePos implements Action {
@@ -140,17 +144,45 @@ public abstract class CommonOpMode extends LinearOpMode {
                 }
             }
         }
-        public class ChangeArmState implements Action {
-            boolean toOpen;
 
-            public ChangeArmState(boolean a){
-                this.toOpen = a;
+        public Action changePos(int pos){
+            return new ChangePos(pos);
+        }
+
+        public class ChangeCassetteTilt implements Action {
+            int pos;
+
+            public ChangeCassetteTilt(int a){
+                this.pos = a;
             }
 
             @Override
             public boolean run(@NonNull TelemetryPacket telemetryPacket){
-                
+                riserServoA.setPosition(pos);
+                riserServoB.setPosition(pos);
+                return false;
             }
+        }
+
+        public Action changeCassetteTilt(int pos){
+            return new ChangeCassetteTilt(pos);
+        }
+
+        public class ChangePusherState implements Action {
+            boolean state; // false = closed, true = open
+
+            public ChangePusherState(boolean a){
+                this.state = a;
+            }
+            @Override
+            public boolean run(@NonNull TelemetryPacket telemetryPacket) {
+                pusherServo.setPosition(state?1:0);
+                return false;
+            }
+        }
+
+        public Action changePusherState(boolean state){
+            return new ChangePusherState(state);
         }
     }
 }
