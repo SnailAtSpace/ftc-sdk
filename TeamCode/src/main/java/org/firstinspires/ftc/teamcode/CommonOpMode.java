@@ -37,7 +37,8 @@ public abstract class CommonOpMode extends LinearOpMode {
     public BingusPipeline pipeline;
     public int rand = 0;
     public DuplexMotor riserMotor;
-    public DuplexMotor collectorMotor;
+    public DcMotorEx collectorMotor;
+    public DcMotor ledStrip;
     public Servo riserServoA, riserServoB, pusherServo;
     // TODO: изменить максимальную высоту подъёма в соответствии
     long upperArmLimit = 2840;
@@ -59,6 +60,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
         arm = new PlacementAssembly(hardwareMap);
         distanceSensor = hardwareMap.get(Rev2mDistanceSensor.class, "DistanceSensor");
+        //ledStrip = hardwareMap.get(DcMotor)
         //lineSensor = hardwareMap.get(RevColorSensorV3.class, "LineSensor");
 
         //lineSensor.initialize();
@@ -102,8 +104,7 @@ public abstract class CommonOpMode extends LinearOpMode {
         public PlacementAssembly(HardwareMap hardwareMap) {
             riserMotor = new DuplexMotor((DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotorA"),
                     (DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotorB"));
-            collectorMotor = new DuplexMotor((DcMotorEx) hardwareMap.get(DcMotor.class, "collectorMotorA"),
-                    (DcMotorEx) hardwareMap.get(DcMotor.class, "collectorMotorB"));
+            collectorMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "collectorMotor");
             riserServoA = hardwareMap.get(Servo.class, "riserServoA");
             riserServoB = hardwareMap.get(Servo.class, "riserServoB");
             pusherServo = hardwareMap.get(Servo.class, "pusherServo");
