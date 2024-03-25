@@ -105,7 +105,7 @@ public final class MecanumDrive {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new DriveLocalizer();
+        localizer = new ThreeDeadWheelLocalizer(hardwareMap, PARAMS.inPerTick, PARAMS.lateralInPerTick);
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
@@ -182,18 +182,18 @@ public final class MecanumDrive {
     public static class Params {
         // IMU orientation
         public RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.UP;
+                RevHubOrientationOnRobot.LogoFacingDirection.RIGHT;
         public RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.LEFT;
+                RevHubOrientationOnRobot.UsbFacingDirection.UP;
 
         // drive model parameters
-        public double inPerTick = 96.0/2311.5833;
-        public double lateralInPerTick =  96.0 /2185.0;
-        public double trackWidthTicks = 544.8462480423415;
+        public double inPerTick = 0.0029610133245599607;
+        public double lateralInPerTick = 0.004020699154908603;
+        public double trackWidthTicks = 3678.386370248036; //TODO
 
         // feedforward parameters (in tick units)
-        public double kS = 2.9730636047543824;
-        public double kV = 0.004268182949666133;
+        public double kS = 1.9281633940654728; //TODO
+        public double kV = 0.00028063352869561997;
         public double kA = 0;
 
         // path profile parameters (in inches)
@@ -206,9 +206,9 @@ public final class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 2.0;
-        public double lateralGain = 2.0;
-        public double headingGain = 2.0; // shared with turn
+        public double axialGain = 0.0;
+        public double lateralGain = 0.0;
+        public double headingGain = 0.0; // shared with turn
 
         public double axialVelGain = 0.0;
         public double lateralVelGain = 0.0;

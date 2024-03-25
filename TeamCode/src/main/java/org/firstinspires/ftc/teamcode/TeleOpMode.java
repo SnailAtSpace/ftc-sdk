@@ -14,6 +14,9 @@ public abstract class TeleOpMode extends CommonOpMode {
     }
 
     public static double logifyInput(double input, double power) {
+//        double absolute = Math.abs(input);
+//        if(absolute < 0.02) return 0;
         return Math.pow(Math.abs(input), power) * Math.signum(input);
+        //return (Math.exp(3*(absolute-1))+0.1)*Math.signum(input);
     }
 }

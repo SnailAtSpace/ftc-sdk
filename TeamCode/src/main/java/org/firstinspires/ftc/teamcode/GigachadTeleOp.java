@@ -17,8 +17,8 @@ public class GigachadTeleOp extends TeleOpMode {
         Initialize(hardwareMap);
         riserServoA.setPosition(0);
         riserServoB.setPosition(0);
-        pusherServo.setPosition(0);
-        launcherServo.setPosition(0);
+        pusherServo.setPosition(1);
+        //launcherServo.setPosition(0);
         riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //collectorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         //drive.update();
@@ -81,12 +81,14 @@ public class GigachadTeleOp extends TeleOpMode {
             }
             pusherServo.setPosition(pusher ? 0 : 1);
             pRiserArm = riserArm;
-            launcherServo.setPosition(gamepad1.right_trigger*5);
+            //launcherServo.setPosition(gamepad1.right_trigger*5);
+
+            ledStrip.setPower(3*armSensor.getLightDetected()-0.75);
             // TELEMETRY
 
             telemetry.addData("Speed: ", restrictor==restrictorCap?"HIGH":"LOW");
             telemetry.addData("Riser position: ", "%d %d", riserMotor.a.getCurrentPosition(), riserMotor.b.getCurrentPosition());
-            telemetry.addData("Color: ",lineSensor.getLightDetected());
+            telemetry.addData("Color: ", armSensor.getLightDetected());
             telemetry.addData("Button: ",armLimiter.isPressed());
             telemetry.addData("Direct enabled: ", direct?"YES (x to disable)":"no (y to enable)");
             telemetry.addData("Wheels: ", "%d %d %d %d", drive.leftFront.getCurrentPosition()

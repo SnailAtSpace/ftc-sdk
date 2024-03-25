@@ -45,7 +45,7 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     // sensors
     public Rev2mDistanceSensor distanceSensor;
-    public RevColorSensorV3 lineSensor;
+    public RevColorSensorV3 armSensor;
     public RevTouchSensor armLimiter;
 
     // i/o
@@ -59,11 +59,13 @@ public abstract class CommonOpMode extends LinearOpMode {
     public void Initialize(HardwareMap hardwareMap) {
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
         arm = new PlacementAssembly(hardwareMap);
-        distanceSensor = hardwareMap.get(Rev2mDistanceSensor.class, "DistanceSensor");
-        ledStrip = hardwareMap.get(DcMotor)
-        //lineSensor = hardwareMap.get(RevColorSensorV3.class, "LineSensor");
+        //
+        // distanceSensor = hardwareMap.get(Rev2mDistanceSensor.class, "DistanceSensor");
+        ledStrip = hardwareMap.get(DcMotor.class, "ledStrip");
+        ledStrip.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        armSensor = hardwareMap.get(RevColorSensorV3.class, "armSensor");
 
-        //lineSensor.initialize();
+        armSensor.initialize();
 
         //TODO: отрегулировать сервомоторы
 
@@ -118,7 +120,7 @@ public abstract class CommonOpMode extends LinearOpMode {
 
             riserServoA.scaleRange(lowerBound, upperBound);
             riserServoB.scaleRange(lowerBound, upperBound);
-            pusherServo.scaleRange(0.4, 0.45);
+            pusherServo.scaleRange(0.35 , 0.45);
             riserServoA.setDirection(Servo.Direction.REVERSE); //BREAKING CHANGE, FIX IF NEEDED ================================================
         }
 
