@@ -19,17 +19,17 @@ public class BingusPipeline extends OpenCvPipeline {
     double maxArea;
     double avgL,avgC,avgR;
     int isRed;
-    int xL=0, xC=213, xR=426, y=17; // TODO: отрегулировать начальные точки и размеры
-    final int offsetX=212,offsetY=60; // размер полей с отсчётом от нижней(?) левой точки
+    int xL=0, xC=240, xR=400, y=0; // TODO: отрегулировать начальные точки и размеры
+    final int offsetX=320,offsetY=180; // размер полей с отсчётом от нижней(?) левой точки
     Rect rL, rC, rR;
     private volatile int zone = 0;
     private volatile Mat img;
 
     public BingusPipeline(boolean isRed){
         this.isRed = isRed?1:2;
-        rL = new Rect(new Point(xL, y), new Point(xL+offsetX, y+offsetY));
-        rC = new Rect(new Point(xC, y), new Point(xC+offsetX, y+offsetY));
-        rR = new Rect(new Point(xR, y), new Point(xR+offsetX, y+offsetY));
+        rL = new Rect(new Point(xL, y), new Point(xL+offsetX, y+240));
+        rC = new Rect(new Point(xC, y), new Point(xC+offsetX, y+160));
+        rR = new Rect(new Point(xR, y), new Point(xR+offsetX, y+240));
     }
 
     public void init(Mat firstFrame){
@@ -60,6 +60,9 @@ public class BingusPipeline extends OpenCvPipeline {
         if(maxArea == avgR){
             zone = 2;
         }
+        draw(rL, input);
+        draw(rC, input);
+        draw(rR, input);
         return input;
     }
 

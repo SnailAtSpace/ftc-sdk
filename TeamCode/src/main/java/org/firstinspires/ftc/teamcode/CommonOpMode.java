@@ -37,10 +37,9 @@ public abstract class CommonOpMode extends LinearOpMode {
     public BingusPipeline pipeline;
     public int rand = 0;
     public DuplexMotor riserMotor;
-    public DuplexMotor collectorMotor;
-    public Servo riserServoA, riserServoB, pusherServo;
-    // TODO: изменить максимальную высоту подъёма в соответствии
-    long upperArmLimit = 2840;
+    public DcMotorEx collectorMotor;
+    public Servo riserServoA, riserServoB, pusherServo, launcherServo;
+    long upperArmLimit = 7600;
 
     // sensors
     public Rev2mDistanceSensor distanceSensor;
@@ -58,9 +57,11 @@ public abstract class CommonOpMode extends LinearOpMode {
     public void Initialize(HardwareMap hardwareMap) {
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
         arm = new PlacementAssembly(hardwareMap);
-        distanceSensor = hardwareMap.get(Rev2mDistanceSensor.class, "DistanceSensor");
-        //lineSensor = hardwareMap.get(RevColorSensorV3.class, "LineSensor");
-
+        //distanceSensor = hardwareMap.get(Rev2mDistanceSensor.class, "DistanceSensor");
+        lineSensor = hardwareMap.get(RevColorSensorV3.class, "armSensor");
+        launcherServo = hardwareMap.get(Servo.class, "launcherServo");
+        launcherServo.scaleRange(0.45, 0.51);
+        launcherServo.setDirection(Servo.Direction.REVERSE);
         //lineSensor.initialize();
 
         //TODO: отрегулировать сервомоторы
@@ -83,7 +84,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     public void camUp(){
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
         webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
-        pipeline = new BingusPipeline(true); //FIXME: isRed isn't always true
+        pipeline = new BingusPipeline(false); //FIXME: isRed isn't always true
         webcam.setPipeline(pipeline);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
@@ -100,6 +101,7 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public class PlacementAssembly{
         public PlacementAssembly(HardwareMap hardwareMap) {
+            double upperBound = 1, lowerBound = 0.14;
             riserMotor = new DuplexMotor((DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotorA"),
                     (DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotorB"));
             collectorMotor = new DuplexMotor((DcMotorEx) hardwareMap.get(DcMotor.class, "collectorMotorA"),
@@ -114,9 +116,9 @@ public abstract class CommonOpMode extends LinearOpMode {
             collectorMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             collectorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-            riserServoA.scaleRange(0.06, 0.57);
-            riserServoB.scaleRange(0.06, 0.57);
-            pusherServo.scaleRange(0, 0.05);
+            riserServoA.scaleRange(lowerBound, upperBound);
+            riserServoB.scaleRange(lowerBound, upperBound);
+            pusherServo.scaleRange(0.4, 0.45);
             riserServoA.setDirection(Servo.Direction.REVERSE); //BREAKING CHANGE, FIX IF NEEDED ================================================
         }
 
@@ -184,5 +186,17 @@ public abstract class CommonOpMode extends LinearOpMode {
         public Action changePusherState(boolean state){
             return new ChangePusherState(state);
         }
+
+        public class DispenseViaCollector implements Action {
+            ElapsedTime timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+            boolean started = false;
+            public boolean run(@NonNull TelemetryPacket telemetryPacket){
+                collectorMotor.setPower(0.1);
+                if(!started){timer.reset(); started = true;}
+                return timer.time() < 200;
+            }
+        }
+
+        public Action dispenseViaCollector() { return new DispenseViaCollector();}
     }
 }
