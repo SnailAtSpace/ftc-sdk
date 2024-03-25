@@ -38,7 +38,9 @@ public abstract class CommonOpMode extends LinearOpMode {
     public int rand = 0;
     public DuplexMotor riserMotor;
     public DcMotorEx collectorMotor;
-    public Servo riserServoA, riserServoB, pusherServo, launcherServo;
+    public DcMotor ledStrip;
+    public Servo riserServoA, riserServoB, pusherServo;
+    // TODO: изменить максимальную высоту подъёма в соответствии
     long upperArmLimit = 7600;
 
     // sensors
@@ -57,11 +59,10 @@ public abstract class CommonOpMode extends LinearOpMode {
     public void Initialize(HardwareMap hardwareMap) {
         drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
         arm = new PlacementAssembly(hardwareMap);
-        //distanceSensor = hardwareMap.get(Rev2mDistanceSensor.class, "DistanceSensor");
-        lineSensor = hardwareMap.get(RevColorSensorV3.class, "armSensor");
-        launcherServo = hardwareMap.get(Servo.class, "launcherServo");
-        launcherServo.scaleRange(0.45, 0.51);
-        launcherServo.setDirection(Servo.Direction.REVERSE);
+        distanceSensor = hardwareMap.get(Rev2mDistanceSensor.class, "DistanceSensor");
+        ledStrip = hardwareMap.get(DcMotor)
+        //lineSensor = hardwareMap.get(RevColorSensorV3.class, "LineSensor");
+
         //lineSensor.initialize();
 
         //TODO: отрегулировать сервомоторы
@@ -104,8 +105,7 @@ public abstract class CommonOpMode extends LinearOpMode {
             double upperBound = 1, lowerBound = 0.14;
             riserMotor = new DuplexMotor((DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotorA"),
                     (DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotorB"));
-            collectorMotor = new DuplexMotor((DcMotorEx) hardwareMap.get(DcMotor.class, "collectorMotorA"),
-                    (DcMotorEx) hardwareMap.get(DcMotor.class, "collectorMotorB"));
+            collectorMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "collectorMotor");
             riserServoA = hardwareMap.get(Servo.class, "riserServoA");
             riserServoB = hardwareMap.get(Servo.class, "riserServoB");
             pusherServo = hardwareMap.get(Servo.class, "pusherServo");
