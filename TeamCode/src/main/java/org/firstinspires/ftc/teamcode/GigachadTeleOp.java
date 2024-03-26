@@ -17,7 +17,7 @@ public class GigachadTeleOp extends TeleOpMode {
         Initialize(hardwareMap);
         riserServoA.setPosition(0);
         riserServoB.setPosition(0);
-        pusherServo.setPosition(1);
+        pusherServo.setPosition(0);
         //launcherServo.setPosition(0);
         riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         collectorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -37,7 +37,7 @@ public class GigachadTeleOp extends TeleOpMode {
             turn_axis = 0.75 * logifyInput(gamepad1.right_stick_x, 2.718);
             riserArm = gamepad2.right_trigger > 0.1;
             pusher = gamepad2.right_bumper;
-            riser_axis = -(gamepad2.right_stick_y > 0 ? 1 : 1) * gamepad2.right_stick_y;
+            riser_axis = (gamepad2.right_stick_y > 0 ? 1 : 1) * gamepad2.right_stick_y;
             riserPos = riserMotor.getCurrentPosition();
             collector_axis = logifyInput(gamepad2.left_stick_y, 2.718);
             collector = (gamepad2.dpad_up?1:0)-(gamepad2.dpad_down?1:0);
