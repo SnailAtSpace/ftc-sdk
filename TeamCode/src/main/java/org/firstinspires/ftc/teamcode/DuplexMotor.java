@@ -204,7 +204,7 @@ public class DuplexMotor implements DcMotorEx {
     @Override
     public void setDirection(Direction direction) {
         a.setDirection(direction);
-        b.setDirection(direction == Direction.FORWARD ? Direction.REVERSE : Direction.FORWARD);
+        b.setDirection(direction != Direction.FORWARD ? Direction.REVERSE : Direction.FORWARD);
     }
 
     @Override

@@ -20,7 +20,8 @@ public class GigachadTeleOp extends TeleOpMode {
         pusherServo.setPosition(1);
         //launcherServo.setPosition(0);
         riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        //collectorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        collectorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         //drive.update();
         waitForStart();
         while (opModeIsActive()) {
@@ -36,8 +37,8 @@ public class GigachadTeleOp extends TeleOpMode {
             turn_axis = 0.75 * logifyInput(gamepad1.right_stick_x, 2.718);
             riserArm = gamepad2.right_trigger > 0.1;
             pusher = gamepad2.right_bumper;
-            riser_axis = (gamepad2.right_stick_y > 0 ? 1 : 1) * gamepad2.right_stick_y;
-            riserPos = -riserMotor.getCurrentPosition();
+            riser_axis = -(gamepad2.right_stick_y > 0 ? 1 : 1) * gamepad2.right_stick_y;
+            riserPos = riserMotor.getCurrentPosition();
             collector_axis = logifyInput(gamepad2.left_stick_y, 2.718);
             collector = (gamepad2.dpad_up?1:0)-(gamepad2.dpad_down?1:0);
 
@@ -68,7 +69,7 @@ public class GigachadTeleOp extends TeleOpMode {
                     -turn_axis * restrictor
             ));
             riserMotor.setPower(riser_axis);
-            collectorMotor.setPower(collector_axis>0?collector_axis*0.75:collector_axis*0.15);
+            collectorMotor.setPower(collector_axis>0?collector_axis:collector_axis*0.35);
             // OR
 //            if(pCollector != collector && collector != 0){
 //                collectorMotor.setPower((collector*0.5-Math.abs(collectorMotor.getPower())*Math.signum(Math.signum(collectorMotor.getPower())+collector)));
