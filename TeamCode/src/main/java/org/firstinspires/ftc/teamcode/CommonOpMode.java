@@ -113,7 +113,7 @@ public abstract class CommonOpMode extends LinearOpMode {
             pusherServo = hardwareMap.get(Servo.class, "pusherServo");
             armLimiter = hardwareMap.get(RevTouchSensor.class, "armLimiter");
 
-            riserMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+            riserMotor.setDirection(DcMotorSimple.Direction.REVERSE);
             riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             collectorMotor.setDirection(DcMotorSimple.Direction.FORWARD);
             collectorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
