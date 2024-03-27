@@ -26,6 +26,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     // constants
     final public double restrictorCap = 1;
     final public double width = 16.063, length = 17.126, diag = Math.hypot(width, length);
+    final public double fDist = 249.9 / 25.4, rDist = 204 / 25.4, sDist = 181 / 25.4;
     final public double hWidth = width / 2, hLength = length / 2, hDiag = diag / 2, fieldHalf = 36;
 
     // actuators
@@ -104,7 +105,7 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public class PlacementAssembly{
         public PlacementAssembly(HardwareMap hardwareMap) {
-            double upperBound = 1, lowerBound = 0.14;
+            double upperBound = 0, lowerBound = 0.86;
             riserMotor = new DuplexMotor((DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotorA"),
                     (DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotorB"));
             collectorMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "collectorMotor");
@@ -120,8 +121,8 @@ public abstract class CommonOpMode extends LinearOpMode {
 
             riserServoA.scaleRange(lowerBound, upperBound);
             riserServoB.scaleRange(lowerBound, upperBound);
-            pusherServo.scaleRange(0.35 , 0.45);
-            riserServoA.setDirection(Servo.Direction.REVERSE); //BREAKING CHANGE, FIX IF NEEDED ================================================
+            pusherServo.scaleRange(0.35, 0.45);
+            riserServoB.setDirection(Servo.Direction.REVERSE); //BREAKING CHANGE, FIX IF NEEDED ================================================
         }
 
         public class ChangePos implements Action {

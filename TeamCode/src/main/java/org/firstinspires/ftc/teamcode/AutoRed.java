@@ -15,8 +15,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.ArrayList;
 
-@Autonomous(name = "Blue mf", preselectTeleOp = "Toyota Mark II Simulation")
-public class AutoSomething extends CommonOpMode {
+@Autonomous(name = "Red mf", preselectTeleOp = "Toyota Mark II Simulation")
+public class AutoRed extends CommonOpMode {
     // TODO: определение, парковка
     // рандомизация -> опа ставим жёлтый на спот -> опа ставим фиолетовый на рандомизацию -> паркуемся
 
@@ -122,7 +122,7 @@ public class AutoSomething extends CommonOpMode {
         safeSleep(600);
         drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0,0),0));
 */
-        while(opModeIsActive() && !isStopRequested()){
+        while (opModeIsActive() && !isStopRequested()) {
             idle();
         }
     }

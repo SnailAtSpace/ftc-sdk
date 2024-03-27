@@ -6,6 +6,7 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 @TeleOp(name="Toyota Mark II Simulation")
 public class GigachadTeleOp extends TeleOpMode {
@@ -22,6 +23,7 @@ public class GigachadTeleOp extends TeleOpMode {
         riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         collectorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        ledStrip.setDirection(DcMotorSimple.Direction.REVERSE);
         //drive.update();
         waitForStart();
         while (opModeIsActive()) {
@@ -37,21 +39,21 @@ public class GigachadTeleOp extends TeleOpMode {
             turn_axis = 0.75 * logifyInput(gamepad1.right_stick_x, 2.718);
             riserArm = gamepad2.right_trigger > 0.1;
             pusher = gamepad2.right_bumper;
-            riser_axis = (gamepad2.right_stick_y > 0 ? 1 : 1) * gamepad2.right_stick_y;
-            riserPos = riserMotor.getCurrentPosition();
+            riser_axis = -(gamepad2.right_stick_y > 0 ? 0.8 : 1) * gamepad2.right_stick_y;
+            riserPos = -riserMotor.getCurrentPosition();
             collector_axis = logifyInput(gamepad2.left_stick_y, 2.718);
-            collector = (gamepad2.dpad_up?1:0)-(gamepad2.dpad_down?1:0);
+            collector = (gamepad2.dpad_up ? 1 : 0) - (gamepad2.dpad_down ? 1 : 0);
 
             // RISER SAFETY
-                if (armLimiter.isPressed()) {
-                    riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                }
+            if (armLimiter.isPressed()) {
+                riserMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }
             if (!direct) {
                 if (riserPos <= 20) {
                     riser_axis = Math.min(0, riser_axis);
                 }
-                if (riserPos<2000){
+                if (riserPos < 2000) {
                     restrictor = restrictorCap;
                 } else restrictor = 0.33;
                 if (riserPos > upperArmLimit) {
