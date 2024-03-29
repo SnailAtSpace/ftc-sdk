@@ -37,7 +37,8 @@ public final class TwoDeadWheelLocalizer implements Localizer {
 
         // TODO: reverse encoder directions if needed
         //   par.setDirection(DcMotorSimple.Direction.REVERSE);
-        perp.setDirection(DcMotorSimple.Direction.REVERSE);
+        //perp.setDirection(DcMotorSimple.Direction.REVERSE);
+        par.setDirection(DcMotorSimple.Direction.REVERSE);
 
         this.imu = imu;
 
@@ -97,7 +98,7 @@ public final class TwoDeadWheelLocalizer implements Localizer {
     }
 
     public static class Params {
-        public double parYTicks = 1595.5746940892163; // y position of the parallel encoder (in tick units)
-        public double perpXTicks = -477.5631693390999; // x position of the perpendicular encoder (in tick units)
+        public double parYTicks = -1595.5746940892163; // y position of the parallel encoder (in tick units)
+        public double perpXTicks = 477.5631693390999; // x position of the perpendicular encoder (in tick units)
     }
 }

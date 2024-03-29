@@ -25,9 +25,9 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     // constants
     final public double restrictorCap = 1;
-    final public double width = 16.063, length = 17.126, diag = Math.hypot(width, length);
-    final public double fDist = 249.9 / 25.4, rDist = 204 / 25.4, sDist = 181 / 25.4;
-    final public double hWidth = width / 2, hLength = length / 2, hDiag = diag / 2, fieldHalf = 36;
+    final public double width = 362 / 25.4, length = 454 / 25.4, diag = Math.hypot(width, length);
+    final public double rDist = 250 / 25.4, fDist = 204 / 25.4, sDist = 181 / 25.4, rDiag = 310 / 25.4, fDiag = 273 / 25.4;
+    final public double hWidth = width / 2, hLength = length / 2, hDiag = diag / 2, fieldHalf = 72;
 
     // actuators
     public MecanumDrive drive;
@@ -42,7 +42,7 @@ public abstract class CommonOpMode extends LinearOpMode {
     public DcMotor ledStrip;
     public Servo riserServoA, riserServoB, pusherServo;
     // TODO: изменить максимальную высоту подъёма в соответствии
-    long upperArmLimit = 7600;
+    long upperArmLimit = 2310;
 
     // sensors
     public Rev2mDistanceSensor distanceSensor;
@@ -105,7 +105,7 @@ public abstract class CommonOpMode extends LinearOpMode {
 
     public class PlacementAssembly{
         public PlacementAssembly(HardwareMap hardwareMap) {
-            double upperBound = 0, lowerBound = 0.86;
+            double upperBound = 1, lowerBound = 0.15;
             riserMotor = new DuplexMotor((DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotorA"),
                     (DcMotorEx) hardwareMap.get(DcMotor.class, "riserMotorB"));
             collectorMotor = (DcMotorEx) hardwareMap.get(DcMotor.class, "collectorMotor");
@@ -121,7 +121,7 @@ public abstract class CommonOpMode extends LinearOpMode {
 
             riserServoA.scaleRange(lowerBound, upperBound);
             riserServoB.scaleRange(lowerBound, upperBound);
-            pusherServo.scaleRange(0.35, 0.45);
+            pusherServo.scaleRange(0.35, 0.4);
             riserServoB.setDirection(Servo.Direction.REVERSE); //BREAKING CHANGE, FIX IF NEEDED ================================================
         }
 
@@ -194,7 +194,7 @@ public abstract class CommonOpMode extends LinearOpMode {
             ElapsedTime timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
             boolean started = false;
             public boolean run(@NonNull TelemetryPacket telemetryPacket){
-                collectorMotor.setPower(0.1);
+                collectorMotor.setPower(0.35);
                 if(!started){timer.reset(); started = true;}
                 return timer.time() < 200;
             }

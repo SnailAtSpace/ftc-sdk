@@ -12,31 +12,29 @@ import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
 
 public class BingusPipeline extends OpenCvPipeline {
-    Mat scanAreaLeft = new Mat(),scanAreaCenter = new Mat(),scanAreaRight = new Mat();
+    Mat scanAreaLeft = new Mat(), scanAreaCenter = new Mat();
     Mat YCrCb = new Mat();
     Mat Ctgt = new Mat();
     Mat frame = new Mat();
     double maxArea;
-    double avgL,avgC,avgR;
+    double avgL, avgC;
     int isRed;
-    int xL=0, xC=240, xR=400, y=0; // TODO: отрегулировать начальные точки и размеры
-    final int offsetX=320,offsetY=180; // размер полей с отсчётом от нижней(?) левой точки
-    Rect rL, rC, rR;
+    int xL = 133, xC = 221 + 320, y = 160, yC = 120; // TODO: отрегулировать начальные точки и размеры
+    final int offsetX = 20, offsetY = 20; // размер полей с отсчётом от нижней(?) левой точки
+    Rect rL, rC;
     private volatile int zone = 0;
     private volatile Mat img;
 
-    public BingusPipeline(boolean isRed){
-        this.isRed = isRed?1:2;
-        rL = new Rect(new Point(xL, y), new Point(xL+offsetX, y+240));
-        rC = new Rect(new Point(xC, y), new Point(xC+offsetX, y+160));
-        rR = new Rect(new Point(xR, y), new Point(xR+offsetX, y+240));
+    public BingusPipeline(boolean isRed) {
+        this.isRed = isRed ? 1 : 2;
+        rL = new Rect(new Point(xL - offsetX, y - offsetY), new Point(xL + offsetX, y + offsetY));
+        rC = new Rect(new Point(xC - offsetX, yC - offsetY), new Point(xC + offsetY, yC + offsetY));
     }
 
-    public void init(Mat firstFrame){
+    public void init(Mat firstFrame) {
         inputToCb(firstFrame);
         scanAreaLeft = Ctgt.submat(rL);
         scanAreaCenter = Ctgt.submat(rC);
-        scanAreaRight = Ctgt.submat(rR);
     }
 
     void inputToCb(Mat input) {
@@ -49,20 +47,11 @@ public class BingusPipeline extends OpenCvPipeline {
         inputToCb(input);
         avgL = Core.mean(scanAreaLeft).val[0];
         avgC = Core.mean(scanAreaCenter).val[0];
-        avgR = Core.mean(scanAreaRight).val[0];
-        maxArea = Math.max(avgL, Math.max(avgC, avgR));
-        if(maxArea == avgL){
-            zone = 0;
-        }
-        if(maxArea == avgC){
-            zone = 1;
-        }
-        if(maxArea == avgR){
-            zone = 2;
-        }
+        if (avgL > 120) zone = 0;
+        else if (avgC > 120) zone = 1;
+        else zone = 2;
         draw(rL, input);
         draw(rC, input);
-        draw(rR, input);
         return input;
     }
 
@@ -77,13 +66,13 @@ public class BingusPipeline extends OpenCvPipeline {
     @SuppressLint("DefaultLocale")
     public int ComposeTelemetry(Telemetry telemetry){
         telemetry.addData("Best guess of duck position: ", getAnal());
-        telemetry.addData("Vals: ",String.format("%1$.2f %2$.2f %3$.2f", avgL, avgC, avgR));
+        telemetry.addData("Vals: ", String.format("%1$.2f %2$.2f", avgL, avgC));
         telemetry.update();
         return getAnal();
     }
 
     private void draw(Rect r, Mat i){
-        Imgproc.rectangle(i,r,new Scalar(255, 255, 255),2);
+        Imgproc.rectangle(i, r, new Scalar(0, 0, 255), 2);
     }
 }
 

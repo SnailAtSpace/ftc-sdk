@@ -17,7 +17,6 @@ import java.util.ArrayList;
 
 @Autonomous(name = "Blue mf", preselectTeleOp = "Toyota Mark II Simulation")
 public class AutoSomething extends CommonOpMode {
-    // TODO: определение, парковка
     // рандомизация -> опа ставим жёлтый на спот -> опа ставим фиолетовый на рандомизацию -> паркуемся
 
     private AprilTagProcessor apriltag;
@@ -28,57 +27,68 @@ public class AutoSomething extends CommonOpMode {
     public void runOpMode() throws InterruptedException {
         Initialize(hardwareMap);
         riserServoA.setPosition(0);
-        riserServoB.setPosition(1);
-        drive.pose = new Pose2d(24 - sDist, 72 - fDist, 0.5 * Math.PI); // выравниваемся по **внешней** части
-        initAprilTag();
-        visionPortal.stopStreaming();
+        riserServoB.setPosition(0);
+        drive.pose = new Pose2d(24 - sDist, 72 - rDist, 1.5 * Math.PI); // выравниваемся по **внешней** части
         telemetry.addLine("Hold on...");
         telemetry.update();
         sleep(1000);
         camUp();
         rand = 0;
-        Action okipullup = drive.actionBuilder(drive.pose) // FIXME: replace drive.pose with the starting pose
+        Action okipullup = drive.actionBuilder(drive.pose)
                 .setTangent(1.5 * Math.PI)
-                .splineToLinearHeading(new Pose2d(42, -36, Math.PI), 0)
-                .stopAndAdd(arm.changePos(-2000)) // TODO: check this for a possible sign error!
+                .splineToLinearHeading(new Pose2d(42, 36, 0), 0)
+                //.stopAndAdd(arm.changePos(500))
                 .build();
-        Action emergencyParking = drive.actionBuilder(drive.pose)
+        Action afterpartyL = drive.actionBuilder(new Pose2d(72 - 11.25 + 3.25 * 0.577 - fDist,
+                        42, 0))
+                .lineToX(48)
                 .setTangent(1.5 * Math.PI)
-                .splineToConstantHeading(new Vector2d(60, 12), Math.PI)
+                .splineToLinearHeading(new Pose2d(24, 12, 1.5 * Math.PI), Math.PI)
+                .waitSeconds(3)
+                .setTangent(0.5 * Math.PI)
+                .splineToConstantHeading(new Vector2d(24, 24), 0.5 * Math.PI)
+                //.stopAndAdd(arm.dispenseViaCollector())
+                .waitSeconds(1)
                 .build();
-        Action turn = drive.actionBuilder(new Pose2d(0, 0, -0.5 * Math.PI))
-                .turnTo(0)
+        Action afterpartyC = drive.actionBuilder(new Pose2d(72 - 11.25 + 3.25 * 0.577 - fDist,
+                        36, 0))
+                .lineToX(48)
+                .setTangent(1.5 * Math.PI)
+                .splineToLinearHeading(new Pose2d(24, 12, 1.5 * Math.PI), Math.PI)
+                .waitSeconds(3)
+                .lineToY(24)
+                //.stopAndAdd(arm.dispenseViaCollector())
+                .waitSeconds(1)
                 .build();
-
+        Action afterpartyR = drive.actionBuilder(new Pose2d(72 - 11.25 + 3.25 * 0.577 - fDist,
+                        30, 0))
+                .lineToX(48)
+                .setTangent(1.5 * Math.PI)
+                .splineToLinearHeading(new Pose2d(24, 12, 0), Math.PI)
+                .waitSeconds(5)
+                .setTangent(0.5 * Math.PI)
+                .splineToConstantHeading(new Vector2d(rDist + 1, 24 + sDist), Math.PI)
+                //.stopAndAdd(arm.dispenseViaCollector())
+                .waitSeconds(1)
+                .build();
+        Action[] lines = {afterpartyL, afterpartyC, afterpartyR};
         while (opModeInInit()) {
             rand = pipeline.ComposeTelemetry(telemetry);
             // 0;
         }
-        double what = 12 / drive.voltageSensor.getVoltage();
-        webcam.closeCameraDeviceAsync(() -> {
-            // IT'S TIME TO RANCH IT UP
-            visionPortal.resumeStreaming();
-        });
+        //double what = 12 / drive.voltageSensor.getVoltage();
+        // IT'S TIME TO RANCH IT UP
+        webcam.closeCameraDeviceAsync(this::initAprilTag);
 
-        Action iDrive = drive.actionBuilder(new Pose2d(42, -36, 0))
-                .splineToLinearHeading(new Pose2d(72 - 11.25 + 3.25 * 0.577 - hLength,
-                        -36 - (rand - 1) * 6, 0), 0)
+        Action iDrive = drive.actionBuilder(new Pose2d(42, 36, 0))
+                .splineToConstantHeading(new Vector2d(72 - 11.25 + 4.75 * 0.577 - fDist,
+                        36 - (rand - 1) * 6), 0)
                 //.stopAndAdd(arm.changePusherState(true))
-                .afterTime(0.5, arm.changePusherState(true))
-                .afterTime(0.01, arm.changePusherState(false))
+                //.afterTime(0.5, arm.changePusherState(true))
+                //.afterTime(0.01, arm.changePusherState(false))
                 .build();
-        Action afterpartyL = drive.actionBuilder(new Pose2d(72 - 11.25 + 3.25 * 0.577 - hLength,
-                        -36 - (rand - 1) * 6, 0))
-                .setTangent(0.75 * Math.PI)
-                .splineToLinearHeading(new Pose2d(12, -12, 1 * Math.PI), Math.PI)
-                .waitSeconds(3)
-                .setTangent(1.5 * Math.PI)
-                .splineToConstantHeading(new Vector2d(hLength, -15), Math.PI)
-                .stopAndAdd(arm.changePusherState(true))
-                .waitSeconds(1)
-                .build();
-        Action cyaLaterAlligator = drive.actionBuilder(new Pose2d(new Vector2d(hLength, -15), Math.PI))
-                .splineToConstantHeading(new Vector2d(60, -12), 0)
+        Action cyaLaterAlligator = drive.actionBuilder(new Pose2d(new Vector2d(hLength, 15), 0.5 * Math.PI))
+                .splineToConstantHeading(new Vector2d(60, 6), 0)
                 .build();
 
         Actions.runBlocking(okipullup);// to observation point
@@ -87,17 +97,19 @@ public class AutoSomething extends CommonOpMode {
         for (AprilTagDetection d : detections) {
             if ((d.id - 1) % 3 == rand) { // rei-amayado what in the world
                 double range2d = Math.hypot(d.ftcPose.x, d.ftcPose.y);
-                drive.pose = new Pose2d(72 - 11.25 + 4.75 * 0.577 - range2d * Math.cos(d.ftcPose.yaw - d.ftcPose.bearing) - rDist,
-                        36 - (rand - 1) * 6 - range2d * Math.sin(Math.abs(d.ftcPose.yaw - d.ftcPose.bearing)),
-                        -d.ftcPose.yaw); //FIXME check me!!! changed camera pos and so on
+                drive.pose = new Pose2d(72 - 11.25 + 4.75 * 0.577 - range2d * Math.cos(d.ftcPose.yaw - d.ftcPose.bearing) - fDist * Math.cos(d.ftcPose.yaw),
+                        36 - (rand - 1) * 6 - range2d * Math.sin(Math.abs(d.ftcPose.yaw - d.ftcPose.bearing) + fDist * Math.sin(d.ftcPose.yaw)),
+                        -d.ftcPose.yaw);
             }
         }
         Actions.runBlocking(new SequentialAction(
-                new ParallelAction(arm.changeCassetteTilt(1), iDrive),
-                new ParallelAction(afterpartyL, arm.changePos(-1230)),
-                new ParallelAction(cyaLaterAlligator, arm.changePos(0), arm.changeCassetteTilt(0), arm.changePusherState(false))
+                //arm.changeCassetteTilt(1)
+                new ParallelAction(iDrive), // to backstage
+                //arm.changePos(0), arm.changeCassetteTilt(0)
+                new ParallelAction(lines[rand]), // to *the lines*
+                //arm.changePos(0), arm.changeCassetteTilt(0), arm.changePusherState(false)
+                new ParallelAction(cyaLaterAlligator) // parking
         ));
-        //Actions.runBlocking(emergencyParking);
 /*
         riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         riserMotor.setPower(-1);

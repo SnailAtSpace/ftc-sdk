@@ -6,15 +6,16 @@ import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 @TeleOp(name="Toyota Mark II Simulation")
 public class GigachadTeleOp extends TeleOpMode {
     @SuppressLint("DefaultLocale")
     @Override
     public void runOpMode() {
-        double funny = 0.5;
+//        double funny = 0.5;
         boolean direct = false;
+        ElapsedTime timer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         Initialize(hardwareMap);
         riserServoA.setPosition(0);
         riserServoB.setPosition(0);
@@ -23,7 +24,7 @@ public class GigachadTeleOp extends TeleOpMode {
         riserMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         collectorMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        ledStrip.setDirection(DcMotorSimple.Direction.REVERSE);
+        //ledStrip.setDirection(DcMotorSimple.Direction.REVERSE);
         //drive.update();
         waitForStart();
         while (opModeIsActive()) {
@@ -34,15 +35,15 @@ public class GigachadTeleOp extends TeleOpMode {
                 direct = false;
             }
             // INPUT GATHERING
-            forward_axis = logifyInput(gamepad1.left_stick_y, 2.718);
-            strafe_axis = logifyInput(gamepad1.left_stick_x, 2.718);
+            forward_axis = -logifyInput(gamepad1.left_stick_y, 2.718);
+            strafe_axis = -logifyInput(gamepad1.left_stick_x, 2.718);
             turn_axis = 0.75 * logifyInput(gamepad1.right_stick_x, 2.718);
             riserArm = gamepad2.right_trigger > 0.1;
             pusher = gamepad2.right_bumper;
-            riser_axis = -(gamepad2.right_stick_y > 0 ? 0.8 : 1) * gamepad2.right_stick_y;
-            riserPos = -riserMotor.getCurrentPosition();
+            riser_axis = (gamepad2.right_stick_y > 0 ? 0.8 : 1) * gamepad2.right_stick_y;
+            riserPos = riserMotor.getCurrentPosition();
             collector_axis = logifyInput(gamepad2.left_stick_y, 2.718);
-            collector = (gamepad2.dpad_up ? 1 : 0) - (gamepad2.dpad_down ? 1 : 0);
+            //collector = (gamepad2.dpad_up ? 1 : 0) - (gamepad2.dpad_down ? 1 : 0);
 
             // RISER SAFETY
             if (armLimiter.isPressed()) {
@@ -50,10 +51,10 @@ public class GigachadTeleOp extends TeleOpMode {
                 riserMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
             if (!direct) {
-                if (riserPos <= 20) {
+                if (riserPos <= 10) {
                     riser_axis = Math.min(0, riser_axis);
                 }
-                if (riserPos < 2000) {
+                if (riserPos < 1000) {
                     restrictor = restrictorCap;
                 } else restrictor = 0.33;
                 if (riserPos > upperArmLimit) {
@@ -71,6 +72,7 @@ public class GigachadTeleOp extends TeleOpMode {
                     -turn_axis * restrictor
             ));
             riserMotor.setPower(riser_axis);
+            if (timer.time() > 800 && collector_axis > 0) collector_axis *= -1;
             collectorMotor.setPower(collector_axis>0?collector_axis:collector_axis*0.35);
             // OR
 //            if(pCollector != collector && collector != 0){
@@ -85,19 +87,25 @@ public class GigachadTeleOp extends TeleOpMode {
             pusherServo.setPosition(pusher ? 0 : 1);
             pRiserArm = riserArm;
             //launcherServo.setPosition(gamepad1.right_trigger*5);
-
-            ledStrip.setPower(3*armSensor.getLightDetected()-0.75);
+            if (armSensor.getLightDetected() < 0.5) timer.reset();
+            ledStrip.setPower(-(timer.time() - 100) / 700);
             // TELEMETRY
+            if (gamepad1.a) {
+                riserMotor.setPower(0.22);
+                drive.setDrivePowers(new PoseVelocity2d(new Vector2d(0, 0), 0));
+                while (opModeIsActive() && !isStopRequested()) {
+                }
+            }
 
-            telemetry.addData("Speed: ", restrictor==restrictorCap?"HIGH":"LOW");
-            telemetry.addData("Riser position: ", "%d %d", riserMotor.a.getCurrentPosition(), riserMotor.b.getCurrentPosition());
-            telemetry.addData("Color: ", armSensor.getLightDetected());
-            telemetry.addData("Button: ",armLimiter.isPressed());
-            telemetry.addData("Direct enabled: ", direct?"YES (x to disable)":"no (y to enable)");
-            telemetry.addData("Wheels: ", "%d %d %d %d", drive.leftFront.getCurrentPosition()
-                    , drive.leftBack.getCurrentPosition()
-                    , drive.rightFront.getCurrentPosition()
-                    , drive.rightBack.getCurrentPosition());
+//            telemetry.addData("Speed: ", restrictor==restrictorCap?"HIGH":"LOW");
+//            telemetry.addData("Riser position: ", "%d %d", riserMotor.a.getCurrentPosition(), riserMotor.b.getCurrentPosition());
+//            telemetry.addData("Color: ", armSensor.getLightDetected());
+            telemetry.addData("Button: ", armLimiter.isPressed());
+            telemetry.addData("Direct enabled: ", direct ? "YES (x to disable)" : "no (y to enable)");
+//            telemetry.addData("Wheels: ", "%d %d %d %d", drive.leftFront.getCurrentPosition()
+//                    , drive.leftBack.getCurrentPosition()
+//                    , drive.rightFront.getCurrentPosition()
+//                    , drive.rightBack.getCurrentPosition());
             telemetry.update();
             //drive.update();
 

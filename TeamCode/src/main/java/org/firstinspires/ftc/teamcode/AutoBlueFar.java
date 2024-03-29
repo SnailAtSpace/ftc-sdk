@@ -15,8 +15,8 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.ArrayList;
 
-@Autonomous(name = "Red mf", preselectTeleOp = "Toyota Mark II Simulation")
-public class AutoRed extends CommonOpMode {
+@Autonomous(name = "Blue mf (far)", preselectTeleOp = "Toyota Mark II Simulation")
+public class AutoBlueFar extends CommonOpMode {
     // рандомизация -> опа ставим жёлтый на спот -> опа ставим фиолетовый на рандомизацию -> паркуемся
 
     private AprilTagProcessor apriltag;
@@ -28,50 +28,36 @@ public class AutoRed extends CommonOpMode {
         Initialize(hardwareMap);
         riserServoA.setPosition(0);
         riserServoB.setPosition(0);
-        drive.pose = new Pose2d(24 - sDist, -72 + rDist, 0.5 * Math.PI); // выравниваемся по **внешней** части
+        drive.pose = new Pose2d(-24 - sDist, 72 - rDist, 1.5 * Math.PI); // выравниваемся по **внешней** части
         telemetry.addLine("Hold on...");
         telemetry.update();
         sleep(1000);
         camUp();
         rand = 0;
         Action okipullup = drive.actionBuilder(drive.pose)
-                .setTangent(0.5 * Math.PI)
-                .splineToLinearHeading(new Pose2d(42, -36, 0), 0)
+                .setTangent(1.5 * Math.PI)
+                .splineToLinearHeading(new Pose2d(42, 36, 0), 0)
                 .stopAndAdd(arm.changePos(500))
                 .build();
-        Action afterpartyR = drive.actionBuilder(new Pose2d(72 - 11.25 + 3.25 * 0.577 - fDist,
-                        -42, 0))
-                .lineToX(48)
-                .setTangent(0.5 * Math.PI)
-                .splineToLinearHeading(new Pose2d(24, -12, 0.5 * Math.PI), Math.PI)
-                .waitSeconds(3)
+        Action afterpartyL = drive.actionBuilder(drive.pose)
                 .setTangent(1.5 * Math.PI)
-                .splineToConstantHeading(new Vector2d(24, -24), 1.5 * Math.PI)
+                .splineToLinearHeading(new Pose2d(-24, 36, 0.5 * Math.PI), 0)
                 .stopAndAdd(arm.dispenseViaCollector())
                 .waitSeconds(1)
                 .build();
-        Action afterpartyC = drive.actionBuilder(new Pose2d(72 - 11.25 + 3.25 * 0.577 - fDist,
-                        -36, 0))
-                .lineToX(48)
+        Action afterpartyC = drive.actionBuilder(drive.pose)
                 .setTangent(1.5 * Math.PI)
-                .splineToLinearHeading(new Pose2d(24, -12, Math.PI), Math.PI)
-                .waitSeconds(3)
-                .lineToY(-24)
+                .splineToLinearHeading(new Pose2d(-32, 24 + rDist, 1.5 * Math.PI), 1.5 * Math.PI)
                 .stopAndAdd(arm.dispenseViaCollector())
                 .waitSeconds(1)
                 .build();
-        Action afterpartyL = drive.actionBuilder(new Pose2d(72 - 11.25 + 3.25 * 0.577 - fDist,
-                        -30, 0))
-                .lineToX(48)
-                .setTangent(0.5 * Math.PI)
-                .splineToLinearHeading(new Pose2d(24, -12, 0), Math.PI)
-                .waitSeconds(5)
+        Action afterpartyR = drive.actionBuilder(drive.pose)
                 .setTangent(1.5 * Math.PI)
-                .splineToConstantHeading(new Vector2d(rDist + 1, -24 - sDist), Math.PI)
+                .splineToLinearHeading(new Pose2d(-48, 36, 0.5 * Math.PI), 0)
                 .stopAndAdd(arm.dispenseViaCollector())
                 .waitSeconds(1)
                 .build();
-        Action[] lines = {afterpartyL, afterpartyC, afterpartyR};
+
         while (opModeInInit()) {
             rand = pipeline.ComposeTelemetry(telemetry);
             // 0;
@@ -82,15 +68,14 @@ public class AutoRed extends CommonOpMode {
 
         Action iDrive = drive.actionBuilder(new Pose2d(42, 36, 0))
                 .splineToConstantHeading(new Vector2d(72 - 11.25 + 4.75 * 0.577 - fDist,
-                        -36 - (rand - 1) * 6), 0)
+                        36 - (rand - 1) * 6), 0)
                 //.stopAndAdd(arm.changePusherState(true))
                 .afterTime(0.5, arm.changePusherState(true))
                 .afterTime(0.01, arm.changePusherState(false))
                 .build();
-        Action cyaLaterAlligator = drive.actionBuilder(new Pose2d(new Vector2d(hLength, -15), 1.5 * Math.PI))
-                .splineToConstantHeading(new Vector2d(60, -6), 0)
+        Action cyaLaterAlligator = drive.actionBuilder(new Pose2d(new Vector2d(hLength, 15), 0.5 * Math.PI))
+                .splineToConstantHeading(new Vector2d(60, 6), 0)
                 .build();
-
 
         Actions.runBlocking(okipullup);// to observation point
         safeSleep(1000);
@@ -99,13 +84,13 @@ public class AutoRed extends CommonOpMode {
             if ((d.id - 1) % 3 == rand) { // rei-amayado what in the world
                 double range2d = Math.hypot(d.ftcPose.x, d.ftcPose.y);
                 drive.pose = new Pose2d(72 - 11.25 + 4.75 * 0.577 - range2d * Math.cos(d.ftcPose.yaw - d.ftcPose.bearing) - fDist * Math.cos(d.ftcPose.yaw),
-                        -36 - (rand - 1) * 6 - range2d * Math.sin(Math.abs(d.ftcPose.yaw - d.ftcPose.bearing) + fDist * Math.sin(d.ftcPose.yaw)),
+                        36 - (rand - 1) * 6 - range2d * Math.sin(Math.abs(d.ftcPose.yaw - d.ftcPose.bearing) + fDist * Math.sin(d.ftcPose.yaw)),
                         -d.ftcPose.yaw);
             }
         }
         Actions.runBlocking(new SequentialAction(
                 new ParallelAction(arm.changeCassetteTilt(1), iDrive), // to backstage
-                new ParallelAction(lines[rand], arm.changePos(0), arm.changeCassetteTilt(0)), // to *the lines*
+                new ParallelAction(afterpartyL, arm.changePos(0), arm.changeCassetteTilt(0)), // to *the lines*
                 new ParallelAction(cyaLaterAlligator, arm.changePos(0), arm.changeCassetteTilt(0), arm.changePusherState(false)) // parking
         ));
 /*
